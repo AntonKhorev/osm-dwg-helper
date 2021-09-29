@@ -1,0 +1,11 @@
+{
+	"manifest_version": 2,
+	"name": "OSM DWG Helper",
+	"version": "0.0.0",
+	"description": "TODO create tickets from issues",
+
+	"sidebar_action": {
+		"default_title": "DWG Helper",
+		"default_panel": "panel.html"
+	}
+}
