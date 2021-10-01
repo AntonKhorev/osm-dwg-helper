@@ -1,16 +1,34 @@
-console.log('panel RUN!!!')
-document.getElementById('action-create-ticket').addEventListener('click',()=>{
-	alert('create ticket CLICK!!')
-})
+let settings={}
+
 document.getElementById('settings-load').addEventListener('change',readSettings)
 document.getElementById('settings-sample').addEventListener('click',downloadSampleSettings)
+createActions()
+
+function createActions() {
+	const $actions=document.getElementById('actions')
+	$actions.innerHTML=""
+	if (settings.otrs==null) {
+		$actions.innerHTML="<p>Please load a settings file</p>"
+		return
+	}
+	$actions.innerHTML=`<p>This might work with otrs @ ${settings.otrs}</p>`
+}
 
 function readSettings() {
 	const [file]=this.files
 	console.log('picked file',file)
 	const reader=new FileReader()
 	reader.addEventListener('load',()=>{
-		console.log('read this:',reader.result)
+		const newSettings={}
+		for (const line of reader.result.split('\n')) {
+			let match
+			if (match=line.match(/^\s*otrs\s*=\s*(.*)$/)) {
+				const [,value]=match
+				newSettings.otrs=value
+			}
+		}
+		settings=newSettings
+		createActions()
 	})
 	reader.readAsText(file)
 }
