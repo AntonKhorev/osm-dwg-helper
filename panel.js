@@ -2,9 +2,14 @@ let settings={}
 
 document.getElementById('settings-load').addEventListener('change',readSettings)
 document.getElementById('settings-sample').addEventListener('click',downloadSampleSettings)
+
+browser.tabs.onActivated.addListener(createActions)
+browser.tabs.onUpdated.addListener(createActions)
 createActions()
 
-function createActions() {
+async function createActions() {
+	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+	console.log('create action for tab',currentTab.url) ///
 	const $actions=document.getElementById('actions')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
@@ -13,7 +18,17 @@ function createActions() {
 	}
 	
 	const $createTicket=document.createElement('a')
-	$createTicket.innerHTML='Create ticket'
+	let ticketType="empty"
+	if (settings.osm==null) {
+		ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
+	} else {
+		let match
+		if (match=currentTab.url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))) {
+			const [,issueId]=match
+			ticketType=`issue #${issueId}`
+		}
+	}
+	$createTicket.innerHTML="Create ticket - "+ticketType
 	$createTicket.addEventListener('click',runCreateTicket)
 	addAction($createTicket)
 
@@ -29,6 +44,10 @@ function runCreateTicket() {
 	browser.tabs.create({url})
 }
 
+function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
+	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
+}
+
 function readSettings() {
 	const [file]=this.files
 	console.log('picked file',file)
@@ -37,9 +56,9 @@ function readSettings() {
 		const newSettings={}
 		for (const line of reader.result.split('\n')) {
 			let match
-			if (match=line.match(/^\s*otrs\s*=\s*(.*)$/)) {
-				const [,value]=match
-				newSettings.otrs=value
+			if (match=line.match(/^\s*([a-z]+)\s*=\s*(.*)$/)) {
+				const [,key,value]=match
+				if (key=='otrs' || key=='osm') newSettings[key]=value
 			}
 		}
 		settings=newSettings
@@ -55,4 +74,5 @@ function downloadSampleSettings() {
 }
 
 const sampleSettingsFile=`otrs = https://otrs.example.com/
+osm = https://www.openstreetmap.org/
 `
