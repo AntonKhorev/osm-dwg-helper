@@ -11,7 +11,22 @@ function createActions() {
 		$actions.innerHTML="<p>Please load a settings file</p>"
 		return
 	}
-	$actions.innerHTML=`<p>This might work with otrs @ ${settings.otrs}</p>`
+	
+	const $createTicket=document.createElement('a')
+	$createTicket.innerHTML='Create ticket'
+	$createTicket.addEventListener('click',runCreateTicket)
+	addAction($createTicket)
+
+	function addAction($action) {
+		const $div=document.createElement('div')
+		$div.append($action)
+		$actions.append($div)
+	}
+}
+
+function runCreateTicket() {
+	const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+	browser.tabs.create({url})
 }
 
 function readSettings() {
