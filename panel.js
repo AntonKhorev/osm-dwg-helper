@@ -9,7 +9,6 @@ createActions()
 
 async function createActions() {
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	console.log('create action for tab',currentTab.url) ///
 	const $actions=document.getElementById('actions')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
@@ -17,20 +16,36 @@ async function createActions() {
 		return
 	}
 	
-	const $createTicket=document.createElement('a')
-	let ticketType="empty"
-	if (settings.osm==null) {
-		ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
-	} else {
-		let match
-		if (match=currentTab.url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))) {
-			const [,issueId]=match
-			ticketType=`issue #${issueId}`
-		}
+	if (settings.osm!=null) {
+		const $goToIssues=document.createElement('a')
+		$goToIssues.href=`${settings.osm}issues?status=open`
+		$goToIssues.innerHTML="Go to open OSM issues"
+		addAction($goToIssues)
 	}
-	$createTicket.innerHTML="Create ticket - "+ticketType
-	$createTicket.addEventListener('click',runCreateTicket)
-	addAction($createTicket)
+
+	if (settings.otrs!=null) {
+		const $goToTickets=document.createElement('a')
+		$goToTickets.href=settings.otrs
+		$goToTickets.innerHTML="Go to OTRS"
+		addAction($goToTickets)
+	}
+
+	if (settings.otrs!=null) {
+		const $createTicket=document.createElement('a')
+		let ticketType="empty"
+		if (settings.osm==null) {
+			ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
+		} else {
+			let match
+			if (match=currentTab.url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))) {
+				const [,issueId]=match
+				ticketType=`issue #${issueId}`
+			}
+		}
+		$createTicket.innerHTML="Create ticket - "+ticketType
+		$createTicket.addEventListener('click',runCreateTicket)
+		addAction($createTicket)
+	}
 
 	function addAction($action) {
 		const $div=document.createElement('div')
