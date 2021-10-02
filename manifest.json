@@ -10,8 +10,9 @@
 	},
 
 	"permissions": [
+		"downloads",
 		"tabs",
-		"downloads"
+		"<all_urls>"
 	],
 
 	"browser_specific_settings": {

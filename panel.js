@@ -33,6 +33,7 @@ async function createActions() {
 	if (settings.otrs!=null) {
 		const $createTicket=document.createElement('a')
 		let ticketType="empty"
+		const issueData={}
 		if (settings.osm==null) {
 			ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
 		} else {
@@ -40,10 +41,25 @@ async function createActions() {
 			if (match=currentTab.url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))) {
 				const [,issueId]=match
 				ticketType=`issue #${issueId}`
+				issueData.id=issueId
 			}
+			//const issueData=await browser.tabs.sendMessage(currentTab.id,{action:'getIssueData'})
 		}
 		$createTicket.innerHTML="Create ticket - "+ticketType
-		$createTicket.addEventListener('click',runCreateTicket)
+		$createTicket.addEventListener('click',async()=>{
+			const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+			const ticketTab=await browser.tabs.create({url})
+			const ticketListener=async()=>{
+				if (ticketTab.status!='complete') return
+				browser.tabs.onUpdated.removeListener(ticketListener) // TODO only clear it on successful page opening
+				await browser.tabs.executeScript(ticketTab.id,{file:'/content-create-ticket.js'})
+				await browser.tabs.sendMessage(ticketTab.id,{action:'addIssueDataToTicket',issueData})
+				// TODO: wait for activation, inject script, wait for loading, send message - this won't require <all_urls> permission
+			}
+			if (issueData.id!=null) {
+				browser.tabs.onUpdated.addListener(ticketListener,{tabId:ticketTab.id})
+			}
+		})
 		addAction($createTicket)
 	}
 
@@ -54,18 +70,12 @@ async function createActions() {
 	}
 }
 
-function runCreateTicket() {
-	const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-	browser.tabs.create({url})
-}
-
 function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
 	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }
 
 function readSettings() {
 	const [file]=this.files
-	console.log('picked file',file)
 	const reader=new FileReader()
 	reader.addEventListener('load',()=>{
 		const newSettings={}
