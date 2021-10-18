@@ -1,14 +1,48 @@
-let settings={}
+console.log('ran panel code')
+
+let settings={} // TODO shouldn't be in panel code b/c can have multiple panels
+
+const createTicketTabs={}
 
 document.getElementById('settings-load').addEventListener('change',readSettings)
 document.getElementById('settings-sample').addEventListener('click',downloadSampleSettings)
 
-browser.tabs.onActivated.addListener(createActions)
-browser.tabs.onUpdated.addListener(createActions)
-createActions()
-
-async function createActions() {
+browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
+	console.log('browser.tabs.onUpdated called',tabId,changeInfo,tab.status,tab.url,'!!is it an issue url:',isOsmIssueUrl(tab.url)) ///
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+	if (currentTab.id==tabId) {
+		createActions(currentTab)
+	}
+	
+	// { to be ran once maybe from background script
+	/*
+	if (isOsmIssueUrl(tab.url)) {
+		console.log('injecting content-issue.js') ///
+		await browser.tabs.executeScript(tabId,{file:'/content-issue.js'})
+	}
+	if (isOtrsCreateTicketUrl(tab.url)) {
+		console.log('injecting content-create-ticket.js') ///
+		await browser.tabs.executeScript(tabId,{file:'/content-create-ticket.js'})
+	}
+	*/
+	// } to be ran once maybe from background script
+
+	return ///
+	if (tab.status=='complete' && createTicketTabs[tabId]) {
+		const issueData=createTicketTabs
+		try {
+			await browser.tabs.sendMessage(ticketTab.id,{action:'addIssueDataToTicket',issueData})
+			delete createTicketTabs[tabId]
+		} catch {
+			// TODO possibly on login page
+		}
+	}
+})
+
+const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+createActions(currentTab)
+
+async function createActions(currentTab) {
 	const $actions=document.getElementById('actions')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
@@ -31,34 +65,27 @@ async function createActions() {
 	}
 
 	if (settings.otrs!=null) {
+		// console.log('got to ticket adding block') ///
 		const $createTicket=document.createElement('a')
 		let ticketType="empty"
 		const issueData={}
 		if (settings.osm==null) {
 			ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
 		} else {
-			let match
-			if (match=currentTab.url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))) {
-				const [,issueId]=match
+			const issueId=getOsmIssueIdFromUrl(currentTab.url)
+			if (issueId!=null) {
 				ticketType=`issue #${issueId}`
 				issueData.id=issueId
+				//const contentIssueData=await browser.tabs.sendMessage(currentTab.id,{action:'getIssueData'})
+				const contentIssueData=await addListenerAndSendMessage(currentTab.id,'/content-issue.js',{action:'getIssueData'})
+				if (contentIssueData) Object.assign(issueData,contentIssueData)
 			}
-			//const issueData=await browser.tabs.sendMessage(currentTab.id,{action:'getIssueData'})
 		}
 		$createTicket.innerHTML="Create ticket - "+ticketType
 		$createTicket.addEventListener('click',async()=>{
 			const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 			const ticketTab=await browser.tabs.create({url})
-			const ticketListener=async()=>{
-				if (ticketTab.status!='complete') return
-				browser.tabs.onUpdated.removeListener(ticketListener) // TODO only clear it on successful page opening
-				await browser.tabs.executeScript(ticketTab.id,{file:'/content-create-ticket.js'})
-				await browser.tabs.sendMessage(ticketTab.id,{action:'addIssueDataToTicket',issueData})
-				// TODO: wait for activation, inject script, wait for loading, send message - this won't require <all_urls> permission
-			}
-			if (issueData.id!=null) {
-				browser.tabs.onUpdated.addListener(ticketListener,{tabId:ticketTab.id})
-			}
+			if (issueData.id!=null) createTicketTabs[ticketTab.id]=issueData
 		})
 		addAction($createTicket)
 	}
@@ -70,6 +97,32 @@ async function createActions() {
 	}
 }
 
+async function addListenerAndSendMessage(tabId,contentScript,message) {
+	await browser.tabs.executeScript(tabId,{file:contentScript})
+	return await browser.tabs.sendMessage(tabId,message)
+}
+
+function isOsmIssueUrl(url) {
+	// wtf?
+	// return !!url.match(new RegExp('issues/([0-9]+)'))
+	const issueId=getOsmIssueIdFromUrl(url)
+	return issueId!=null
+}
+
+function getOsmIssueIdFromUrl(url) {
+	if (settings.osm==null) return undefined
+	const match=url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))
+	if (match) {
+		const [,issueId]=match
+		return issueId
+	}
+}
+
+function isOtrsCreateTicketUrl(url) {
+	if (settings.otrs==null) return false
+	return url==`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+}
+
 function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
 	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }
@@ -77,7 +130,7 @@ function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is
 function readSettings() {
 	const [file]=this.files
 	const reader=new FileReader()
-	reader.addEventListener('load',()=>{
+	reader.addEventListener('load',async()=>{
 		const newSettings={}
 		for (const line of reader.result.split('\n')) {
 			let match
@@ -87,7 +140,8 @@ function readSettings() {
 			}
 		}
 		settings=newSettings
-		createActions()
+		const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+		createActions(currentTab)
 	})
 	reader.readAsText(file)
 }
