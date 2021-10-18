@@ -4,7 +4,6 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 }
 
 function messageListener(message) {
-	console.log('issue received message',message) ///
 	if (message.action!='getIssueData') return false
 	const $content=document.getElementById('content')
 	if (!$content) return Promise.reject("can't find content")
@@ -15,6 +14,21 @@ function messageListener(message) {
 			break
 		}
 	}
-	console.log('the header:',$newReportsHeader) ///
-	return Promise.resolve({})
+	if (!$newReportsHeader) return Promise.resolve({})
+	const $newReports=$newReportsHeader.parentElement
+	const reportedByUsernameSet={}
+	const reportedByUsernames=[]
+	// for (const $report of $newReports.children) {
+	// 	if (!$report.classList.contains('report')) continue
+	for (const $report of $newReports.querySelectorAll('.report')) {
+		const $reportedBy=$report.querySelector('p a')
+		const reportedByUsername=$reportedBy.innerText
+		if (reportedByUsernameSet[reportedByUsername]==null) {
+			reportedByUsernameSet[reportedByUsername]=true
+			reportedByUsernames.unshift(reportedByUsername)
+		}
+	}
+	return Promise.resolve({
+		reportedByUsernames
+	})
 }
