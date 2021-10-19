@@ -19,8 +19,15 @@ function messageListener(message) {
 		// uses CKEditor 4: https://ckeditor.com/docs/ckeditor4/latest/api/index.html
 		//$form.Body.value=message.ticketData.Body
 		// TODO this is privileged access - actually simulate typing/pasting instead
-		const ckeditorInstance=window.wrappedJSObject.CKEDITOR.instances.RichText
-		ckeditorInstance.setData(message.ticketData.Body)
+
+		// const ckeditorInstance=window.wrappedJSObject.CKEDITOR.instances.RichText
+		// ckeditorInstance.setData(message.ticketData.Body)
+		
+		setTimeout(()=>{
+			const $iframe=document.querySelector('#RichTextField iframe')
+			$iframe.contentDocument.body.innerHTML=message.ticketData.Body
+			$form.Body.value=message.ticketData.Body
+		},2000)
 	}
 	return Promise.resolve()
 }
