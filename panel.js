@@ -73,7 +73,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	const tabAction=tabActions[tabId]
 	if (tabAction && tabAction.type=='createIssueTicket' && tab.status=='complete') {
 		try {
-			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',issueData:tabAction.issueData})
+			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
 			delete tabActions[tabId]
 		} catch {
 			// TODO possibly on login page
@@ -95,6 +95,10 @@ function scheduleUpdatePanel(tabId) {
 }
 
 function updatePanel(tabId) {
+	if (tabStates[tabId]==null) {
+		// TODO update tab state like browser.tabs.onUpdated does
+		tabStates[tabId]={}
+	}
 	const $actions=document.getElementById('actions')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
@@ -130,7 +134,10 @@ function updatePanel(tabId) {
 			const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 			const ticketTab=await browser.tabs.create({url})
 			if (issueData) {
-				tabActions[ticketTab.id]={type:'createIssueTicket',issueData}
+				tabActions[ticketTab.id]={
+					type:'createIssueTicket',
+					ticketData:convertIssueDataToTicketData(issueData)
+				}
 			}
 		})
 		addAction($createTicket)
@@ -140,6 +147,22 @@ function updatePanel(tabId) {
 		$div.append($action)
 		$actions.append($div)
 	}
+}
+
+function convertIssueDataToTicketData(issueData) {
+	const ticketData={}
+	if (issueData.id!=null) {
+		ticketData.Subject=`Issue #${issueData.id}`
+	}
+	if (issueData.reports) {
+		for (const report of issueData.reports) {
+			if (report.by!=null) {
+				ticketData.FromCustomer=`${report.by} <TODO PUT EMAIL HERE>`
+			}
+		}
+		ticketData.Body=`TODO put <b>html text</b> here`
+	}
+	return ticketData
 }
 
 function isOsmIssueUrl(url) {

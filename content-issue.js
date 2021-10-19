@@ -5,30 +5,45 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 
 function messageListener(message) {
 	if (message.action!='getIssueData') return false
+	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/70d7d8d850148f714b70a3297c02a8203214dec6/app/views/issues
 	const $content=document.getElementById('content')
 	if (!$content) return Promise.reject("can't find content")
-	let $newReportsHeader
-	for (const $h4 of $content.getElementsByTagName('h4')) {
-		if ($h4.innerText.startsWith('New')) {
-			$newReportsHeader=$h4
-			break
+	const reports=[]
+	for (const $report of $content.querySelectorAll('.report')) {
+		const report={
+			text:[],
+			wasRead:$report.parentElement.classList.contains('text-muted')
 		}
-	}
-	if (!$newReportsHeader) return Promise.resolve({})
-	const $newReports=$newReportsHeader.parentElement
-	const reportedByUsernameSet={}
-	const reportedByUsernames=[]
-	// for (const $report of $newReports.children) {
-	// 	if (!$report.classList.contains('report')) continue
-	for (const $report of $newReports.querySelectorAll('.report')) {
-		const $reportedBy=$report.querySelector('p a')
-		const reportedByUsername=$reportedBy.innerText
-		if (reportedByUsernameSet[reportedByUsername]==null) {
-			reportedByUsernameSet[reportedByUsername]=true
-			reportedByUsernames.unshift(reportedByUsername)
+		let firstParagraph=true
+		for (const $p of $report.children) {
+			if ($p.tagName!='P') continue
+			if (firstParagraph) {
+				firstParagraph=false
+				for (const pChild of $p.childNodes) {
+					if (pChild.nodeType==Node.TEXT_NODE) {
+						const detectedCategory=detectReportCategory(pChild.nodeValue)
+						if (detectedCategory!=null) report.category=detectedCategory
+					} else if (pChild.nodeType==Node.ELEMENT_NODE) {
+						report.by=pChild.innerText
+					}
+				}
+			}
+			report.text.push($p.innerText)
 		}
+		reports.push(report)
 	}
 	return Promise.resolve({
-		reportedByUsernames
+		// TODO issue type
+		// TODO reported item
+		reports
 	})
+}
+
+function detectReportCategory(text) {
+	// report categories: https://github.com/openstreetmap/openstreetmap-website/blob/70d7d8d850148f714b70a3297c02a8203214dec6/app/models/report.rb#L33
+	// for user: spam offensive threat vandal other
+	// for note: spam personal abusive other
+	for (const category of ['spam','offensive','threat','personal','abusive','vandal','other']) {
+		if (text.includes(category)) return category
+	}
 }
