@@ -119,6 +119,7 @@ function updatePanel(tabId) {
 	}
 	if (settings.otrs!=null) {
 		const $createTicket=document.createElement('a')
+		$createTicket.href=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 		let ticketType="empty"
 		let issueData
 		if (settings.osm==null) {
@@ -130,16 +131,20 @@ function updatePanel(tabId) {
 			}
 		}
 		$createTicket.innerHTML="Create ticket - "+ticketType
-		$createTicket.addEventListener('click',async()=>{
-			const url=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-			const ticketTab=await browser.tabs.create({url})
-			if (issueData) {
-				tabActions[ticketTab.id]={
-					type:'createIssueTicket',
-					ticketData:convertIssueDataToTicketData(issueData)
-				}
-			}
-		})
+		if (issueData) {
+			$createTicket.addEventListener('click',(ev)=>{
+				ev.preventDefault()
+				browser.tabs.create({
+					openerTabId:tabId,
+					url:$createTicket.href
+				}).then((ticketTab)=>{
+					tabActions[ticketTab.id]={
+						type:'createIssueTicket',
+						ticketData:convertIssueDataToTicketData(issueData)
+					}
+				})
+			})
+		}
 		addAction($createTicket)
 	}
 	function addAction($action) {
