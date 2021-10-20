@@ -177,7 +177,7 @@ function convertIssueDataToTicketData(issueData) {
 	const ticketData={}
 	ticketData.Subject=`Issue #${issueData.id}`
 	const issueUrl=issueData.osmRoot+'issues/'+encodeURIComponent(issueData.id)
-	ticketData.Body=`<p><b><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></b>\n`
+	ticketData.Body=`<h1><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></h1>\n`
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
 			if (report.by!=null) {
@@ -192,7 +192,7 @@ function convertIssueDataToTicketData(issueData) {
 					if (fragmentType=='user') {
 						ticketData.Body+=`<a href='${escapeHtml(userUrl)}'>${escapeHtml(fragmentText)}</a>`
 					} else if (fragmentType=='category') {
-						ticketData.Body+=`<b>${escapeHtml(fragmentText)}</b>`
+						ticketData.Body+=`<strong>${escapeHtml(fragmentText)}</strong>`
 					} else {
 						ticketData.Body+=escapeHtml(fragmentText)
 					}
