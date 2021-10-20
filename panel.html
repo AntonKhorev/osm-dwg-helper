@@ -6,6 +6,9 @@
 body {
 	padding: .5em;
 }
+ul {
+	padding: 0 0 0 1em;
+}
 #actions a {
 	text-decoration: none;
 }
@@ -15,14 +18,14 @@ body {
 </style>
 </head>
 <body>
-<div id=actions>
-</div>
+<ul id=actions>
+</ul>
 <hr>
 <div>
 <label>Read settings file <input type=file id=settings-load></label>
 </div>
 <div>
-<button id=settings-sample>Save sample settings file</button>
+<button id=settings-sample>Save default settings file</button>
 </div>
 <script type=module src=panel.js></script>
 </body>

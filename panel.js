@@ -1,41 +1,49 @@
-let settings={} // TODO shouldn't be in panel code b/c can have multiple panels
+const defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
+osm = https://www.openstreetmap.org/
+emailDomain = dwgmail.info
+emailUser = fwd
+`
 
-const tabStates={} // TODO shouldn't be in panel code b/c can have multiple panels
-const tabActions={} // TODO shouldn't be in panel code b/c can have multiple panels
+// { TODO shouldn't be in panel code b/c can have multiple panels
+let settings=parseSettingsText(defaultSettingsText)
+
+const tabStates={}
+const tabActions={}
+// }
 
 let updatePanelTimeoutId
 
-document.getElementById('settings-load').addEventListener('change',readSettings)
-document.getElementById('settings-sample').addEventListener('click',downloadSampleSettings)
+document.getElementById('settings-load').addEventListener('change',readSettingsFile)
+document.getElementById('settings-sample').addEventListener('click',downloadSettingsFile)
 
-function readSettings() {
+function readSettingsFile() {
 	const [file]=this.files
 	const reader=new FileReader()
 	reader.addEventListener('load',async()=>{
-		const newSettings={}
-		for (const line of reader.result.split('\n')) {
-			let match
-			if (match=line.match(/^\s*([a-z]+)\s*=\s*(.*)$/)) {
-				const [,key,value]=match
-				if (key=='otrs' || key=='osm') newSettings[key]=value
-			}
-		}
-		settings=newSettings
+		settings=parseSettingsText(reader.result)
 		const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 		scheduleUpdatePanel(currentTab.id)
 	})
 	reader.readAsText(file)
 }
 
-function downloadSampleSettings() {
-	const blob=new Blob([sampleSettingsFile],{type:'text/plain'})
+function parseSettingsText(text) {
+	const newSettings={}
+	for (const line of text.split('\n')) {
+		let match
+		if (match=line.match(/^\s*([a-zA-Z]+)\s*=\s*(.*)$/)) {
+			const [,key,value]=match
+			if (key=='otrs' || key=='osm' || key=='emailDomain' || key=='emailUser') newSettings[key]=value
+		}
+	}
+	return newSettings
+}
+
+function downloadSettingsFile() {
+	const blob=new Blob([defaultSettingsText],{type:'text/plain'})
 	const url=URL.createObjectURL(blob)
 	browser.downloads.download({url,filename:'osm-dwg-helper-settings.txt',saveAs:true})
 }
-
-const sampleSettingsFile=`otrs = https://otrs.example.com/
-osm = https://www.openstreetmap.org/
-`
 
 {
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
@@ -169,9 +177,9 @@ function updatePanel(tabId) {
 		addAction($createTicket)
 	}
 	function addAction($action) {
-		const $div=document.createElement('div')
-		$div.append($action)
-		$actions.append($div)
+		const $li=document.createElement('li')
+		$li.append($action)
+		$actions.append($li)
 	}
 }
 
@@ -188,7 +196,10 @@ function convertIssueDataToTicketData(issueData) {
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
 			if (report.by!=null) {
-				ticketData.FromCustomer=`${report.by} <TODO PUT EMAIL HERE>`
+				ticketData.FromCustomer=report.by
+				if (settings.emailDomain!=null && settings.emailUser!=null) {
+					ticketData.FromCustomer+=` <${settings.emailUser}@${settings.emailDomain}>`
+				}
 			}
 			if (report.wasRead || report.lead.length==0 && report.text.length==0) continue
 			ticketData.Body+=`<hr>\n`
