@@ -158,14 +158,26 @@ function convertIssueDataToTicketData(issueData) {
 	const ticketData={}
 	if (issueData.id!=null) {
 		ticketData.Subject=`Issue #${issueData.id}`
+		if (settings.osm!=null) {
+			const issueUrl=settings.osm+'issues/'+issueData.id
+			ticketData.Body=`<p><b><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></b>\n`
+		} else {
+			ticketData.Body=`<p><b>${escapeHtml(ticketData.Subject)}</b>\n`
+		}
 	}
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
 			if (report.by!=null) {
 				ticketData.FromCustomer=`${report.by} <TODO PUT EMAIL HERE>`
 			}
+			if (report.wasRead || report.text.length==0) continue
+			if (ticketData.Body==null) {
+				ticketData.Body=``
+			} else {
+				ticketData.Body+=`<hr>\n`
+			}
+			for (const paragraph of report.text) ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
 		}
-		ticketData.Body=`TODO put <b>html text</b> here`
 	}
 	return ticketData
 }
@@ -191,10 +203,6 @@ function isOtrsCreateTicketUrl(url) {
 }
 */
 
-function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
-	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
-}
-
 function isTabStateEqual(data1,data2) {
 	if (data1.type!=data2.type) return false
 	if (data1.type=='issue') {
@@ -202,4 +210,17 @@ function isTabStateEqual(data1,data2) {
 		// TODO compare other stuff
 	}
 	return true
+}
+
+function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
+	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
+}
+
+function escapeHtml(string) {
+	return string
+	.replace(/&/g,"&amp;")
+	.replace(/</g,"&lt;")
+	.replace(/>/g,"&gt;")
+	.replace(/"/g,"&quot;")
+	.replace(/'/g,"&#039;")
 }
