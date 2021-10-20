@@ -187,14 +187,17 @@ function convertIssueDataToTicketData(issueData) {
 			ticketData.Body+=`<hr>\n`
 			if (report.lead.length>0) {
 				const userUrl=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
+				const c0=`<span style='color:#6c757d'>` // "text-muted" color from osm website
+				const c1=`</span>`
 				ticketData.Body+=`<p>`
 				for (const [fragmentType,fragmentText] of report.lead) {
+					const t=escapeHtml(fragmentText)
 					if (fragmentType=='user') {
-						ticketData.Body+=`<a href='${escapeHtml(userUrl)}'>${escapeHtml(fragmentText)}</a>`
+						ticketData.Body+=`<a href='${escapeHtml(userUrl)}'>${t}</a>`
 					} else if (fragmentType=='category') {
-						ticketData.Body+=`<strong>${escapeHtml(fragmentText)}</strong>`
+						ticketData.Body+=`${c0}<strong>${t}</strong>${c1}`
 					} else {
-						ticketData.Body+=escapeHtml(fragmentText)
+						ticketData.Body+=`${c0}${t}${c1}`
 					}
 				}
 				ticketData.Body+=`\n`
