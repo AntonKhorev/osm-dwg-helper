@@ -58,14 +58,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	if (tabStates[tab.id]==null) {
 		tabStates[tab.id]={}
 	}
-	const tabState={}
-	const issueId=getOsmIssueIdFromUrl(tab.url)
-	if (issueId!=null) {
-		tabState.type='issue'
-		tabState.issueData={id:issueId}
-		const contentIssueData=await addListenerAndSendMessage(tabId,'/content-issue.js',{action:'getIssueData'})
-		if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
-	}
+	const tabState=await getTabState(tab)
 	if (!isTabStateEqual(tabStates[tabId],tabState)) {
 		tabStates[tabId]=tabState
 		scheduleUpdatePanel(tabId)
@@ -80,6 +73,31 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 		}
 	}
 })
+
+async function getTabState(tab) {
+	const tabState={}
+	if (settings.osm!=null) {
+		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
+		if (issueId!=null) {
+			tabState.type='issue'
+			tabState.issueData={
+				osmRoot:settings.osm,
+				id:issueId,
+			}
+			const contentIssueData=await addListenerAndSendMessage(tab.id,'/content-issue.js',{action:'getIssueData'})
+			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
+		}
+	}
+	return tabState
+}
+
+function getOsmIssueIdFromUrl(osmRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'issues/([0-9]+)'))
+	if (match) {
+		const [,issueId]=match
+		return issueId
+	}
+}
 
 async function addListenerAndSendMessage(tabId,contentScript,message) {
 	await browser.tabs.executeScript(tabId,{file:contentScript})
@@ -155,16 +173,11 @@ function updatePanel(tabId) {
 }
 
 function convertIssueDataToTicketData(issueData) {
+	if (issueData==null) return {}
 	const ticketData={}
-	if (issueData.id!=null) {
-		ticketData.Subject=`Issue #${issueData.id}`
-		if (settings.osm!=null) {
-			const issueUrl=settings.osm+'issues/'+issueData.id
-			ticketData.Body=`<p><b><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></b>\n`
-		} else {
-			ticketData.Body=`<p><b>${escapeHtml(ticketData.Subject)}</b>\n`
-		}
-	}
+	ticketData.Subject=`Issue #${issueData.id}`
+	const issueUrl=issueData.osmRoot+'issues/'+encodeURIComponent(issueData.id)
+	ticketData.Body=`<p><b><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></b>\n`
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
 			if (report.by!=null) {
@@ -176,32 +189,20 @@ function convertIssueDataToTicketData(issueData) {
 			} else {
 				ticketData.Body+=`<hr>\n`
 			}
-			for (const paragraph of report.text) ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
+			let firstParagraph=true
+			for (const paragraph of report.text) {
+				if (firstParagraph) {
+					firstParagraph=false
+					const userUrl=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
+					ticketData.Body+=`<p><a href='${escapeHtml(userUrl)}'>${escapeHtml(paragraph)}</a>\n`
+				} else {
+					ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
+				}
+			}
 		}
 	}
 	return ticketData
 }
-
-function isOsmIssueUrl(url) {
-	const issueId=getOsmIssueIdFromUrl(url)
-	return issueId!=null
-}
-
-function getOsmIssueIdFromUrl(url) {
-	if (settings.osm==null) return undefined
-	const match=url.match(new RegExp('^'+escapeRegex(settings.osm)+'issues/([0-9]+)'))
-	if (match) {
-		const [,issueId]=match
-		return issueId
-	}
-}
-
-/*
-function isOtrsCreateTicketUrl(url) {
-	if (settings.otrs==null) return false
-	return url==`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-}
-*/
 
 function isTabStateEqual(data1,data2) {
 	if (data1.type!=data2.type) return false
