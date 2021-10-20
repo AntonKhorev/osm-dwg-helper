@@ -183,21 +183,24 @@ function convertIssueDataToTicketData(issueData) {
 			if (report.by!=null) {
 				ticketData.FromCustomer=`${report.by} <TODO PUT EMAIL HERE>`
 			}
-			if (report.wasRead || report.text.length==0) continue
-			if (ticketData.Body==null) {
-				ticketData.Body=``
-			} else {
-				ticketData.Body+=`<hr>\n`
-			}
-			let firstParagraph=true
-			for (const paragraph of report.text) {
-				if (firstParagraph) {
-					firstParagraph=false
-					const userUrl=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
-					ticketData.Body+=`<p><a href='${escapeHtml(userUrl)}'>${escapeHtml(paragraph)}</a>\n`
-				} else {
-					ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
+			if (report.wasRead || report.lead.length==0 && report.text.length==0) continue
+			ticketData.Body+=`<hr>\n`
+			if (report.lead.length>0) {
+				const userUrl=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
+				ticketData.Body+=`<p>`
+				for (const [fragmentType,fragmentText] of report.lead) {
+					if (fragmentType=='user') {
+						ticketData.Body+=`<a href='${escapeHtml(userUrl)}'>${escapeHtml(fragmentText)}</a>`
+					} else if (fragmentType=='category') {
+						ticketData.Body+=`<b>${escapeHtml(fragmentText)}</b>`
+					} else {
+						ticketData.Body+=escapeHtml(fragmentText)
+					}
 				}
+				ticketData.Body+=`\n`
+			}
+			for (const paragraph of report.text) {
+				ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
 			}
 		}
 	}
