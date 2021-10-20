@@ -181,6 +181,10 @@ function convertIssueDataToTicketData(issueData) {
 	ticketData.Subject=`Issue #${issueData.id}`
 	const issueUrl=issueData.osmRoot+'issues/'+encodeURIComponent(issueData.id)
 	ticketData.Body=`<h1><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></h1>\n`
+	if (issueData.reportedItem) {
+		const item=issueData.reportedItem
+		ticketData.Body+=`<p>${item.type} : <a href='${escapeHtml(item.url)}'>${escapeHtml(item.ref)}</a></p>\n`
+	}
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
 			if (report.by!=null) {
@@ -203,10 +207,10 @@ function convertIssueDataToTicketData(issueData) {
 						ticketData.Body+=`${c0}${t}${c1}`
 					}
 				}
-				ticketData.Body+=`\n`
+				ticketData.Body+=`</p>\n`
 			}
 			for (const paragraph of report.text) {
-				ticketData.Body+=`<p>${escapeHtml(paragraph)}\n`
+				ticketData.Body+=`<p>${escapeHtml(paragraph)}</p>\n`
 			}
 		}
 	}

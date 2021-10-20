@@ -62,14 +62,14 @@ function messageListener(message) {
 }
 
 function parseReportedLink($repotedLink) {
-	const href=$repotedLink.href
+	const url=$repotedLink.href
 	let match
-	if (match=href.match(/\/note\/([0-9]+)$/)) {
+	if (match=url.match(/\/note\/([0-9]+)$/)) {
 		const [,id]=match
 		return {
 			type:'note',
 			ref:'#'+id,
-			href,
+			url,
 			id
 		}
 	} else if ($repotedLink.href.match(/\/user\/[^/]+$/)) {
@@ -78,7 +78,7 @@ function parseReportedLink($repotedLink) {
 			type:'user',
 			ref:name,
 			name,
-			href
+			url
 		}
 	}
 }
