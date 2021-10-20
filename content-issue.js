@@ -7,8 +7,22 @@ function messageListener(message) {
 	if (message.action!='getIssueData') return false
 	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/70d7d8d850148f714b70a3297c02a8203214dec6/app/views/issues
 	const $content=document.getElementById('content')
-	if (!$content) return Promise.reject("can't find content")
-	const reports=[]
+	//if (!$content) return Promise.reject("can't find content")
+	if (!$content) return Promise.resolve({})
+	const issueData={
+		reports:[]
+	}
+	const $header=$content.querySelector('h2')
+	if ($header) {
+		const $reportedParagraph=$header.nextElementSibling
+		if ($reportedParagraph) {
+			const $reportedLink=$reportedParagraph.querySelector('a')
+			if ($reportedLink) {
+				const reportedItem=parseReportedLink($reportedLink)
+				if (reportedItem) issueData.reportedItem=reportedItem
+			}
+		}
+	}
 	for (const $report of $content.querySelectorAll('.report')) {
 		const report={
 			wasRead:$report.parentElement.classList.contains('text-muted'),
@@ -42,13 +56,31 @@ function messageListener(message) {
 			}
 			iParagraph++
 		}
-		reports.push(report)
+		issueData.reports.push(report)
 	}
-	return Promise.resolve({
-		// TODO issue type
-		// TODO reported item
-		reports
-	})
+	return Promise.resolve(issueData)
+}
+
+function parseReportedLink($repotedLink) {
+	const href=$repotedLink.href
+	let match
+	if (match=href.match(/\/note\/([0-9]+)$/)) {
+		const [,id]=match
+		return {
+			type:'note',
+			ref:'#'+id,
+			href,
+			id
+		}
+	} else if ($repotedLink.href.match(/\/user\/[^/]+$/)) {
+		const name=$repotedLink.innerText
+		return {
+			type:'user',
+			ref:name,
+			name,
+			href
+		}
+	}
 }
 
 function splitByReportCategory(text) {

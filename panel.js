@@ -146,6 +146,9 @@ function updatePanel(tabId) {
 			if (tabStates[tabId].type=='issue') {
 				issueData=tabStates[tabId].issueData
 				ticketType=`issue #${issueData.id}`
+				if (issueData.reportedItem) {
+					ticketType+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
+				}
 			}
 		}
 		$createTicket.innerHTML="Create ticket - "+ticketType
