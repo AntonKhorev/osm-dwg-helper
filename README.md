@@ -3,6 +3,11 @@
 Browser extension to handle reported issues ([users](https://wiki.openstreetmap.org/wiki/Report_user) and [notes](https://wiki.openstreetmap.org/wiki/Notes#Reporting_notes)) on [OpenStreetMap website](https://www.openstreetmap.org/).
 Mainly of interest for [DWG members](https://wiki.osmfoundation.org/wiki/Data_Working_Group).
 
+## Features
+
+- Open a *Create New Phone Ticket* form in OTRS with fields populated from an issue page.
+- Go to the issue page corresponding to an OTRS ticket title from a ticket page.
+
 ## Installation
 
 Currently you can load it as a temporary extension in Firefox.

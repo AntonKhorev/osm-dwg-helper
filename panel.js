@@ -104,6 +104,19 @@ async function getTabState(tab) {
 			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 		}
 	}
+	if (settings.osm!=null && settings.otrs!=null) {
+		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
+			tabState.type='ticket'
+			const contentIssueId=await addListenerAndSendMessage(tab.id,'/content-ticket.js',{action:'getIssueId'})
+			if (contentIssueId!=null) {
+				tabState.issueData={
+					osmRoot:settings.osm,
+					id:contentIssueId,
+					url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+				}
+			}
+		}
+	}
 	return tabState
 }
 
@@ -113,6 +126,11 @@ function getOsmIssueIdFromUrl(osmRoot,url) {
 		const [,issueId]=match
 		return issueId
 	}
+}
+
+function isOtrsTicketUrl(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
+	return !!match
 }
 
 async function addListenerAndSendMessage(tabId,contentScript,message) {
@@ -140,20 +158,17 @@ function updatePanel(tabId) {
 		return
 	}
 	if (settings.osm!=null) {
-		const $goToIssues=document.createElement('a')
-		$goToIssues.href=`${settings.osm}issues?status=open`
-		$goToIssues.innerHTML="Go to open OSM issues"
+		const $goToIssues=makeLink(`${settings.osm}issues?status=open`)
+		$goToIssues.innerText="Go to open OSM issues"
 		addAction($goToIssues)
 	}
 	if (settings.otrs!=null) {
-		const $goToTickets=document.createElement('a')
-		$goToTickets.href=settings.otrs
-		$goToTickets.innerHTML="Go to OTRS"
+		const $goToTickets=makeLink(settings.otrs)
+		$goToTickets.innerText="Go to OTRS"
 		addAction($goToTickets)
 	}
 	if (settings.otrs!=null) {
-		const $createTicket=document.createElement('a')
-		$createTicket.href=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+		const $createTicket=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`)
 		let ticketType="empty"
 		let issueData
 		if (settings.osm==null) {
@@ -183,6 +198,19 @@ function updatePanel(tabId) {
 			})
 		}
 		addAction($createTicket)
+	}
+	if (settings.osm!=null) {
+		if (tabStates[tabId].type=='ticket' && tabStates[tabId].issueData) {
+			const issueData=tabStates[tabId].issueData
+			const $goToIssue=makeLink(issueData.url)
+			$goToIssue.innerText=`Go to ticket issue #${issueData.id}`
+			addAction($goToIssue)
+		}
+	}
+	function makeLink(href) {
+		const $a=document.createElement('a')
+		$a.href=href
+		return $a
 	}
 	function addAction($action) {
 		const $li=document.createElement('li')
