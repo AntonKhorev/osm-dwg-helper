@@ -1,23 +1,4 @@
-const defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
-osm = https://www.openstreetmap.org/
-ticket_customer = \${user.name} <fwd@dwgmail.info>
-ticket_subject = Issue #\${issue.id}
-ticket_subject_user = Issue #\${issue.id} (User "\${user.name}")
-ticket_subject_note = Issue #\${issue.id} (Note #\${note.id})
-ticket_body_header = <h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>
-ticket_body_item = <p>Reported item : <a href='\${item.url}'>osm link</a></p>
-ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
-ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
-`
-
-// { TODO shouldn't be in panel code b/c can have multiple panels
-let settings=parseSettingsText(defaultSettingsText)
-
-const tabStates={}
-const tabActions={}
-// }
-
-let updatePanelTimeoutId
+const background=await browser.runtime.getBackgroundPage()
 
 document.getElementById('settings-load').addEventListener('change',readSettingsFile)
 document.getElementById('settings-sample').addEventListener('click',downloadSettingsFile)
@@ -26,30 +7,23 @@ function readSettingsFile() {
 	const [file]=this.files
 	const reader=new FileReader()
 	reader.addEventListener('load',async()=>{
-		settings=parseSettingsText(reader.result)
-		const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-		scheduleUpdatePanel(currentTab.id)
+		settings=background.parseSettingsText(reader.result)
+		// TODO how? - better to trigger from background
+		//const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+		//scheduleUpdatePanel(currentTab.id)
 	})
 	reader.readAsText(file)
 }
 
-function parseSettingsText(text) {
-	const settings={}
-	for (const line of text.split('\n')) {
-		let match
-		if (match=line.match(/^\s*([a-z_]+)\s*=\s*(.*)$/)) {
-			const [,key,value]=match
-			settings[key]=value
-		}
-	}
-	return settings
-}
-
 function downloadSettingsFile() {
-	const blob=new Blob([defaultSettingsText],{type:'text/plain'})
+	const blob=new Blob([background.defaultSettingsText],{type:'text/plain'})
 	const url=URL.createObjectURL(blob)
 	browser.downloads.download({url,filename:'osm-dwg-helper-settings.txt',saveAs:true})
 }
+
+/*
+
+let updatePanelTimeoutId
 
 {
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
@@ -320,3 +294,5 @@ function escapeHtml(string) {
 	.replace(/"/g,"&quot;")
 	.replace(/'/g,"&#039;")
 }
+
+*/

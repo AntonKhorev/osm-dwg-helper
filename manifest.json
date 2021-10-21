@@ -2,8 +2,11 @@
 	"manifest_version": 2,
 	"name": "OSM DWG Helper",
 	"version": "0.0.0",
-	"description": "TODO create tickets from issues",
+	"description": "Tools for OSM issues and OTRS tickets",
 
+	"background": {
+		"page": "background.html"
+	},
 	"sidebar_action": {
 		"default_title": "DWG Helper",
 		"default_panel": "panel.html"

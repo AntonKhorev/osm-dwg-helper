@@ -2,6 +2,7 @@
 
 Browser extension to handle reported issues ([users](https://wiki.openstreetmap.org/wiki/Report_user) and [notes](https://wiki.openstreetmap.org/wiki/Notes#Reporting_notes)) on [OpenStreetMap website](https://www.openstreetmap.org/).
 Mainly of interest for [DWG members](https://wiki.osmfoundation.org/wiki/Data_Working_Group).
+Reimplements some of [osm-dwg-userscripts](https://github.com/woodpeck/osm-dwg-userscripts) features without requesting/storing OTRS account login/password.
 
 ## Features
 
