@@ -7,10 +7,7 @@ function messageListener(message) {
 	if (message.action!='addIssueDataToTicket') return false
 	const $form=document.getElementById('NewPhoneTicket')
 	if (!$form) return Promise.reject("can't find form") // TODO detect login page
-	if (message.ticketData.FromCustomer!=null) {
-		$form.FromCustomer.value=message.ticketData.FromCustomer
-		$form.FromCustomer.dispatchEvent(new Event('change'))
-	}
+	feedValues($form.FromCustomer,message.ticketData.FromCustomers)
 	if (message.ticketData.Subject!=null) {
 		$form.Subject.value=message.ticketData.Subject
 		$form.Subject.dispatchEvent(new Event('change'))
@@ -31,4 +28,25 @@ function messageListener(message) {
 		//// can also set up MutationObserver instead of dumb timeout above
 	}
 	return Promise.resolve()
+}
+
+function feedValues($input,values) {
+	const $status=document.createElement('span')
+	$status.innerHTML='(feeding)'
+	$input.after($status)
+	attemptToFeedValue()
+	function attemptToFeedValue(i=0) {
+		if (i>=values.length) {
+			$status.remove()
+			return
+		}
+		if ($input.value=='') {
+			$input.value=values[i]
+			$input.dispatchEvent(new Event('change'))
+			i++
+		}
+		setTimeout(()=>{
+			attemptToFeedValue(i)
+		},50)
+	}	
 }

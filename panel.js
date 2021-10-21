@@ -80,10 +80,11 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	const tabAction=tabActions[tabId]
 	if (tabAction && tabAction.type=='createIssueTicket' && tab.status=='complete') {
 		try {
+			delete tabActions[tabId] // remove pending action before await
 			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
-			delete tabActions[tabId]
 		} catch {
 			// TODO possibly on login page
+			tabActions[tabId]=tabAction
 		}
 	}
 })
@@ -207,15 +208,21 @@ function convertIssueDataToTicketData(issueData) {
 		ticketData.Subject=evaluateTemplate(settings.ticket_subject,values)
 		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item,values)
 	}
+	ticketData.FromCustomers=[]
 	if (issueData.reports) {
+		const addedCustomers={}
 		for (const report of issueData.reports) {
+			if (report.wasRead) continue
 			const user={} // TODO save user url in content script
 			if (report.by!=null) {
 				user.name=report.by
 				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
-				ticketData.FromCustomer=evaluateTemplate(settings.ticket_customer,{user})
+				if (!addedCustomers[user.name]) {
+					addedCustomers[user.name]=true
+					ticketData.FromCustomers.push(evaluateTemplate(settings.ticket_customer,{user}))
+				}
 			}
-			if (report.wasRead || report.lead.length==0 && report.text.length==0) continue
+			if (report.lead.length==0 && report.text.length==0) continue
 			ticketData.Body+=`<hr>\n`
 			if (report.lead.length>0) {
 				const c0=`<span style='color:#6c757d'>` // "text-muted" color from osm website
