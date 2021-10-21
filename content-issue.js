@@ -47,6 +47,7 @@ function messageListener(message) {
 							report.lead.push(['plain',textAfter])
 						}
 					} else if (pChild.nodeType==Node.ELEMENT_NODE) {
+						// TODO check if it's <a>, process as plaintext otherwise
 						report.by=pChild.innerText
 						report.lead.push(['user',report.by])
 					}

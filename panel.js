@@ -1,7 +1,13 @@
 const defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
 osm = https://www.openstreetmap.org/
-emailDomain = dwgmail.info
-emailUser = fwd
+ticket_customer = \${user.name} <fwd@dwgmail.info>
+ticket_subject = Issue #\${issue.id}
+ticket_subject_user = Issue #\${issue.id} (User "\${user.name}")
+ticket_subject_note = Issue #\${issue.id} (Note #\${note.id})
+ticket_body_header = <h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>
+ticket_body_item = <p>Reported item : <a href='\${item.url}'>osm link</a></p>
+ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
+ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
 `
 
 // { TODO shouldn't be in panel code b/c can have multiple panels
@@ -28,15 +34,15 @@ function readSettingsFile() {
 }
 
 function parseSettingsText(text) {
-	const newSettings={}
+	const settings={}
 	for (const line of text.split('\n')) {
 		let match
-		if (match=line.match(/^\s*([a-zA-Z]+)\s*=\s*(.*)$/)) {
+		if (match=line.match(/^\s*([a-z_]+)\s*=\s*(.*)$/)) {
 			const [,key,value]=match
-			if (key=='otrs' || key=='osm' || key=='emailDomain' || key=='emailUser') newSettings[key]=value
+			settings[key]=value
 		}
 	}
-	return newSettings
+	return settings
 }
 
 function downloadSettingsFile() {
@@ -91,6 +97,7 @@ async function getTabState(tab) {
 			tabState.issueData={
 				osmRoot:settings.osm,
 				id:issueId,
+				url:tab.url
 			}
 			const contentIssueData=await addListenerAndSendMessage(tab.id,'/content-issue.js',{action:'getIssueData'})
 			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
@@ -186,32 +193,38 @@ function updatePanel(tabId) {
 function convertIssueDataToTicketData(issueData) {
 	if (issueData==null) return {}
 	const ticketData={}
-	ticketData.Subject=`Issue #${issueData.id}`
-	const issueUrl=issueData.osmRoot+'issues/'+encodeURIComponent(issueData.id)
-	ticketData.Body=`<h1><a href='${escapeHtml(issueUrl)}'>${escapeHtml(ticketData.Subject)}</a></h1>\n`
-	if (issueData.reportedItem) {
-		const item=issueData.reportedItem
-		ticketData.Body+=`<p>${item.type} : <a href='${escapeHtml(item.url)}'>${escapeHtml(item.ref)}</a></p>\n`
+	ticketData.Body=evaluateHtmlTemplate(settings.ticket_body_header,{issue:issueData})
+	if (issueData.reportedItem?.type=='user') {
+		const values={issue:issueData,user:issueData.reportedItem}
+		ticketData.Subject=evaluateTemplate(settings.ticket_subject_user,values)
+		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_user,values)
+	} else if (issueData.reportedItem?.type=='note') {
+		const values={issue:issueData,note:issueData.reportedItem}
+		ticketData.Subject=evaluateTemplate(settings.ticket_subject_note,values)
+		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_note,values)
+	} else {
+		const values={issue:issueData}
+		ticketData.Subject=evaluateTemplate(settings.ticket_subject,values)
+		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item,values)
 	}
 	if (issueData.reports) {
 		for (const report of issueData.reports) {
+			const user={} // TODO save user url in content script
 			if (report.by!=null) {
-				ticketData.FromCustomer=report.by
-				if (settings.emailDomain!=null && settings.emailUser!=null) {
-					ticketData.FromCustomer+=` <${settings.emailUser}@${settings.emailDomain}>`
-				}
+				user.name=report.by
+				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
+				ticketData.FromCustomer=evaluateTemplate(settings.ticket_customer,{user})
 			}
 			if (report.wasRead || report.lead.length==0 && report.text.length==0) continue
 			ticketData.Body+=`<hr>\n`
 			if (report.lead.length>0) {
-				const userUrl=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
 				const c0=`<span style='color:#6c757d'>` // "text-muted" color from osm website
 				const c1=`</span>`
 				ticketData.Body+=`<p>`
 				for (const [fragmentType,fragmentText] of report.lead) {
 					const t=escapeHtml(fragmentText)
 					if (fragmentType=='user') {
-						ticketData.Body+=`<a href='${escapeHtml(userUrl)}'>${t}</a>`
+						ticketData.Body+=`<a href='${escapeHtml(user.url)}'>${t}</a>`
 					} else if (fragmentType=='category') {
 						ticketData.Body+=`${c0}<strong>${t}</strong>${c1}`
 					} else {
@@ -235,6 +248,29 @@ function isTabStateEqual(data1,data2) {
 		// TODO compare other stuff
 	}
 	return true
+}
+
+function evaluateTemplate(template,values,escapeFn=s=>s) {
+	if (template==null) return ''
+	const templateChunks=template.split(/\${([^}]*)}/)
+	let result=''
+	for (let i=0;i<templateChunks.length;i++) {
+		if (i%2==0) {
+			result+=templateChunks[i]
+		} else {
+			let value=values
+			for (const key of templateChunks[i].split('.')) {
+				value=value[key]
+			}
+			if (!value) continue
+			result+=escapeFn(value)
+		}
+	}
+	return result
+}
+
+function evaluateHtmlTemplate(template,values) {
+	return evaluateTemplate(template,values,escapeHtml)+'\n'
 }
 
 function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
