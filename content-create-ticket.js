@@ -8,6 +8,7 @@ function messageListener(message) {
 	const $form=document.getElementById('NewPhoneTicket')
 	if (!$form) return Promise.reject("can't find form") // TODO detect login page
 	feedValues($form.FromCustomer,message.ticketData.FromCustomers)
+	selectFirstOption($form.Dest)
 	if (message.ticketData.Subject!=null) {
 		$form.Subject.value=message.ticketData.Subject
 		$form.Subject.dispatchEvent(new Event('change'))
@@ -49,4 +50,13 @@ function feedValues($input,values) {
 			attemptToFeedValue(i)
 		},50)
 	}	
+}
+
+function selectFirstOption($select) {
+	for ($option of $select) {
+		if ($option.value.match(/^[0-9]/)) {
+			$select.value=$option.value
+			break
+		}
+	}
 }
