@@ -21,4 +21,3 @@ Currently you can load it as a temporary extension in Firefox.
 
 - Doesn't work in Chrome because there's no sidebar API.
 - Not yet tested in other browsers.
-- Not yet tested when multiple browser windows are open.

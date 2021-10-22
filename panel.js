@@ -3,14 +3,23 @@ const background=await browser.runtime.getBackgroundPage()
 document.getElementById('settings-load').addEventListener('change',readSettingsFile)
 document.getElementById('settings-sample').addEventListener('click',downloadSettingsFile)
 
+browser.runtime.onMessage.addListener(message=>{
+	if (message.action!='updatePanel') return false
+	return scheduleUpdatePanel(message.settings,message.tabId,message.tabState)
+})
+
+{
+	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+	background.registerNewPanel(currentTab)
+}
+
+////
+
 function readSettingsFile() {
 	const [file]=this.files
 	const reader=new FileReader()
-	reader.addEventListener('load',async()=>{
-		settings=background.parseSettingsText(reader.result)
-		// TODO how? - better to trigger from background
-		//const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-		//scheduleUpdatePanel(currentTab.id)
+	reader.addEventListener('load',()=>{
+		background.updateSettings(reader.result)
 	})
 	reader.readAsText(file)
 }
@@ -21,110 +30,19 @@ function downloadSettingsFile() {
 	browser.downloads.download({url,filename:'osm-dwg-helper-settings.txt',saveAs:true})
 }
 
-/*
-
 let updatePanelTimeoutId
 
-{
+async function scheduleUpdatePanel(settings,tabId,tabState) {
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	scheduleUpdatePanel(currentTab.id)
-}
-
-// TODO handle multiple windows
-
-browser.tabs.onRemoved.addListener((tabId)=>{
-	delete tabStates[tabId] // TODO what if onUpdated runs after onRemoved?
-	delete tabActions[tabId]
-})
-
-browser.tabs.onActivated.addListener(({tabId,windowId})=>{
-	// TODO schedule panel update in windowId-window
-	scheduleUpdatePanel(tabId)
-})
-
-browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
-	if (tabStates[tab.id]==null) {
-		tabStates[tab.id]={}
-	}
-	const tabState=await getTabState(tab)
-	if (!isTabStateEqual(tabStates[tabId],tabState)) {
-		tabStates[tabId]=tabState
-		scheduleUpdatePanel(tabId)
-	}
-	const tabAction=tabActions[tabId]
-	if (tabAction && tabAction.type=='createIssueTicket' && tab.status=='complete') {
-		try {
-			delete tabActions[tabId] // remove pending action before await
-			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
-		} catch {
-			// TODO possibly on login page
-			tabActions[tabId]=tabAction
-		}
-	}
-})
-
-async function getTabState(tab) {
-	const tabState={}
-	if (settings.osm!=null) {
-		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
-		if (issueId!=null) {
-			tabState.type='issue'
-			tabState.issueData={
-				osmRoot:settings.osm,
-				id:issueId,
-				url:tab.url
-			}
-			const contentIssueData=await addListenerAndSendMessage(tab.id,'/content-issue.js',{action:'getIssueData'})
-			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
-		}
-	}
-	if (settings.osm!=null && settings.otrs!=null) {
-		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
-			tabState.type='ticket'
-			const contentIssueId=await addListenerAndSendMessage(tab.id,'/content-ticket.js',{action:'getIssueId'})
-			if (contentIssueId!=null) {
-				tabState.issueData={
-					osmRoot:settings.osm,
-					id:contentIssueId,
-					url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
-				}
-			}
-		}
-	}
-	return tabState
-}
-
-function getOsmIssueIdFromUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'issues/([0-9]+)'))
-	if (match) {
-		const [,issueId]=match
-		return issueId
-	}
-}
-
-function isOtrsTicketUrl(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
-	return !!match
-}
-
-async function addListenerAndSendMessage(tabId,contentScript,message) {
-	await browser.tabs.executeScript(tabId,{file:contentScript})
-	return await browser.tabs.sendMessage(tabId,message)
-}
-
-function scheduleUpdatePanel(tabId) {
-	if (updatePanelTimeoutId!=null) return
+	if (currentTab.id!=tabId) return
+	if (updatePanelTimeoutId!=null) clearTimeout(updatePanelTimeoutId)
 	updatePanelTimeoutId=setTimeout(()=>{
 		updatePanelTimeoutId=undefined
-		updatePanel(tabId)
+		updatePanel(settings,tabId,tabState)
 	},100)
 }
 
-function updatePanel(tabId) {
-	if (tabStates[tabId]==null) {
-		// TODO update tab state like browser.tabs.onUpdated does
-		tabStates[tabId]={}
-	}
+function updatePanel(settings,tabId,tabState) {
 	const $actions=document.getElementById('actions')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
@@ -148,8 +66,8 @@ function updatePanel(tabId) {
 		if (settings.osm==null) {
 			ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
 		} else {
-			if (tabStates[tabId].type=='issue') {
-				issueData=tabStates[tabId].issueData
+			if (tabState.type=='issue') {
+				issueData=tabState.issueData
 				ticketType=`issue #${issueData.id}`
 				if (issueData.reportedItem) {
 					ticketType+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
@@ -164,18 +82,18 @@ function updatePanel(tabId) {
 					openerTabId:tabId,
 					url:$createTicket.href
 				}).then((ticketTab)=>{
-					tabActions[ticketTab.id]={
+					background.addTabAction(ticketTab.id,{
 						type:'createIssueTicket',
-						ticketData:convertIssueDataToTicketData(issueData)
-					}
+						ticketData:convertIssueDataToTicketData(settings,issueData)
+					})
 				})
 			})
 		}
 		addAction($createTicket)
 	}
 	if (settings.osm!=null) {
-		if (tabStates[tabId].type=='ticket' && tabStates[tabId].issueData) {
-			const issueData=tabStates[tabId].issueData
+		if (tabState.type=='ticket' && tabState.issueData) {
+			const issueData=tabState.issueData
 			const $goToIssue=makeLink(issueData.url)
 			$goToIssue.innerText=`Go to ticket issue #${issueData.id}`
 			addAction($goToIssue)
@@ -193,7 +111,7 @@ function updatePanel(tabId) {
 	}
 }
 
-function convertIssueDataToTicketData(issueData) {
+function convertIssueDataToTicketData(settings,issueData) {
 	if (issueData==null) return {}
 	const ticketData={}
 	ticketData.Body=evaluateHtmlTemplate(settings.ticket_body_header,{issue:issueData})
@@ -250,15 +168,6 @@ function convertIssueDataToTicketData(issueData) {
 	return ticketData
 }
 
-function isTabStateEqual(data1,data2) {
-	if (data1.type!=data2.type) return false
-	if (data1.type=='issue') {
-		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff
-	}
-	return true
-}
-
 function evaluateTemplate(template,values,escapeFn=s=>s) {
 	if (template==null) return ''
 	const templateChunks=template.split(/\${([^}]*)}/)
@@ -282,10 +191,6 @@ function evaluateHtmlTemplate(template,values) {
 	return evaluateTemplate(template,values,escapeHtml)+'\n'
 }
 
-function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
-	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
-}
-
 function escapeHtml(string) {
 	return string
 	.replace(/&/g,"&amp;")
@@ -294,5 +199,3 @@ function escapeHtml(string) {
 	.replace(/"/g,"&quot;")
 	.replace(/'/g,"&#039;")
 }
-
-*/

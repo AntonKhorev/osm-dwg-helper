@@ -1,3 +1,5 @@
+//// public - to be accessible from extension panels
+
 window.defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
 osm = https://www.openstreetmap.org/
 ticket_customer = \${user.name} <fwd@dwgmail.info>
@@ -10,10 +12,27 @@ ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
 ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
 `
 
-window.settings=parseSettingsText(defaultSettingsText)
+window.updateSettings=async(text)=>{
+	tabStates.clear()
+	tabActions.clear()
+	settings=parseSettingsText(text)
+	const activeTabs=await browser.tabs.query({active:true})
+	for (const tab of activeTabs) {
+		updateTabState(tab)
+	}
+}
 
-const tabStates={}
-const tabActions={}
+window.registerNewPanel=(tab)=>{
+	updateTabState(tab,true)
+}
+
+window.addTabAction=(tabId,tabAction)=>{
+	tabActions.set(tabId,tabAction)
+}
+
+//// private
+
+let settings=parseSettingsText(defaultSettingsText)
 
 function parseSettingsText(text) {
 	const settings={}
@@ -25,4 +44,121 @@ function parseSettingsText(text) {
 		}
 	}
 	return settings
+}
+
+const tabStates=new Map()
+const tabActions=new Map()
+
+browser.tabs.onRemoved.addListener((tabId)=>{
+	tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
+	tabActions.delete(tabId)
+})
+
+browser.tabs.onActivated.addListener(async({tabId})=>{
+	const tabState=tabStates.get(tabId)
+	if (tabState) {
+		browser.runtime.sendMessage({
+			action:'updatePanel',
+			settings,tabId,tabState
+		})
+	} else {
+		const tab=await browser.tabs.get(tabId)
+		updateTabState(tab,true)
+	}
+})
+
+browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
+	await updateTabState(tab)
+	const tabAction=tabActions.get(tabId)
+	if (tabAction && tabAction.type=='createIssueTicket' && tab.status=='complete') {
+		// TODO check if url matches, if not cancel action
+		try {
+			tabActions.delete(tabId) // remove pending action before await
+			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
+		} catch {
+			// TODO possibly on login page
+			tabActions.set(tabId,tabAction)
+		}
+	}
+})
+
+async function updateTabState(tab,forcePanelUpdate=false) {
+	if (tabStates.get(tab.id)==null) {
+		tabStates.set(tab.id,{})
+	}
+	const tabState=await getTabState(tab)
+	const tabStateChanged=!isTabStateEqual(tabStates.get(tab.id),tabState)
+	if (tabStateChanged) tabStates.set(tab.id,tabState)
+	if (forcePanelUpdate || tabStateChanged && tab.active) browser.runtime.sendMessage({
+		action:'updatePanel',
+		settings,
+		tabId:tab.id,
+		tabState
+	})
+}
+
+function isTabStateEqual(data1,data2) {
+	if (data1.type!=data2.type) return false
+	if (data1.type=='issue') {
+		if (data1.issueData.id!=data2.issueData.id) return false
+		// TODO compare other stuff
+	}
+	if (data1.type=='ticket') {
+		if (data1.issueData.id!=data2.issueData.id) return false
+		// TODO compare other stuff
+	}
+	return true
+}
+
+async function getTabState(tab) {
+	const tabState={}
+	if (settings.osm!=null) {
+		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
+		if (issueId!=null) {
+			tabState.type='issue'
+			tabState.issueData={
+				osmRoot:settings.osm,
+				id:issueId,
+				url:tab.url
+			}
+			const contentIssueData=await addListenerAndSendMessage(tab.id,'/content-issue.js',{action:'getIssueData'})
+			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
+		}
+	}
+	if (settings.osm!=null && settings.otrs!=null) {
+		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
+			tabState.type='ticket'
+			const contentIssueId=await addListenerAndSendMessage(tab.id,'/content-ticket.js',{action:'getIssueId'})
+			if (contentIssueId!=null) {
+				tabState.issueData={
+					osmRoot:settings.osm,
+					id:contentIssueId,
+					url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+				}
+			}
+		}
+	}
+	return tabState
+}
+
+async function addListenerAndSendMessage(tabId,contentScript,message) {
+	await browser.tabs.executeScript(tabId,{file:contentScript})
+	return await browser.tabs.sendMessage(tabId,message)
+}
+
+function getOsmIssueIdFromUrl(osmRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'issues/([0-9]+)'))
+	if (match) {
+		const [,issueId]=match
+		return issueId
+	}
+}
+
+function isOtrsTicketUrl(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
+	return !!match
+}
+
+function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
+	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }
