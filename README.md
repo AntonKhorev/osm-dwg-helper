@@ -8,6 +8,7 @@ Reimplements some of [osm-dwg-userscripts](https://github.com/woodpeck/osm-dwg-u
 
 - Open a *Create New Phone Ticket* form in OTRS with fields populated from an issue page.
 - Go to the issue page corresponding to an OTRS ticket title from a ticket page.
+- Search OTRS for reported items in issues.
 
 ## Installation
 
