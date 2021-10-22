@@ -94,9 +94,19 @@ function updatePanel(settings,tabId,tabState) {
 	if (settings.otrs!=null) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
+			if (issueData.id!=null) {
+				const $search=makeSearchLink(issueData.id)
+				$search.innerText=`Search OTRS for issue id "${issueData.id}"`
+				addAction($search)
+			}
 			if (issueData.reportedItem?.type=='user') {
 				const $search=makeSearchLink(issueData.reportedItem.name)
-				$search.innerText=`Search OTRS for reported user ${issueData.reportedItem.name}`
+				$search.innerText=`Search OTRS for reported user "${issueData.reportedItem.name}"`
+				addAction($search)
+			}
+			if (issueData.reportedItem?.type=='note') {
+				const $search=makeSearchLink(issueData.reportedItem.id)
+				$search.innerText=`Search OTRS for reported note id "${issueData.reportedItem.id}"`
 				addAction($search)
 			}
 			function makeSearchLink(query) {
