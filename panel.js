@@ -91,6 +91,19 @@ function updatePanel(settings,tabId,tabState) {
 		}
 		addAction($createTicket)
 	}
+	if (settings.otrs!=null) {
+		if (tabState.type=='issue') {
+			const issueData=tabState.issueData
+			if (issueData.reportedItem?.type=='user') {
+				const $search=makeSearchLink(issueData.reportedItem.name)
+				$search.innerText=`Search OTRS for reported user ${issueData.reportedItem.name}`
+				addAction($search)
+			}
+			function makeSearchLink(query) {
+				return makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`)
+			}
+		}
+	}
 	if (settings.osm!=null) {
 		if (tabState.type=='ticket' && tabState.issueData) {
 			const issueData=tabState.issueData
