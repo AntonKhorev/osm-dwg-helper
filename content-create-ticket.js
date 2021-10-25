@@ -4,18 +4,37 @@ if (!window.osmDwgHelperCreateTicketListenerInstalled) {
 }
 
 function messageListener(message) {
-	if (message.action!='addIssueDataToTicket') return false
-	const $form=document.getElementById('NewPhoneTicket')
-	if ($form) {
-		populateTicketForm($form,message.ticketData)
-		return Promise.resolve()
+	if (message.action=='addIssueDataToTicket') {
+		const $form=document.getElementById('NewPhoneTicket')
+		if ($form) {
+			populateTicketForm($form,message.ticketData)
+			return Promise.resolve()
+		}
+		const $loginBox=document.getElementById('LoginBox')
+		if ($loginBox) {
+			informOnLoginScreen($loginBox)
+			return Promise.reject("on login page")
+		}
+		return Promise.reject("met unknown webpage content")
+	/*
+	} else if (message.action=='getTicket') {
+		// don't need this b/c ticket id is reported in url
+		const $notice=document.querySelector('.MessageBox.Notice')
+		if (!$notice) return Promise.reject("no ticket creation notice box")
+		if ($notice.innerText.includes('created!'))
+		if (!$notice) return Promise.reject("no ticket creation expected text")
+		const $a=$notice.querySelector('a')
+		if (!$a) return Promise.reject("no ticket link")
+		const match=$a.href.match(/\/index\.pl\?Action=AgentTicketZoom;TicketID=([0-9]+)/)
+		if (!match) return Promise.reject("no ticket link with expected url")
+		const [,ticketId]=match
+		return Promise.resolve({
+			id:ticketId,
+			url:$a.href
+		})
+	*/
 	}
-	const $loginBox=document.getElementById('LoginBox')
-	if ($loginBox) {
-		informOnLoginScreen($loginBox)
-		return Promise.reject("on login page")
-	}
-	return Promise.reject("met unknown webpage content")
+	return false
 }
 
 function populateTicketForm($form,ticketData) {

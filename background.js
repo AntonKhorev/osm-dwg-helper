@@ -99,7 +99,8 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 		}
 		tabActions.set(tabId,{
 			type:'createIssueTicket',
-			ticketData
+			ticketData,
+			openerTabId:tabAction.openerTabId
 		})
 		browser.tabs.update(tabId,{
 			url:`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
@@ -115,7 +116,23 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 			tabActions.set(tabId,tabAction)
 		}
 		if (!tabActions.has(tabId)) {
-			// TODO reschedule get ticket id/url
+			tabActions.set(tabId,{
+				type:'commentIssue',
+				openerTabId:tabAction.openerTabId
+			})
+			reactToActionsUpdate()
+		}
+	}
+	if (tabAction && tabAction.type=='commentIssue' && tab.status=='complete') {
+		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
+		if (ticketId) {
+			tabActions.delete(tabId) // don't care if it fails
+			const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
+			await addListenerAndSendMessage(tabAction.openerTabId,'/content-issue.js',{
+				action:'addComment',
+				comment:ticketUrl
+			})
+			browser.tabs.update(tabId,{url:ticketUrl})
 			reactToActionsUpdate()
 		}
 	}
@@ -311,6 +328,14 @@ function isOsmNoteUrl(osmRoot,url) {
 function isOtrsTicketUrl(otrsRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
 	return !!match
+}
+
+function getOtrsCreatedTicketId(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketPhone;Subaction=Created;TicketID=')+'([0-9]+)'))
+	if (match) {
+		const [,ticketId]=match
+		return ticketId
+	}
 }
 
 function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711

@@ -4,11 +4,20 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 }
 
 function messageListener(message) {
-	if (message.action!='getIssueData') return false
+	if (message.action=='getIssueData') {
+		const issueData=scrapeIssueData()
+		return Promise.resolve(issueData)
+	} else if (message.action=='addComment') {
+		addComment(message.comment)
+		return Promise.resolve()
+	}
+	return false
+}
+
+function scrapeIssueData() {
 	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/70d7d8d850148f714b70a3297c02a8203214dec6/app/views/issues
 	const $content=document.getElementById('content')
-	//if (!$content) return Promise.reject("can't find content")
-	if (!$content) return Promise.resolve({})
+	if (!$content) return {}
 	const issueData={
 		reports:[]
 	}
@@ -59,7 +68,7 @@ function messageListener(message) {
 		}
 		issueData.reports.push(report)
 	}
-	return Promise.resolve(issueData)
+	return issueData
 }
 
 function parseReportedLink($repotedLink) {
@@ -93,4 +102,15 @@ function splitByReportCategory(text) {
 		if (rest.length>0) return [first,category,rest.join(category)]
 	}
 	return [text,'','']
+}
+
+function addComment(comment) {
+	const $commentTextarea=document.getElementById('issue_comment_body')
+	if (!$commentTextarea) return
+	if ($commentTextarea.value=='') {
+		$commentTextarea.value=comment
+	} else {
+		$commentTextarea.value+='\n\n'+comment
+	}
+	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
 }

@@ -94,20 +94,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 				}).then((reportedItemTab)=>{
 					background.addTabAction(reportedItemTab.id,{
 						type:'scrapeReportedItemThenCreateIssueTicket',
-						issueData
+						issueData,
+						openerTabId:tabId
 					})
 				})
-				/*
-				browser.tabs.create({
-					openerTabId:tabId,
-					url:$createTicket.href
-				}).then((ticketTab)=>{
-					background.addTabAction(ticketTab.id,{
-						type:'createIssueTicket',
-						ticketData:convertIssueDataToTicketData(settings,issueData)
-					})
-				})
-				*/
 			})
 		}
 		addAction($createTicket)
@@ -171,6 +161,8 @@ function updatePanelActionsOngoing(actions) {
 			$li.innerHTML=`scrape reported item then create ticket `
 		} else if (action.type=='createIssueTicket') {
 			$li.innerHTML=`create ticket <em>${escapeHtml(action.ticketData.Subject)}</em> `
+		} else if (action.type=='commentIssue') {
+			$li.innerHTML=`add comment to issue for created ticket `
 		} else {
 			$li.innerText='unknown action '
 		}
