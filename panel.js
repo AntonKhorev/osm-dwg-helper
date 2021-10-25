@@ -90,6 +90,16 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 				ev.preventDefault()
 				browser.tabs.create({
 					openerTabId:tabId,
+					url:issueData.reportedItem.url
+				}).then((reportedItemTab)=>{
+					background.addTabAction(reportedItemTab.id,{
+						type:'scrapeReportedItemThenCreateIssueTicket',
+						issueData
+					})
+				})
+				/*
+				browser.tabs.create({
+					openerTabId:tabId,
 					url:$createTicket.href
 				}).then((ticketTab)=>{
 					background.addTabAction(ticketTab.id,{
@@ -97,6 +107,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 						ticketData:convertIssueDataToTicketData(settings,issueData)
 					})
 				})
+				*/
 			})
 		}
 		addAction($createTicket)
@@ -132,6 +143,13 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			addAction($goToIssue)
 		}
 	}
+	if (settings.osm!=null) {
+		if (tabState.type=='user' && tabState.userData.id!=null) {
+			const $a=makeLink(tabState.userData.apiUrl)
+			$a.innerText=`Check user id #${tabState.userData.id}`
+			addAction($a)
+		}
+	}
 	function makeLink(href) {
 		const $a=document.createElement('a')
 		$a.href=href
@@ -149,7 +167,9 @@ function updatePanelActionsOngoing(actions) {
 	$actions.innerHTML=""
 	for (const [tabId,action] of actions) {
 		const $li=document.createElement('li')
-		if (action.type=='createIssueTicket') {
+		if (action.type=='scrapeReportedItemThenCreateIssueTicket') {
+			$li.innerHTML=`scrape reported item then create ticket `
+		} else if (action.type=='createIssueTicket') {
 			$li.innerHTML=`create ticket <em>${escapeHtml(action.ticketData.Subject)}</em> `
 		} else {
 			$li.innerText='unknown action '
@@ -170,86 +190,8 @@ function updatePanelActionsOngoing(actions) {
 	}
 }
 
-function convertIssueDataToTicketData(settings,issueData) {
-	if (issueData==null) return {}
-	const ticketData={}
-	ticketData.Body=evaluateHtmlTemplate(settings.ticket_body_header,{issue:issueData})
-	if (issueData.reportedItem?.type=='user') {
-		const values={issue:issueData,user:issueData.reportedItem}
-		ticketData.Subject=evaluateTemplate(settings.ticket_subject_user,values)
-		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_user,values)
-	} else if (issueData.reportedItem?.type=='note') {
-		const values={issue:issueData,note:issueData.reportedItem}
-		ticketData.Subject=evaluateTemplate(settings.ticket_subject_note,values)
-		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_note,values)
-	} else {
-		const values={issue:issueData}
-		ticketData.Subject=evaluateTemplate(settings.ticket_subject,values)
-		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item,values)
-	}
-	ticketData.FromCustomers=[]
-	if (issueData.reports) {
-		const addedCustomers={}
-		for (const report of issueData.reports) {
-			if (report.wasRead) continue
-			const user={} // TODO save user url in content script
-			if (report.by!=null) {
-				user.name=report.by
-				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
-				if (!addedCustomers[user.name]) {
-					addedCustomers[user.name]=true
-					ticketData.FromCustomers.push(evaluateTemplate(settings.ticket_customer,{user}))
-				}
-			}
-			if (report.lead.length==0 && report.text.length==0) continue
-			ticketData.Body+=`<hr>\n`
-			if (report.lead.length>0) {
-				const c0=`<span style='color:#6c757d'>` // "text-muted" color from osm website
-				const c1=`</span>`
-				ticketData.Body+=`<p>`
-				for (const [fragmentType,fragmentText] of report.lead) {
-					const t=escapeHtml(fragmentText)
-					if (fragmentType=='user') {
-						ticketData.Body+=`<a href='${escapeHtml(user.url)}'>${t}</a>`
-					} else if (fragmentType=='category') {
-						ticketData.Body+=`${c0}<strong>${t}</strong>${c1}`
-					} else {
-						ticketData.Body+=`${c0}${t}${c1}`
-					}
-				}
-				ticketData.Body+=`</p>\n`
-			}
-			for (const paragraph of report.text) {
-				ticketData.Body+=`<p>${escapeHtml(paragraph)}</p>\n`
-			}
-		}
-	}
-	return ticketData
-}
-
-function evaluateTemplate(template,values,escapeFn=s=>s) {
-	if (template==null) return ''
-	const templateChunks=template.split(/\${([^}]*)}/)
-	let result=''
-	for (let i=0;i<templateChunks.length;i++) {
-		if (i%2==0) {
-			result+=templateChunks[i]
-		} else {
-			let value=values
-			for (const key of templateChunks[i].split('.')) {
-				value=value[key]
-			}
-			if (!value) continue
-			result+=escapeFn(value)
-		}
-	}
-	return result
-}
-
-function evaluateHtmlTemplate(template,values) {
-	return evaluateTemplate(template,values,escapeHtml)+'\n'
-}
-
+// copypasted
+// TODO proper module
 function escapeHtml(string) {
 	return string
 	.replace(/&/g,"&amp;")
