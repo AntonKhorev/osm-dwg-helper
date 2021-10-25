@@ -3,9 +3,19 @@ const background=await browser.runtime.getBackgroundPage()
 document.getElementById('settings-load').addEventListener('change',readSettingsFile)
 document.getElementById('settings-sample').addEventListener('click',downloadSettingsFile)
 
+const scheduleUpdatePanelActionsNew=setupUpdateScheduler(updatePanelActionsNew,async(settings,tabId,tabState)=>{
+	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+	return (currentTab.id==tabId)
+})
+const scheduleUpdatePanelActionsOngoing=setupUpdateScheduler(updatePanelActionsOngoing)
+
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action!='updatePanel') return false
-	return scheduleUpdatePanel(message.settings,message.tabId,message.tabState)
+	if (message.action=='updatePanelActionsNew') {
+		return scheduleUpdatePanelActionsNew(message.settings,message.tabId,message.tabState)
+	} else if (message.action=='updatePanelActionsOngoing') {
+		return scheduleUpdatePanelActionsOngoing(message.tabActions)
+	}
+	return false
 })
 
 {
@@ -30,20 +40,20 @@ function downloadSettingsFile() {
 	browser.downloads.download({url,filename:'osm-dwg-helper-settings.txt',saveAs:true})
 }
 
-let updatePanelTimeoutId
-
-async function scheduleUpdatePanel(settings,tabId,tabState) {
-	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	if (currentTab.id!=tabId) return
-	if (updatePanelTimeoutId!=null) clearTimeout(updatePanelTimeoutId)
-	updatePanelTimeoutId=setTimeout(()=>{
-		updatePanelTimeoutId=undefined
-		updatePanel(settings,tabId,tabState)
-	},100)
+function setupUpdateScheduler(handlerFn,filterFn) {
+	let updateTimeoutId
+	return async(...args)=>{
+		if (filterFn && !await filterFn(...args)) return
+		if (updateTimeoutId!=null) clearTimeout(updateTimeoutId)
+		updateTimeoutId=setTimeout(()=>{
+			updateTimeoutId=undefined
+			handlerFn(...args)
+		},100)
+	}
 }
 
-function updatePanel(settings,tabId,tabState) {
-	const $actions=document.getElementById('actions')
+function updatePanelActionsNew(settings,tabId,tabState) {
+	const $actions=document.getElementById('actions-new')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {
 		$actions.innerHTML="<p>Please load a settings file</p>"
@@ -130,6 +140,32 @@ function updatePanel(settings,tabId,tabState) {
 	function addAction($action) {
 		const $li=document.createElement('li')
 		$li.append($action)
+		$actions.append($li)
+	}
+}
+
+function updatePanelActionsOngoing(actions) {
+	const $actions=document.getElementById('actions-ongoing')
+	$actions.innerHTML=""
+	for (const [tabId,action] of actions) {
+		const $li=document.createElement('li')
+		if (action.type=='createIssueTicket') {
+			$li.innerHTML=`create ticket <em>${escapeHtml(action.ticketData.Subject)}</em> `
+		} else {
+			$li.innerText='unknown action '
+		}
+		const $switchButton=document.createElement('button')
+		$switchButton.innerText='go to'
+		$switchButton.addEventListener('click',()=>{
+			browser.tabs.update(tabId,{active:true})
+		})
+		$li.append($switchButton)
+		const $cancelButton=document.createElement('button')
+		$cancelButton.innerText='cancel'
+		$cancelButton.addEventListener('click',()=>{
+			background.removeTabAction(tabId)
+		})
+		$li.append($cancelButton)
 		$actions.append($li)
 	}
 }

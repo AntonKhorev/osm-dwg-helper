@@ -1,5 +1,3 @@
-//// public - to be accessible from extension panels
-
 window.defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
 osm = https://www.openstreetmap.org/
 ticket_customer = \${user.name} <fwd@dwgmail.info>
@@ -12,9 +10,17 @@ ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
 ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
 `
 
+let settings=parseSettingsText(defaultSettingsText)
+
+const tabStates=new Map()
+const tabActions=new Map()
+
 window.updateSettings=async(text)=>{
+	if (tabActions.size>0) {
+		tabActions.clear()
+		reactToActionsUpdate()
+	}
 	tabStates.clear()
-	tabActions.clear()
 	settings=parseSettingsText(text)
 	const activeTabs=await browser.tabs.query({active:true})
 	for (const tab of activeTabs) {
@@ -24,15 +30,20 @@ window.updateSettings=async(text)=>{
 
 window.registerNewPanel=(tab)=>{
 	updateTabState(tab,true)
+	reactToActionsUpdate()
 }
 
 window.addTabAction=(tabId,tabAction)=>{
 	tabActions.set(tabId,tabAction)
+	reactToActionsUpdate()
 }
 
-//// private
-
-let settings=parseSettingsText(defaultSettingsText)
+window.removeTabAction=(tabId)=>{
+	if (tabActions.has(tabId)) {
+		tabActions.delete(tabId)
+		reactToActionsUpdate()
+	}
+}
 
 function parseSettingsText(text) {
 	const settings={}
@@ -46,19 +57,23 @@ function parseSettingsText(text) {
 	return settings
 }
 
-const tabStates=new Map()
-const tabActions=new Map()
+function reactToActionsUpdate() {
+	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActions})
+}
 
 browser.tabs.onRemoved.addListener((tabId)=>{
 	tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
-	tabActions.delete(tabId)
+	if (tabActions.has(tabId)) {
+		tabActions.delete(tabId)
+		reactToActionsUpdate()
+	}
 })
 
 browser.tabs.onActivated.addListener(async({tabId})=>{
 	const tabState=tabStates.get(tabId)
 	if (tabState) {
 		browser.runtime.sendMessage({
-			action:'updatePanel',
+			action:'updatePanelActionsNew',
 			settings,tabId,tabState
 		})
 	} else {
@@ -76,8 +91,11 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 			tabActions.delete(tabId) // remove pending action before await
 			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
 		} catch {
-			// TODO possibly on login page
 			tabActions.set(tabId,tabAction)
+		}
+		if (!tabActions.has(tabId)) {
+			// TODO reschedule get ticket id/url
+			reactToActionsUpdate()
 		}
 	}
 })
@@ -90,10 +108,8 @@ async function updateTabState(tab,forcePanelUpdate=false) {
 	const tabStateChanged=!isTabStateEqual(tabStates.get(tab.id),tabState)
 	if (tabStateChanged) tabStates.set(tab.id,tabState)
 	if (forcePanelUpdate || tabStateChanged && tab.active) browser.runtime.sendMessage({
-		action:'updatePanel',
-		settings,
-		tabId:tab.id,
-		tabState
+		action:'updatePanelActionsNew',
+		settings,tabId:tab.id,tabState
 	})
 }
 
