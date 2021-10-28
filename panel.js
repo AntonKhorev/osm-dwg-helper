@@ -88,15 +88,9 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		if (issueData) {
 			$createTicket.addEventListener('click',(ev)=>{
 				ev.preventDefault()
-				browser.tabs.create({
-					openerTabId:tabId,
-					url:issueData.reportedItem.url
-				}).then((reportedItemTab)=>{
-					background.addTabAction(reportedItemTab.id,{
-						type:'scrapeReportedItemThenCreateIssueTicket',
-						issueData,
-						openerTabId:tabId
-					})
+				background.initiateNewTabAction(tabId,issueData.reportedItem.url,{
+					type:'scrapeReportedItemThenCreateIssueTicket',
+					issueData
 				})
 			})
 		}
@@ -131,6 +125,20 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			const $goToIssue=makeLink(issueData.url)
 			$goToIssue.innerText=`Go to ticket issue #${issueData.id}`
 			addAction($goToIssue)
+		}
+	}
+	if (settings.otrs!=null && settings.osm!=null) {
+		if (tabState.type=='ticket') {
+			const outboxHref=`${settings.osm}messages/outbox`
+			const $a=makeLink(outboxHref)
+			$a.innerText=`TEST: add note to ticket`
+			$a.addEventListener('click',(ev)=>{
+				ev.preventDefault()
+				background.initiateNewTabAction(tabId,outboxHref,{
+					type:'GoToLastOutboxMessage;CopyLastOutboxMessageToTicketNote'
+				})
+			})
+			addAction($a)
 		}
 	}
 	if (settings.osm!=null) {

@@ -11,6 +11,7 @@ ticket_body_item = <p>Reported item : <a href='\${item.url}'>osm link</a></p>
 ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
 ticket_body_item_user_id = <p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>
 ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
+article_message_to_subject = PM to \${user.name}
 `
 
 let settings=parseSettingsText(defaultSettingsText)
@@ -36,8 +37,12 @@ window.registerNewPanel=(tab)=>{
 	reactToActionsUpdate()
 }
 
-window.addTabAction=(tabId,tabAction)=>{
-	tabActions.set(tabId,tabAction)
+window.initiateNewTabAction=async(openerTabId,newTabUrl,tabAction)=>{
+	const newTab=await browser.tabs.create({
+		openerTabId,
+		url:newTabUrl
+	})
+	tabActions.set(newTab.id,{openerTabId,...tabAction})
 	reactToActionsUpdate()
 }
 
@@ -135,6 +140,32 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 			browser.tabs.update(tabId,{url:ticketUrl})
 			reactToActionsUpdate()
 		}
+	}
+	if (tabAction && tabAction.type=='GoToLastOutboxMessage;CopyLastOutboxMessageToTicketNote' && tab.status=='complete') {
+		// TODO actually get the message
+		tabActions.delete(tabId)
+		tabActions.set(tabAction.openerTabId,{
+			type:'CopyLastOutboxMessageToTicketNote',
+			messageTo:'USERNAME',
+			messageText:`<p>BLABLA</p>`
+		})
+		browser.tabs.remove(tabId)
+		browser.tabs.update(tabAction.openerTabId,{active:true})
+		reactToActionsUpdate()
+	}
+	if (tabAction && tabAction.type=='CopyLastOutboxMessageToTicketNote' && tab.status=='complete') {
+		// maybe just open https://otrs.openstreetmap.org/otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}
+		try {
+			tabActions.delete(tabId) // remove pending action before await
+			await addListenerAndSendMessage(tabId,'/content-ticket.js',{
+				action:'addNote',
+				subject:evaluateTemplate(settings.article_message_to_subject,{user:{name:tabAction.messageTo}}),
+				text:tabAction.messageText
+			})
+		} catch {
+			tabActions.set(tabId,tabAction)
+		}
+		reactToActionsUpdate()
 	}
 })
 
