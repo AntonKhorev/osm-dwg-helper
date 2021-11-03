@@ -19,6 +19,146 @@ let settings=parseSettingsText(defaultSettingsText)
 const tabStates=new Map()
 const tabActions=new Map()
 
+class TabAction {
+	getPanelHtml() {
+		return `unknown action`
+	}
+	async act(tab,tabState) {}
+}
+
+class ScrapeReportedItemThenCreateIssueTicket extends TabAction {
+	constructor(openerTabId,issueData) {
+		super()
+		this.openerTabId=openerTabId
+		this.issueData=issueData
+	}
+	getPanelHtml() {
+		return `scrape reported item then create ticket`
+	}
+	async act(tab,tabState) {
+		let ticketData
+		if (tabState.type=='user' && tabState.userData.id!=null) {
+			ticketData=convertIssueDataToTicketData(settings,this.issueData,tabState.userData)
+		} else {
+			// TODO fetch issue country - make another tab action class for this
+			ticketData=convertIssueDataToTicketData(settings,this.issueData)
+		}
+		tabActions.set(tab.id,new CreateIssueTicket(this.openerTabId,ticketData))
+		browser.tabs.update(tab.id,{
+			url:`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+		})
+		reactToActionsUpdate()
+	}
+}
+
+class CreateIssueTicket extends TabAction {
+	constructor(openerTabId,ticketData) {
+		super()
+		this.openerTabId=openerTabId
+		this.ticketData=ticketData
+	}
+	getPanelHtml() {
+		return `create ticket <em>${escapeHtml(this.ticketData.Subject)}</em>`
+	}
+	async act(tab,tabState) {
+		try {
+			await addListenerAndSendMessage(tab.id,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:this.ticketData})
+		} catch {
+			tabActions.set(tab.id,this)
+			return
+		}
+		tabActions.set(tab.id,new CommentIssueWithTicketUrl(this.openerTabId))
+		reactToActionsUpdate()
+	}
+}
+
+class CommentIssueWithTicketUrl extends TabAction {
+	constructor(openerTabId) {
+		super()
+		this.openerTabId=openerTabId
+	}
+	getPanelHtml() {
+		return `add comment to issue for created ticket`
+	}
+	async act(tab,tabState) {
+		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
+		if (!ticketId) {
+			tabActions.set(tab.id,this)
+			return
+		}
+		const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
+		await addListenerAndSendMessage(this.openerTabId,'/content-issue.js',{
+			action:'addComment',
+			comment:ticketUrl
+		})
+		browser.tabs.update(tab.id,{url:ticketUrl})
+		reactToActionsUpdate()
+	}
+}
+
+class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
+	constructor(openerTabId) {
+		super()
+		this.openerTabId=openerTabId
+	}
+	async act(tab,tabState) {
+		// TODO actually get the message
+		tabActions.set(this.openerTabId,new AddMessageAsTicketNote('USERNAME',`<p>BLABLA</p>`))
+		browser.tabs.remove(tab.id)
+		browser.tabs.update(this.openerTabId,{active:true})
+		reactToActionsUpdate()
+	}
+}
+
+class AddMessageAsTicketNote extends TabAction {
+	constructor(messageTo,messageText) {
+		super()
+		this.messageTo=messageTo
+		this.messageText=messageText
+	}
+	async act(tab,tabState) {
+		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
+		if (!ticketId) {
+			tabActions.set(tab.id,this)
+			return
+		}
+		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}`
+		tabActions.set(tab.id,new AddTicketArticle(
+			evaluateTemplate(settings.article_message_to_subject,{user:{name:this.messageTo}}),
+			this.messageText
+		))
+		browser.tabs.update(tab.id,{url:ticketNoteUrl})
+		reactToActionsUpdate()
+	}
+}
+
+class AddTicketArticle extends TabAction {
+	constructor(subject,body) {
+		super()
+		this.subject=subject
+		this.body=body
+	}
+	async act(tab,tabState) {
+		try {
+			await addListenerAndSendMessage(tab.id,'/content-ticket-article.js',{
+				action:'addArticleSubjectAndBody',
+				subject:this.subject,
+				body:this.body
+			})
+		} catch {
+			tabActions.set(tab.id,this)
+			return
+		}
+		reactToActionsUpdate()
+	}
+}
+
+window.TabActions={
+	ScrapeReportedItemThenCreateIssueTicket,
+	CreateIssueTicket,
+	GoToLastOutboxMessageThenAddMessageAsTicketNote
+}
+
 window.updateSettings=async(text)=>{
 	if (tabActions.size>0) {
 		tabActions.clear()
@@ -37,12 +177,12 @@ window.registerNewPanel=(tab)=>{
 	reactToActionsUpdate()
 }
 
-window.initiateNewTabAction=async(openerTabId,newTabUrl,tabAction)=>{
+window.initiateNewTabAction=async(newTabUrl,tabAction)=>{
 	const newTab=await browser.tabs.create({
-		openerTabId,
+		openerTabId:tabAction.openerTabId,
 		url:newTabUrl
 	})
-	tabActions.set(newTab.id,{openerTabId,...tabAction})
+	tabActions.set(newTab.id,tabAction)
 	reactToActionsUpdate()
 }
 
@@ -66,7 +206,11 @@ function parseSettingsText(text) {
 }
 
 function reactToActionsUpdate() {
-	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActions})
+	const tabActionListItems=[]
+	for (const [tabId,action] of tabActions) {
+		tabActionListItems.push([tabId,action.getPanelHtml()])
+	}
+	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActionListItems})
 }
 
 browser.tabs.onRemoved.addListener((tabId)=>{
@@ -93,79 +237,10 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	const tabState=await updateTabState(tab)
 	const tabAction=tabActions.get(tabId)
-	if (tabAction && tabAction.type=='scrapeReportedItemThenCreateIssueTicket' && tab.status=='complete') {
+	if (tabAction && tab.status=='complete') {
 		// TODO check if url matches, if not cancel action
-		let ticketData
-		if (tabState.type=='user' && tabState.userData.id!=null) {
-			ticketData=convertIssueDataToTicketData(settings,tabAction.issueData,tabState.userData)
-		} else {
-			// TODO fetch issue country
-			ticketData=convertIssueDataToTicketData(settings,tabAction.issueData)
-		}
-		tabActions.set(tabId,{
-			type:'createIssueTicket',
-			ticketData,
-			openerTabId:tabAction.openerTabId
-		})
-		browser.tabs.update(tabId,{
-			url:`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-		})
-		reactToActionsUpdate()
-	}
-	if (tabAction && tabAction.type=='createIssueTicket' && tab.status=='complete') {
-		// TODO check if url matches, if not cancel action
-		try {
-			tabActions.delete(tabId) // remove pending action before await
-			await addListenerAndSendMessage(tabId,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:tabAction.ticketData})
-		} catch {
-			tabActions.set(tabId,tabAction)
-		}
-		if (!tabActions.has(tabId)) {
-			tabActions.set(tabId,{
-				type:'commentIssue',
-				openerTabId:tabAction.openerTabId
-			})
-			reactToActionsUpdate()
-		}
-	}
-	if (tabAction && tabAction.type=='commentIssue' && tab.status=='complete') {
-		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
-		if (ticketId) {
-			tabActions.delete(tabId) // don't care if it fails
-			const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
-			await addListenerAndSendMessage(tabAction.openerTabId,'/content-issue.js',{
-				action:'addComment',
-				comment:ticketUrl
-			})
-			browser.tabs.update(tabId,{url:ticketUrl})
-			reactToActionsUpdate()
-		}
-	}
-	if (tabAction && tabAction.type=='GoToLastOutboxMessage;CopyLastOutboxMessageToTicketNote' && tab.status=='complete') {
-		// TODO actually get the message
 		tabActions.delete(tabId)
-		tabActions.set(tabAction.openerTabId,{
-			type:'CopyLastOutboxMessageToTicketNote',
-			messageTo:'USERNAME',
-			messageText:`<p>BLABLA</p>`
-		})
-		browser.tabs.remove(tabId)
-		browser.tabs.update(tabAction.openerTabId,{active:true})
-		reactToActionsUpdate()
-	}
-	if (tabAction && tabAction.type=='CopyLastOutboxMessageToTicketNote' && tab.status=='complete') {
-		// maybe just open https://otrs.openstreetmap.org/otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}
-		try {
-			tabActions.delete(tabId) // remove pending action before await
-			await addListenerAndSendMessage(tabId,'/content-ticket.js',{
-				action:'addNote',
-				subject:evaluateTemplate(settings.article_message_to_subject,{user:{name:tabAction.messageTo}}),
-				text:tabAction.messageText
-			})
-		} catch {
-			tabActions.set(tabId,tabAction)
-		}
-		reactToActionsUpdate()
+		await tabAction.act(tab,tabState)
 	}
 })
 

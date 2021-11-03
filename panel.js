@@ -13,7 +13,7 @@ browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePanelActionsNew') {
 		return scheduleUpdatePanelActionsNew(message.settings,message.tabId,message.tabState)
 	} else if (message.action=='updatePanelActionsOngoing') {
-		return scheduleUpdatePanelActionsOngoing(message.tabActions)
+		return scheduleUpdatePanelActionsOngoing(message.tabActionListItems)
 	}
 	return false
 })
@@ -88,10 +88,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		if (issueData) {
 			$createTicket.addEventListener('click',(ev)=>{
 				ev.preventDefault()
-				background.initiateNewTabAction(tabId,issueData.reportedItem.url,{
-					type:'scrapeReportedItemThenCreateIssueTicket',
-					issueData
-				})
+				background.initiateNewTabAction(
+					issueData.reportedItem.url,
+					new background.TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+				)
 			})
 		}
 		addAction($createTicket)
@@ -134,9 +134,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			$a.innerText=`TEST: add note to ticket`
 			$a.addEventListener('click',(ev)=>{
 				ev.preventDefault()
-				background.initiateNewTabAction(tabId,outboxHref,{
-					type:'GoToLastOutboxMessage;CopyLastOutboxMessageToTicketNote'
-				})
+				background.initiateNewTabAction(
+					outboxHref,
+					new background.TabActions.GoToLastOutboxMessageThenAddMessageAsTicketNote(tabId)
+				)
 			})
 			addAction($a)
 		}
@@ -160,20 +161,12 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	}
 }
 
-function updatePanelActionsOngoing(actions) {
+function updatePanelActionsOngoing(tabActionListItems) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	for (const [tabId,action] of actions) {
+	for (const [tabId,actionPanelHtml] of tabActionListItems) {
 		const $li=document.createElement('li')
-		if (action.type=='scrapeReportedItemThenCreateIssueTicket') {
-			$li.innerHTML=`scrape reported item then create ticket `
-		} else if (action.type=='createIssueTicket') {
-			$li.innerHTML=`create ticket <em>${escapeHtml(action.ticketData.Subject)}</em> `
-		} else if (action.type=='commentIssue') {
-			$li.innerHTML=`add comment to issue for created ticket `
-		} else {
-			$li.innerText='unknown action '
-		}
+		$li.innerHTML=actionPanelHtml+' '
 		const $switchButton=document.createElement('button')
 		$switchButton.innerText='go to'
 		$switchButton.addEventListener('click',()=>{
@@ -188,15 +181,4 @@ function updatePanelActionsOngoing(actions) {
 		$li.append($cancelButton)
 		$actions.append($li)
 	}
-}
-
-// copypasted
-// TODO proper module
-function escapeHtml(string) {
-	return string
-	.replace(/&/g,"&amp;")
-	.replace(/</g,"&lt;")
-	.replace(/>/g,"&gt;")
-	.replace(/"/g,"&quot;")
-	.replace(/'/g,"&#039;")
 }

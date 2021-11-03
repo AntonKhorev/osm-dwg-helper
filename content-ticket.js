@@ -8,10 +8,6 @@ function messageListener(message) {
 		return Promise.resolve(
 			scrapeIssueId()
 		)
-	} else if (message.action=='addNote') {
-		return Promise.resolve(
-			addNote(message.subject,message.text)
-		)
 	}
 	return false
 }
@@ -23,13 +19,4 @@ function scrapeIssueId() {
 	if (!match) return
 	const [,issueId]=match
 	return issueId
-}
-
-function addNote(subject,text) {
-	// TODO handle login page etc
-	const $a=document.querySelector('#nav-Note a')
-	if (!$a) return
-	console.log('> got menu item',$a)
-	$a.dispatchEvent(new Event('click'))
-	console.log('> add note',subject,text)
 }
