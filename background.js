@@ -106,7 +106,13 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 	}
 	async act(tab,tabState) {
 		// TODO actually get the message
-		tabActions.set(this.openerTabId,new AddMessageAsTicketNote('USERNAME',`<p>BLABLA</p>`))
+		const messageId=await addListenerAndSendMessage(tab.id,'/content-mailbox.js',{action:'getTopMessageId'})
+		if (!messageId) {
+			// TODO handle login page, empty mailbox
+			// tabActions.set(tab.id,this)
+			return
+		}
+		tabActions.set(this.openerTabId,new AddMessageAsTicketNote('USERNAME',`<p>BLABLA message #${escapeHtml(messageId)}</p>`))
 		browser.tabs.remove(tab.id)
 		browser.tabs.update(this.openerTabId,{active:true})
 		reactToActionsUpdate()

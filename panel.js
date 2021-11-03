@@ -131,7 +131,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		if (tabState.type=='ticket') {
 			const outboxHref=`${settings.osm}messages/outbox`
 			const $a=makeLink(outboxHref)
-			$a.innerText=`TEST: add note to ticket`
+			$a.innerText=`Add last outbox message to ticket as note`
 			$a.addEventListener('click',(ev)=>{
 				ev.preventDefault()
 				background.initiateNewTabAction(
