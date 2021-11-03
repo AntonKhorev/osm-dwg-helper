@@ -102,7 +102,7 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 		this.openerTabId=openerTabId
 	}
 	getPanelHtml() {
-		return `get last outbox message`
+		return `go to last outbox message`
 	}
 	async act(tab,tabState) {
 		// TODO actually get the message
@@ -112,7 +112,24 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 			// tabActions.set(tab.id,this)
 			return
 		}
-		tabActions.set(this.openerTabId,new AddMessageAsTicketNote('USERNAME',`<p>BLABLA message #${escapeHtml(messageId)}</p>`))
+		const messageUrl=`${settings.osm}messages/${encodeURIComponent(messageId)}`
+		tabActions.set(tab.id,new ScrapeMessageThenAddMessageAsTicketNote(this.openerTabId))
+		browser.tabs.update(tab.id,{url:messageUrl})
+		reactToActionsUpdate()
+	}
+}
+
+class ScrapeMessageThenAddMessageAsTicketNote extends TabAction {
+	constructor(openerTabId) {
+		super()
+		this.openerTabId=openerTabId
+	}
+	getPanelHtml() {
+		return `scrape outbox message`
+	}
+	async act(tab,tabState) {
+		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
+		tabActions.set(this.openerTabId,new AddMessageAsTicketNote(messageData.user,messageData.body))
 		browser.tabs.remove(tab.id)
 		browser.tabs.update(this.openerTabId,{active:true})
 		reactToActionsUpdate()
