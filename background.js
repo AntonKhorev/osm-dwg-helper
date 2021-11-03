@@ -101,6 +101,9 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 		super()
 		this.openerTabId=openerTabId
 	}
+	getPanelHtml() {
+		return `get last outbox message`
+	}
 	async act(tab,tabState) {
 		// TODO actually get the message
 		tabActions.set(this.openerTabId,new AddMessageAsTicketNote('USERNAME',`<p>BLABLA</p>`))
@@ -116,8 +119,11 @@ class AddMessageAsTicketNote extends TabAction {
 		this.messageTo=messageTo
 		this.messageText=messageText
 	}
+	getPanelHtml() {
+		return `add message to <em>${escapeHtml(this.messageTo)}</em> as ticket note`
+	}
 	async act(tab,tabState) {
-		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
+		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			tabActions.set(tab.id,this)
 			return
@@ -137,6 +143,9 @@ class AddTicketArticle extends TabAction {
 		super()
 		this.subject=subject
 		this.body=body
+	}
+	getPanelHtml() {
+		return `add ticket article <em>${escapeHtml(this.subject)}</em>`
 	}
 	async act(tab,tabState) {
 		try {
@@ -434,6 +443,14 @@ function isOsmNoteUrl(osmRoot,url) {
 function isOtrsTicketUrl(otrsRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
 	return !!match
+}
+
+function getOtrsTicketId(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=')+'([0-9]+)'))
+	if (match) {
+		const [,ticketId]=match
+		return ticketId
+	}
 }
 
 function getOtrsCreatedTicketId(otrsRoot,url) {

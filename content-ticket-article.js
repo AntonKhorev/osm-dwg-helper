@@ -21,14 +21,10 @@ function messageListener(message) {
 }
 
 function populateArticleForm($form,subject,body) {
-	if (ticketData.Subject!=null) {
-		$form.Subject.value=subject
-		$form.Subject.dispatchEvent(new Event('change'))
-	}
-	if (ticketData.Body!=null) {
-		$form.Body.value=body
-		// ckeditor should load after this field is updated
-	}
+	$form.Subject.value=subject
+	$form.Subject.dispatchEvent(new Event('change'))
+	$form.Body.value=body
+	// ckeditor should load after this field is updated
 }
 
 function informOnLoginScreen($loginBox) {
