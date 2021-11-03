@@ -62,7 +62,7 @@ class CreateIssueTicket extends TabAction {
 	}
 	async act(tab,tabState) {
 		try {
-			await addListenerAndSendMessage(tab.id,'/content-create-ticket.js',{action:'addIssueDataToTicket',ticketData:this.ticketData})
+			await addListenerAndSendMessage(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData:this.ticketData})
 		} catch {
 			tabActions.set(tab.id,this)
 			return
@@ -87,7 +87,7 @@ class CommentIssueWithTicketUrl extends TabAction {
 			return
 		}
 		const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
-		await addListenerAndSendMessage(this.openerTabId,'/content-issue.js',{
+		await addListenerAndSendMessage(this.openerTabId,'issue',{
 			action:'addComment',
 			comment:ticketUrl
 		})
@@ -106,7 +106,7 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 	}
 	async act(tab,tabState) {
 		// TODO actually get the message
-		const messageId=await addListenerAndSendMessage(tab.id,'/content-mailbox.js',{action:'getTopMessageId'})
+		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'})
 		if (!messageId) {
 			// TODO handle login page, empty mailbox
 			// tabActions.set(tab.id,this)
@@ -155,7 +155,7 @@ class AddTicketArticle extends TabAction {
 	}
 	async act(tab,tabState) {
 		try {
-			await addListenerAndSendMessage(tab.id,'/content-ticket-article.js',{
+			await addListenerAndSendMessage(tab.id,'ticket-article',{
 				action:'addArticleSubjectAndBody',
 				subject:this.subject,
 				body:this.body
@@ -300,7 +300,7 @@ async function getTabState(tab) {
 				id:issueId,
 				url:tab.url
 			}
-			const contentIssueData=await addListenerAndSendMessage(tab.id,'/content-issue.js',{action:'getIssueData'})
+			const contentIssueData=await addListenerAndSendMessage(tab.id,'issue',{action:'getIssueData'})
 			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 		}
 	}
@@ -308,7 +308,7 @@ async function getTabState(tab) {
 		if (isOsmUserUrl(settings.osm,tab.url)) {
 			tabState.type='user'
 			tabState.userData={}
-			const userId=await addListenerAndSendMessage(tab.id,'/content-user.js',{action:'getUserId'})
+			const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
 			if (userId!=null) {
 				let apiUrl='#' // not important for now - only used in templates
 				if (settings.osm_api!=null) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
@@ -323,7 +323,7 @@ async function getTabState(tab) {
 		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
 			tabState.type='ticket'
 			tabState.issueData={}
-			const contentIssueId=await addListenerAndSendMessage(tab.id,'/content-ticket.js',{action:'getIssueId'})
+			const contentIssueId=await addListenerAndSendMessage(tab.id,'ticket',{action:'getIssueId'})
 			if (contentIssueId!=null) {
 				tabState.issueData={
 					osmRoot:settings.osm,
@@ -337,7 +337,7 @@ async function getTabState(tab) {
 }
 
 async function addListenerAndSendMessage(tabId,contentScript,message) {
-	await browser.tabs.executeScript(tabId,{file:contentScript})
+	await browser.tabs.executeScript(tabId,{file:`/content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)
 }
 
