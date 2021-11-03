@@ -99,23 +99,32 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	if (settings.otrs!=null) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
+			const numberNote='searching just for a number often yields unrelated results'
 			if (issueData.id!=null) {
-				const $search=makeSearchLink(issueData.id)
-				$search.innerText=`Search OTRS for issue id "${issueData.id}"`
-				addAction($search)
+				const addSubAction=addSubmenu(`Search OTRS for issue`)
+				addSubAction(makeSearchLink(issueData.id,numberNote))
+				addSubAction(makeSearchLink('issue '+issueData.id))
 			}
 			if (issueData.reportedItem?.type=='user') {
-				const $search=makeSearchLink(issueData.reportedItem.name)
-				$search.innerText=`Search OTRS for reported user "${issueData.reportedItem.name}"`
-				addAction($search)
+				const addSubAction=addSubmenu(`Search OTRS for reported user`)
+				addSubAction(makeSearchLink(issueData.reportedItem.name))
+				addSubAction(makeSearchLink('user '+issueData.reportedItem.name))
 			}
 			if (issueData.reportedItem?.type=='note') {
-				const $search=makeSearchLink(issueData.reportedItem.id)
-				$search.innerText=`Search OTRS for reported note id "${issueData.reportedItem.id}"`
-				addAction($search)
+				const addSubAction=addSubmenu(`Search OTRS for reported note`)
+				addSubAction(makeSearchLink(issueData.reportedItem.id,numberNote))
+				addSubAction(makeSearchLink('note '+issueData.reportedItem.id))
 			}
-			function makeSearchLink(query) {
-				return makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`)
+			function makeSearchLink(query,note) {
+				const $a=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`)
+				$a.innerText=query
+				if (note!=null) {
+					const $note=document.createElement('span')
+					$note.innerText='(?)'
+					$note.title=note
+					$a.append(' ',$note)
+				}
+				return $a
 			}
 		}
 	}
@@ -154,10 +163,22 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		$a.href=href
 		return $a
 	}
-	function addAction($action) {
+	function addAction(...$action) {
 		const $li=document.createElement('li')
-		$li.append($action)
+		$li.append(...$action)
 		$actions.append($li)
+	}
+	function addSubmenu(name) {
+		const $span=document.createElement('span')
+		$span.innerText=name
+		const $subactions=document.createElement('ul')
+		addAction($span,$subactions)
+		const addSubAction=(...$subaction)=>{
+			const $li=document.createElement('li')
+			$li.append(...$subaction)
+			$subactions.append($li)
+		}
+		return addSubAction
 	}
 }
 
