@@ -96,10 +96,11 @@ class CommentIssueWithTicketUrl extends TabAction {
 	}
 }
 
-class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
-	constructor(openerTabId) {
+class GoToLastOutboxMessageThenAddMessageToTicket extends TabAction {
+	constructor(openerTabId,addAs) {
 		super()
 		this.openerTabId=openerTabId
+		this.addAs=addAs
 	}
 	getPanelHtml() {
 		return `go to last outbox message`
@@ -113,37 +114,39 @@ class GoToLastOutboxMessageThenAddMessageAsTicketNote extends TabAction {
 			return
 		}
 		const messageUrl=`${settings.osm}messages/${encodeURIComponent(messageId)}`
-		tabActions.set(tab.id,new ScrapeMessageThenAddMessageAsTicketNote(this.openerTabId))
+		tabActions.set(tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.addAs))
 		browser.tabs.update(tab.id,{url:messageUrl})
 		reactToActionsUpdate()
 	}
 }
 
-class ScrapeMessageThenAddMessageAsTicketNote extends TabAction {
-	constructor(openerTabId) {
+class ScrapeMessageThenAddMessageToTicket extends TabAction {
+	constructor(openerTabId,addAs) {
 		super()
 		this.openerTabId=openerTabId
+		this.addAs=addAs
 	}
 	getPanelHtml() {
 		return `scrape outbox message`
 	}
 	async act(tab,tabState) {
 		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
-		tabActions.set(this.openerTabId,new AddMessageAsTicketNote(messageData.user,messageData.body))
+		tabActions.set(this.openerTabId,new AddMessageToTicket(this.addAs,messageData.user,messageData.body))
 		browser.tabs.remove(tab.id)
 		browser.tabs.update(this.openerTabId,{active:true})
 		reactToActionsUpdate()
 	}
 }
 
-class AddMessageAsTicketNote extends TabAction {
-	constructor(messageTo,messageText) {
+class AddMessageToTicket extends TabAction {
+	constructor(addAs,messageTo,messageText) {
 		super()
+		this.addAs=addAs
 		this.messageTo=messageTo
 		this.messageText=messageText
 	}
 	getPanelHtml() {
-		return `add message to <em>${escapeHtml(this.messageTo)}</em> as ticket note`
+		return `add message to <em>${escapeHtml(this.messageTo)}</em> as ${this.addAs} article`
 	}
 	async act(tab,tabState) {
 		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
@@ -151,7 +154,9 @@ class AddMessageAsTicketNote extends TabAction {
 			tabActions.set(tab.id,this)
 			return
 		}
-		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}`
+		let otrsAction='AgentTicketNote'
+		if (this.addAs=='pending') otrsAction='AgentTicketPending'
+		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${ticketId}`
 		tabActions.set(tab.id,new AddTicketArticle(
 			evaluateTemplate(settings.article_message_to_subject,{user:{name:this.messageTo}}),
 			this.messageText
@@ -188,7 +193,7 @@ class AddTicketArticle extends TabAction {
 window.TabActions={
 	ScrapeReportedItemThenCreateIssueTicket,
 	CreateIssueTicket,
-	GoToLastOutboxMessageThenAddMessageAsTicketNote
+	GoToLastOutboxMessageThenAddMessageToTicket
 }
 
 window.updateSettings=async(text)=>{
