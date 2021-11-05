@@ -163,9 +163,12 @@ class AddMessageToTicket extends TabAction {
 		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${ticketId}`
 		let subjectTemplate=settings.article_message_to_subject
 		if (this.mailbox=='inbox') subjectTemplate=settings.article_message_from_subject
+		let processedMessageText=this.messageText
+		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
+		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
 		tabActions.set(tab.id,new AddTicketArticle(
 			evaluateTemplate(subjectTemplate,{user:{name:this.messageTo}}),
-			this.messageText
+			processedMessageText
 		))
 		browser.tabs.update(tab.id,{url:ticketNoteUrl})
 		reactToActionsUpdate()
