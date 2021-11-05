@@ -11,6 +11,9 @@
 		"default_title": "DWG Helper",
 		"default_panel": "panel.html"
 	},
+	"options_ui": {
+		"page": "options.html"
+ 	},
 
 	"permissions": [
 		"downloads",
