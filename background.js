@@ -12,6 +12,7 @@ ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
 ticket_body_item_user_id = <p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>
 ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
 article_message_to_subject = PM to \${user.name}
+article_message_from_subject = PM from \${user.name}
 `
 
 let settings=parseSettingsText(defaultSettingsText)
@@ -96,14 +97,15 @@ class CommentIssueWithTicketUrl extends TabAction {
 	}
 }
 
-class GoToLastOutboxMessageThenAddMessageToTicket extends TabAction {
-	constructor(openerTabId,addAs) {
+class GoToLastMessageThenAddMessageToTicket extends TabAction {
+	constructor(openerTabId,mailbox,addAs) {
 		super()
 		this.openerTabId=openerTabId
+		this.mailbox=mailbox
 		this.addAs=addAs
 	}
 	getPanelHtml() {
-		return `go to last outbox message`
+		return `go to last ${this.mailbox} message`
 	}
 	async act(tab,tabState) {
 		// TODO actually get the message
@@ -114,24 +116,25 @@ class GoToLastOutboxMessageThenAddMessageToTicket extends TabAction {
 			return
 		}
 		const messageUrl=`${settings.osm}messages/${encodeURIComponent(messageId)}`
-		tabActions.set(tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.addAs))
+		tabActions.set(tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.mailbox,this.addAs))
 		browser.tabs.update(tab.id,{url:messageUrl})
 		reactToActionsUpdate()
 	}
 }
 
 class ScrapeMessageThenAddMessageToTicket extends TabAction {
-	constructor(openerTabId,addAs) {
+	constructor(openerTabId,mailbox,addAs) {
 		super()
 		this.openerTabId=openerTabId
+		this.mailbox=mailbox
 		this.addAs=addAs
 	}
 	getPanelHtml() {
-		return `scrape outbox message`
+		return `scrape ${this.mailbox} message`
 	}
 	async act(tab,tabState) {
 		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
-		tabActions.set(this.openerTabId,new AddMessageToTicket(this.addAs,messageData.user,messageData.body))
+		tabActions.set(this.openerTabId,new AddMessageToTicket(this.mailbox,this.addAs,messageData.user,messageData.body))
 		browser.tabs.remove(tab.id)
 		browser.tabs.update(this.openerTabId,{active:true})
 		reactToActionsUpdate()
@@ -139,8 +142,9 @@ class ScrapeMessageThenAddMessageToTicket extends TabAction {
 }
 
 class AddMessageToTicket extends TabAction {
-	constructor(addAs,messageTo,messageText) {
+	constructor(mailbox,addAs,messageTo,messageText) {
 		super()
+		this.mailbox=mailbox
 		this.addAs=addAs
 		this.messageTo=messageTo
 		this.messageText=messageText
@@ -157,8 +161,10 @@ class AddMessageToTicket extends TabAction {
 		let otrsAction='AgentTicketNote'
 		if (this.addAs=='pending') otrsAction='AgentTicketPending'
 		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${ticketId}`
+		let subjectTemplate=settings.article_message_to_subject
+		if (this.mailbox=='inbox') subjectTemplate=settings.article_message_from_subject
 		tabActions.set(tab.id,new AddTicketArticle(
-			evaluateTemplate(settings.article_message_to_subject,{user:{name:this.messageTo}}),
+			evaluateTemplate(subjectTemplate,{user:{name:this.messageTo}}),
 			this.messageText
 		))
 		browser.tabs.update(tab.id,{url:ticketNoteUrl})
@@ -193,7 +199,7 @@ class AddTicketArticle extends TabAction {
 window.TabActions={
 	ScrapeReportedItemThenCreateIssueTicket,
 	CreateIssueTicket,
-	GoToLastOutboxMessageThenAddMessageToTicket
+	GoToLastMessageThenAddMessageToTicket
 }
 
 window.updateSettings=async(text)=>{

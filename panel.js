@@ -132,20 +132,22 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	}
 	if (settings.otrs!=null && settings.osm!=null) {
 		if (tabState.type=='ticket') {
-			const addSubAction=addSubmenu(`Add last outbox message to ticket`)
-			addSubAction(makeMessageLink('note'))
-			addSubAction(makeMessageLink('pending'))
-			function makeMessageLink(addAs) {
-				const outboxHref=`${settings.osm}messages/outbox`
-				const $a=makeLink(outboxHref,'as '+addAs)
-				$a.addEventListener('click',(ev)=>{
-					ev.preventDefault()
-					background.initiateNewTabAction(
-						outboxHref,
-						new background.TabActions.GoToLastOutboxMessageThenAddMessageToTicket(tabId,addAs)
-					)
-				})
-				return $a
+			for (const mailbox of ['outbox','inbox']) {
+				const addSubAction=addSubmenu(`Add last ${mailbox} message to ticket`)
+				addSubAction(makeMessageLink('note'))
+				addSubAction(makeMessageLink('pending'))
+				function makeMessageLink(addAs) {
+					const outboxHref=`${settings.osm}messages/${mailbox}`
+					const $a=makeLink(outboxHref,'as '+addAs)
+					$a.addEventListener('click',(ev)=>{
+						ev.preventDefault()
+						background.initiateNewTabAction(
+							outboxHref,
+							new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
+						)
+					})
+					return $a
+				}
 			}
 		}
 	}
