@@ -3,13 +3,19 @@
 	"name": "OSM DWG Helper",
 	"version": "0.0.0",
 	"description": "Tools for OSM issues and OTRS tickets",
+	"homepage_url": "https://github.com/AntonKhorev/osm-dwg-helper",
+	"author": "Anton Khorev",
+	"icons": {
+		"48": "icon.png"
+	},
 
 	"background": {
 		"page": "background.html"
 	},
 	"sidebar_action": {
 		"default_title": "DWG Helper",
-		"default_panel": "panel.html"
+		"default_panel": "panel.html",
+		"default_icon": "icon.png"
 	},
 	"options_ui": {
 		"page": "options.html"
