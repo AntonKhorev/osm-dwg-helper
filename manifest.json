@@ -17,6 +17,11 @@
 		"default_panel": "panel.html",
 		"default_icon": "icon.png"
 	},
+	"browser_action": {
+		"browser_style": true,
+		"default_title": "DWG Helper",
+		"default_popup": "panel.html"
+	},
 	"options_ui": {
 		"page": "options.html"
  	},
