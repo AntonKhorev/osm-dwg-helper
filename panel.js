@@ -127,7 +127,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	if (settings.osm!=null) {
 		if (tabState.type=='ticket' && tabState.issueData) {
 			const issueData=tabState.issueData
-			addAction(makeLink(issueData.url,`Go to ticket issue #${issueData.id}`))
+			if (issueData.id!=null) addAction(makeLink(issueData.url,`Go to ticket issue #${issueData.id}`))
 		}
 	}
 	if (settings.otrs!=null && settings.osm!=null) {
