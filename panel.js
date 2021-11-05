@@ -60,14 +60,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		return
 	}
 	if (settings.osm!=null) {
-		const $goToIssues=makeLink(`${settings.osm}issues?status=open`)
-		$goToIssues.innerText="Go to open OSM issues"
-		addAction($goToIssues)
+		addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
 	}
 	if (settings.otrs!=null) {
-		const $goToTickets=makeLink(settings.otrs)
-		$goToTickets.innerText="Go to OTRS"
-		addAction($goToTickets)
+		addAction(makeLink(settings.otrs,"Go to OTRS"))
 	}
 	if (settings.otrs!=null) {
 		const $createTicket=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`)
@@ -131,9 +127,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	if (settings.osm!=null) {
 		if (tabState.type=='ticket' && tabState.issueData) {
 			const issueData=tabState.issueData
-			const $goToIssue=makeLink(issueData.url)
-			$goToIssue.innerText=`Go to ticket issue #${issueData.id}`
-			addAction($goToIssue)
+			addAction(makeLink(issueData.url,`Go to ticket issue #${issueData.id}`))
 		}
 	}
 	if (settings.otrs!=null && settings.osm!=null) {
@@ -143,8 +137,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			addSubAction(makeMessageLink('pending'))
 			function makeMessageLink(addAs) {
 				const outboxHref=`${settings.osm}messages/outbox`
-				const $a=makeLink(outboxHref)
-				$a.innerText='as '+addAs
+				const $a=makeLink(outboxHref,'as '+addAs)
 				$a.addEventListener('click',(ev)=>{
 					ev.preventDefault()
 					background.initiateNewTabAction(
@@ -158,14 +151,20 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 	}
 	if (settings.osm!=null) {
 		if (tabState.type=='user' && tabState.userData.id!=null) {
-			const $a=makeLink(tabState.userData.apiUrl)
-			$a.innerText=`Check user id #${tabState.userData.id}`
-			addAction($a)
+			addAction(makeLink(tabState.userData.apiUrl,`Check user id #${tabState.userData.id}`))
 		}
 	}
-	function makeLink(href) {
+	{
+		if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
+			const text=tabState.issueData.reports.map(report=>report.text.join('\n')).join('\n\n---\n\n')
+			const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
+			addAction(makeLink(googleTranslateUrl,'translate issue text'))
+		}
+	}
+	function makeLink(href,text) {
 		const $a=document.createElement('a')
 		$a.href=href
+		if (text!=null) $a.innerText=text
 		return $a
 	}
 	function addAction(...$action) {

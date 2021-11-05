@@ -10,6 +10,7 @@ Reimplements some of [osm-dwg-userscripts](https://github.com/woodpeck/osm-dwg-u
 - Go to the issue page corresponding to an OTRS ticket title from a ticket page.
 - Search OTRS for reported items in issues.
 - Add the last outbox message to a ticket as an OTRS note.
+- Translate issue reports.
 
 ## Installation
 
