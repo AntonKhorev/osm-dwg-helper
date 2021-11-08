@@ -11,3 +11,10 @@ for (const htmlFilename of ['background.html','panel.html','options.html']) {
 	const patchedContents=contents.replace(/(?=<script)/,'<script type=module src=browser-polyfill.js></script>\n')
 	await fs.writeFile(filename,patchedContents)
 }
+
+{
+	const filename=path.join('dist','background.js')
+	const contents=String(await fs.readFile(filename))
+	const patchedContents=contents.replace(/(?<=const\s+buildScriptChromePatch\s*=\s*)false/,'true')
+	await fs.writeFile(filename,patchedContents)
+}

@@ -1,3 +1,5 @@
+const buildScriptChromePatch=false
+
 window.defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
 osm = https://www.openstreetmap.org/
 osm_api = https://api.openstreetmap.org/
@@ -368,7 +370,8 @@ async function getTabState(tab) {
 }
 
 async function addListenerAndSendMessage(tabId,contentScript,message) {
-	await browser.tabs.executeScript(tabId,{file:`/content/${contentScript}.js`})
+	if (buildScriptChromePatch) await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
+	await browser.tabs.executeScript(tabId,{file:`content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)
 }
 
