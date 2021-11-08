@@ -4,10 +4,20 @@
 <meta charset=utf-8>
 <style>
 body {
-	padding: .5em;
+	padding: .5rem;
+	min-width: 15rem;
+}
+h2 {
+	margin: .5rem 1rem;
+	padding: 0;
+}
+.actions:empty::before {
+	content: "(none)";
+	color: gray;
 }
 ul {
-	padding: 0 0 0 1em;
+	margin: 0 0 0 1rem;
+	padding: 0;
 }
 a {
 	text-decoration: none;
@@ -20,10 +30,10 @@ a:hover {
 </head>
 <body>
 <h2>New Actions</h2>
-<ul id=actions-new>
+<ul class=actions id=actions-new>
 </ul>
 <h2>Ongoing Actions</h2>
-<ul id=actions-ongoing>
+<ul class=actions id=actions-ongoing>
 </ul>
 </body>
 </html>
