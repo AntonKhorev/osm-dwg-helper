@@ -39,15 +39,29 @@ Last thing that happens is that the issue gets commented with a link to the newl
 
 ## Installation
 
-Currently you can load it as a temporary extension in Firefox.
+Currently you can load the extention as a temporary extension in Firefox or as an unpacked extension in Chromium. It has not yet been tested in standard Chrome or other browsers.
 
-1. Download the files (clone the repository).
+### As a temporary extension in Firefox
+
+1. Download the extension files (clone the repository).
 2. Open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox).
 3. Click *Load Temporary Add-on* under *Temporary Extensions*.
 4. Open any file inside the `src` subdirectory. This should load the extension and a sidebar titled *DWG Helper* should appear.
 5. If the sidebar didn't appear select *View* > *Sidebar* > *DWG Helper* from the top menu bar. If the menu bar is hidden press *Alt*.
+6. Alternatively the extension is available as a popup opened by a toolbar button.
 
-- Doesn't work in Chrome because there's no sidebar API.
-- Not yet tested in other browsers.
+### As an unpacked extension in Chromium
+
+Version adapted to work in Chromium needs to be build with [Node.js](https://nodejs.org/).
+
+1. Install Node.js.
+2. Download the extension files (clone the repository).
+3. Build the extension:
+    1. run `npm install`
+    2. run `npm run build`
+4. Open *Settings > Extensions* in the browser: [chrome://extensions/](chrome://extensions/)
+5. Press the *Load unpacked* button.
+6. Open the `dist` subditectory that should have appeared after a successful build.
+7. The extension should be accessible as a popup with a toolbar button. Accessing it through a sidebar is not supported on Chrome/Chromium.
 
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
