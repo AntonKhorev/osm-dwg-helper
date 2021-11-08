@@ -46,31 +46,25 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 		addAction(makeLink(settings.otrs,"Go to OTRS"))
 	}
 	if (settings.otrs!=null) {
-		const $createTicket=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`)
-		let ticketType="empty"
-		let issueData
-		if (settings.osm==null) {
-			ticketType+=" <span title='can only create empty ticket because osm key is not set'>(?)</span>"
-		} else {
-			if (tabState.type=='issue') {
-				issueData=tabState.issueData
-				ticketType=`issue #${issueData.id}`
-				if (issueData.reportedItem) {
-					ticketType+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
-				}
-			}
+		const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+		const addSubAction=addSubmenu(`Create ticket`)
+		{
+			addSubAction(makeLink(createTicketUrl,"empty"))
 		}
-		$createTicket.innerHTML="Create ticket - "+ticketType
-		if (issueData) {
-			$createTicket.addEventListener('click',(ev)=>{
+		if (tabState.type=='issue') {
+			const issueData=tabState.issueData
+			let text=`issue #${issueData.id}`
+			if (issueData.reportedItem) {
+				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
+			}
+			addSubAction(makeLink(createTicketUrl,text,ev=>{
 				ev.preventDefault()
 				background.initiateNewTabAction(
 					issueData.reportedItem.url,
 					new background.TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
 				)
-			})
+			}))
 		}
-		addAction($createTicket)
 	}
 	if (settings.otrs!=null) {
 		if (tabState.type=='issue') {
@@ -118,15 +112,13 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
 					const outboxHref=`${settings.osm}messages/${mailbox}`
-					const $a=makeLink(outboxHref,'as '+addAs)
-					$a.addEventListener('click',(ev)=>{
+					return makeLink(outboxHref,'as '+addAs,ev=>{
 						ev.preventDefault()
 						background.initiateNewTabAction(
 							outboxHref,
 							new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
 						)
 					})
-					return $a
 				}
 			}
 		}
@@ -143,10 +135,14 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			addAction(makeLink(googleTranslateUrl,'translate issue text'))
 		}
 	}
-	function makeLink(href,text) {
+	function makeLink(href,text,clickHandler=ev=>{
+		ev.preventDefault()
+		browser.tabs.create({openerTabId:tabId,url:href})
+	}) {
 		const $a=document.createElement('a')
 		$a.href=href
 		if (text!=null) $a.innerText=text
+		$a.addEventListener('click',clickHandler)
 		return $a
 	}
 	function addAction(...$action) {
