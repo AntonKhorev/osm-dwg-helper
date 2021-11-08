@@ -57,13 +57,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			if (issueData.reportedItem) {
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
-			addSubAction(makeLink(createTicketUrl,text,ev=>{
-				ev.preventDefault()
-				background.initiateNewTabAction(
-					issueData.reportedItem.url,
-					new background.TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
-				)
-			}))
+			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
+				issueData.reportedItem.url,
+				new background.TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+			)))
 		}
 	}
 	if (settings.otrs!=null) {
@@ -112,13 +109,10 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
 					const outboxHref=`${settings.osm}messages/${mailbox}`
-					return makeLink(outboxHref,'as '+addAs,ev=>{
-						ev.preventDefault()
-						background.initiateNewTabAction(
-							outboxHref,
-							new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
-						)
-					})
+					return makeLink(outboxHref,'as '+addAs,()=>background.initiateNewTabAction(
+						outboxHref,
+						new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
+					))
 				}
 			}
 		}
@@ -135,14 +129,15 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			addAction(makeLink(googleTranslateUrl,'translate issue text'))
 		}
 	}
-	function makeLink(href,text,clickHandler=ev=>{
-		ev.preventDefault()
-		browser.tabs.create({openerTabId:tabId,url:href})
-	}) {
+	function makeLink(href,text,clickHandler=()=>browser.tabs.create({openerTabId:tabId,url:href})) {
 		const $a=document.createElement('a')
 		$a.href=href
 		if (text!=null) $a.innerText=text
-		$a.addEventListener('click',clickHandler)
+		$a.addEventListener('click',ev=>{
+			ev.preventDefault()
+			clickHandler()
+			window.close() // for popup; does nothing on sidebar
+		})
 		return $a
 	}
 	function addAction(...$action) {
