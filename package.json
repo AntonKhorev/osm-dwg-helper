@@ -1,0 +1,25 @@
+{
+  "name": "osm-dwg-helper",
+  "version": "0.0.0",
+  "description": "Browser extension to handle reported issues on OpenStreetMap website",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AntonKhorev/osm-dwg-helper.git"
+  },
+  "author": "Anton Khorev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AntonKhorev/osm-dwg-helper/issues"
+  },
+  "homepage": "https://github.com/AntonKhorev/osm-dwg-helper#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "fs-extra": "^10.0.0",
+    "webextension-polyfill": "^0.8.0"
+  }
+}
