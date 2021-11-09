@@ -12,7 +12,9 @@ function readSettingsFile() {
 	reader.readAsText(file)
 }
 
-function downloadSettingsFile() {
+async function downloadSettingsFile() {
+	const granted=await browser.permissions.request({permissions:["downloads"]})
+	if (!granted) return
 	const blob=new Blob([background.defaultSettingsText],{type:'text/plain'})
 	const url=URL.createObjectURL(blob)
 	browser.downloads.download({url,filename:'osm-dwg-helper-settings.txt',saveAs:true})

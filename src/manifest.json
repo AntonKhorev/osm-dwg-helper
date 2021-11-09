@@ -27,10 +27,10 @@
  	},
 
 	"permissions": [
-		"downloads",
 		"tabs"
 	],
 	"optional_permissions": [
+		"downloads",
 		"<all_urls>"
 	],
 
