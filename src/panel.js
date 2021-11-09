@@ -5,9 +5,12 @@ const scheduleUpdatePanelActionsNew=setupUpdateScheduler(updatePanelActionsNew,a
 	return (currentTab.id==tabId)
 })
 const scheduleUpdatePanelActionsOngoing=setupUpdateScheduler(updatePanelActionsOngoing)
+const scheduleUpdatePanelPermissions=setupUpdateScheduler(updatePanelPermissions)
 
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action=='updatePanelActionsNew') {
+	if (message.action=='updatePanelPermissions') {
+		return scheduleUpdatePanelPermissions(message.missingOrigins)
+	} else if (message.action=='updatePanelActionsNew') {
 		return scheduleUpdatePanelActionsNew(message.settings,message.tabId,message.tabState)
 	} else if (message.action=='updatePanelActionsOngoing') {
 		return scheduleUpdatePanelActionsOngoing(message.tabActionListItems)
@@ -32,7 +35,24 @@ function setupUpdateScheduler(handlerFn,filterFn) {
 	}
 }
 
+function updatePanelPermissions(missingOrigins) {
+	const $permissions=document.getElementById('permissions')
+	$permissions.innerHTML=""
+	if (missingOrigins.length<=0) return
+	const $button=document.createElement('button') // TODO doesn't work in sidebar - fix somehow
+	$button.innerText="Grant permissions to access OSM/OTRS webpages"
+	$button.addEventListener('click',()=>{
+		browser.permissions.request({
+			origins:missingOrigins
+		}).then(granted=>{
+			if (granted) background.reportPermissionsUpdate()
+		})
+	})
+	$permissions.append($button)
+}
+
 function updatePanelActionsNew(settings,tabId,tabState) {
+	// TODO receive filtered-by-granted permission origin
 	const $actions=document.getElementById('actions-new')
 	$actions.innerHTML=""
 	if (settings.otrs==null) {

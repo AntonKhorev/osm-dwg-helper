@@ -220,7 +220,12 @@ window.updateSettings=async(text)=>{
 	}
 }
 
+window.reportPermissionsUpdate=async()=>{
+	sendUpdatePanelPermissionsMessage()
+}
+
 window.registerNewPanel=(tab)=>{
+	sendUpdatePanelPermissionsMessage() // TODO limit the update to this tab
 	updateTabState(tab,true)
 	reactToActionsUpdate()
 }
@@ -272,10 +277,7 @@ browser.tabs.onRemoved.addListener((tabId)=>{
 browser.tabs.onActivated.addListener(async({tabId})=>{
 	const tabState=tabStates.get(tabId)
 	if (tabState) {
-		browser.runtime.sendMessage({
-			action:'updatePanelActionsNew',
-			settings,tabId,tabState
-		})
+		sendUpdatePanelActionsMessage(tabId,tabState)
 	} else {
 		const tab=await browser.tabs.get(tabId)
 		updateTabState(tab,true)
@@ -299,11 +301,37 @@ async function updateTabState(tab,forcePanelUpdate=false) {
 	const tabState=await getTabState(tab)
 	const tabStateChanged=!isTabStateEqual(tabStates.get(tab.id),tabState)
 	if (tabStateChanged) tabStates.set(tab.id,tabState)
-	if (forcePanelUpdate || tabStateChanged && tab.active) browser.runtime.sendMessage({
-		action:'updatePanelActionsNew',
-		settings,tabId:tab.id,tabState
-	})
+	if (forcePanelUpdate || tabStateChanged && tab.active) sendUpdatePanelActionsMessage(tab.id,tabState)
 	return tabState
+}
+
+function sendUpdatePanelActionsMessage(tabId,tabState) {
+	// const origins={}
+	// for (const key of ['otrs','osm']) {
+	// 	origins[key]=settings[key]
+	// }
+	browser.runtime.sendMessage({
+		action:'updatePanelActionsNew',
+		// origins,
+		settings,
+		tabId,tabState
+	})
+}
+
+async function sendUpdatePanelPermissionsMessage() {
+	const missingOrigins=[]
+	for (const key of ['otrs','osm']) {
+		if (!settings[key]) continue
+		const origin=settings[key]+'*'
+		const containsOrigin=await browser.permissions.contains({
+			origins:[origin],
+		})
+		if (!containsOrigin) missingOrigins.push(origin)
+	}
+	browser.runtime.sendMessage({
+		action:'updatePanelPermissions',
+		missingOrigins
+	})
 }
 
 function isTabStateEqual(data1,data2) {
@@ -324,7 +352,7 @@ function isTabStateEqual(data1,data2) {
 
 async function getTabState(tab) {
 	const tabState={}
-	if (settings.osm!=null) {
+	if (settings.osm) {
 		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
 		if (issueId!=null) {
 			tabState.type='issue'
@@ -337,14 +365,14 @@ async function getTabState(tab) {
 			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 		}
 	}
-	if (settings.osm!=null) {
+	if (settings.osm) {
 		if (isOsmUserUrl(settings.osm,tab.url)) {
 			tabState.type='user'
 			tabState.userData={}
 			const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
 			if (userId!=null) {
 				let apiUrl='#' // not important for now - only used in templates
-				if (settings.osm_api!=null) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
+				if (settings.osm_api) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
 				tabState.userData={
 					id:userId,
 					apiUrl
@@ -352,7 +380,7 @@ async function getTabState(tab) {
 			}
 		}
 	}
-	if (settings.osm!=null && settings.otrs!=null) {
+	if (settings.osm && settings.otrs) {
 		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
 			tabState.type='ticket'
 			tabState.issueData={}
