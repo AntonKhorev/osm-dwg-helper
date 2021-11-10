@@ -4,6 +4,8 @@ document.getElementById('settings-load').addEventListener('change',readSettingsF
 document.getElementById('settings-save').addEventListener('click',()=>downloadSettingsFile(makeCurrentSettingsText))
 document.getElementById('settings-sample').addEventListener('click',()=>downloadSettingsFile(makeDefaultSettingsText))
 
+updateSettingsUI()
+
 function readSettingsFile() {
 	const [file]=this.files
 	const reader=new FileReader()
@@ -53,4 +55,58 @@ async function makeCurrentSettingsText() {
 		text+=`${k} = ${settings[k]}\n`
 	}
 	return text
+}
+
+async function updateSettingsUI() {
+	const $settings=document.getElementById('settings')
+	const settings=await background.settingsManager.read()
+	for (const spec of background.settingsManager.specs) {
+		if (typeof spec == 'string') {
+			const sectionName=spec
+			const $h=document.createElement('h2')
+			$h.innerText=sectionName
+			$settings.append($h)
+		} else {
+			const [key,defaultValue,title,attrs]=spec
+			const $optionContainer=document.createElement('div')
+			$optionContainer.className='option'
+			
+			const $label=document.createElement('label')
+			$label.innerText=title
+			$label.htmlFor='option-'+key
+			$optionContainer.append($label)
+
+			// datalist popup doesn't work on firefox, despite "VERIFIED FIXED": https://bugzilla.mozilla.org/show_bug.cgi?id=1387624
+			// they screwed it up again: https://bugzilla.mozilla.org/show_bug.cgi?id=1595158
+
+			// const $datalist=document.createElement('datalist')
+			// $datalist.id='list-'+key
+			// const $datalistOption=document.createElement('option')
+			// $datalistOption.value=defaultValue
+			// $datalist.append($datalistOption)
+			// $optionContainer.append($datalist)
+
+			const $input=document.createElement('input')
+			$input.id='option-'+key
+			if (attrs?.type=='url') {
+				$input.type='url'
+			} else {
+				$input.type='text'
+			}
+			$input.value=settings[key]
+			$input.placeholder=defaultValue
+			//$input.setAttribute('list','list-'+key)
+			let inputTimeoutId
+			$input.addEventListener('input',()=>{
+				if (inputTimeoutId!=null) clearTimeout(inputTimeoutId)
+				inputTimeoutId=setTimeout(()=>{
+					inputTimeoutId=undefined
+					background.settingsManager.write({[key]:$input.value})
+				},500)
+			})
+			$optionContainer.append($input)
+			
+			$settings.append($optionContainer)
+		}
+	}
 }

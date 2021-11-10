@@ -2,10 +2,25 @@
 <html lang=en>
 <head>
 <meta charset=utf-8>
+<style>
+.option {
+	margin: .5em 0;
+}
+input[type=text],
+input[type=url] {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+}
+hr {
+	width: 100%;
+}
+</style>
 <script type=module src=options.js></script>
 </head>
 <body>
 <div id=settings></div>
+<hr>
 <div>
 <label>Read settings file <input type=file id=settings-load></label>
 </div>
