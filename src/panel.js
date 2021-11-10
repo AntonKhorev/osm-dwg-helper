@@ -1,6 +1,6 @@
 const background=await browser.runtime.getBackgroundPage()
 
-const scheduleUpdatePanelActionsNew=setupUpdateScheduler(updatePanelActionsNew,async(settings,tabId,tabState)=>{
+const scheduleUpdatePanelActionsNew=setupUpdateScheduler(updatePanelActionsNew,async(settings,permissions,tabId,tabState)=>{
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 	return (currentTab.id==tabId)
 })
@@ -11,7 +11,7 @@ browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePanelPermissions') {
 		return scheduleUpdatePanelPermissions(message.missingOrigins)
 	} else if (message.action=='updatePanelActionsNew') {
-		return scheduleUpdatePanelActionsNew(message.settings,message.tabId,message.tabState)
+		return scheduleUpdatePanelActionsNew(message.settings,message.permissions,message.tabId,message.tabState)
 	} else if (message.action=='updatePanelActionsOngoing') {
 		return scheduleUpdatePanelActionsOngoing(message.tabActionListItems)
 	}
@@ -51,21 +51,16 @@ function updatePanelPermissions(missingOrigins) {
 	$permissions.append($button)
 }
 
-function updatePanelActionsNew(settings,tabId,tabState) {
-	// TODO receive filtered-by-granted permission origin
+function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 	const $actions=document.getElementById('actions-new')
 	$actions.innerHTML=""
-	if (settings.otrs==null) {
-		$actions.innerHTML="<p>Please load a settings file</p>"
-		return
-	}
-	if (settings.osm!=null) {
+	if (settings.osm) {
 		addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
 	}
-	if (settings.otrs!=null) {
+	if (settings.otrs) {
 		addAction(makeLink(settings.otrs,"Go to OTRS"))
 	}
-	if (settings.otrs!=null) {
+	if (permissions.otrs) {
 		const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 		const addSubAction=addSubmenu(`Create ticket`)
 		{
@@ -83,7 +78,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			)))
 		}
 	}
-	if (settings.otrs!=null) {
+	if (settings.otrs) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
 			const numberNote='searching just for a number often yields unrelated results'
@@ -115,13 +110,13 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			}
 		}
 	}
-	if (settings.osm!=null) {
+	if (settings.osm) {
 		if (tabState.type=='ticket' && tabState.issueData) {
 			const issueData=tabState.issueData
 			if (issueData.id!=null) addAction(makeLink(issueData.url,`Go to ticket issue #${issueData.id}`))
 		}
 	}
-	if (settings.otrs!=null && settings.osm!=null) {
+	if (permissions.otrs && permissions.osm) {
 		if (tabState.type=='ticket') {
 			for (const mailbox of ['outbox','inbox']) {
 				const addSubAction=addSubmenu(`Add last ${mailbox} message to ticket`)
@@ -137,7 +132,7 @@ function updatePanelActionsNew(settings,tabId,tabState) {
 			}
 		}
 	}
-	if (settings.osm!=null) {
+	if (settings.osm) {
 		if (tabState.type=='user' && tabState.userData.id!=null) {
 			addAction(makeLink(tabState.userData.apiUrl,`Check user id #${tabState.userData.id}`))
 		}

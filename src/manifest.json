@@ -27,6 +27,7 @@
  	},
 
 	"permissions": [
+		"storage",
 		"tabs"
 	],
 	"optional_permissions": [

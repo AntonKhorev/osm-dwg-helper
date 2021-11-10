@@ -1,26 +1,79 @@
 const buildScriptChromePatch=false
 
-window.defaultSettingsText=`otrs = https://otrs.openstreetmap.org/
-osm = https://www.openstreetmap.org/
-osm_api = https://api.openstreetmap.org/
-ticket_customer = \${user.name} <fwd@dwgmail.info>
-ticket_subject = Issue #\${issue.id}
-ticket_subject_user = Issue #\${issue.id} (User "\${user.name}")
-ticket_subject_user_id = Issue #\${issue.id} (User "\${user.name}")
-ticket_subject_note = Issue #\${issue.id} (Note #\${note.id})
-ticket_body_header = <h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>
-ticket_body_item = <p>Reported item : <a href='\${item.url}'>osm link</a></p>
-ticket_body_item_user = <p>User : <a href='\${user.url}'>\${user.name}</a></p>
-ticket_body_item_user_id = <p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>
-ticket_body_item_note = <p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>
-article_message_to_subject = PM to \${user.name}
-article_message_from_subject = PM from \${user.name}
-`
-
-let settings=parseSettingsText(defaultSettingsText)
-
 const tabStates=new Map()
 const tabActions=new Map()
+
+window.settingsManager = {
+	specs: [
+		// string for a header or
+		// [key, default value, title, note]
+		"Main settings",
+		['otrs','https://otrs.openstreetmap.org/',"OTRS root URL"],
+		['osm','https://www.openstreetmap.org/',"OpenStreetMap root URL"],
+		['osm_api','https://api.openstreetmap.org/',"OpenStreetMap API root URL","to make a link to user id"],
+		"OTRS ticket creation from OSM issues",
+		['ticket_customer',`\${user.name} <fwd@dwgmail.info>`,"Customer template","must be email-like"],
+		['ticket_subject',`Issue #\${issue.id}`,"Subject template when reported item is unknown"],
+		['ticket_subject_user',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with unknown id"],
+		['ticket_subject_user_id',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with known id"],
+		['ticket_subject_note',`Issue #\${issue.id} (Note #\${note.id})`,"Subject template when reported item is note"],
+		['ticket_body_header',`<h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>`,"Body header template","HTML"],
+		['ticket_body_item',`<p>Reported item : <a href='\${item.url}'>osm link</a></p>`,"Body reported item template when it's unknown","HTML"],
+		['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when it's user with unknown id","HTML"],
+		['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when it's user with known id","HTML"],
+		['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note","HTML"],
+		"Addition of OSM messages to OTRS tickets",
+		['article_message_to_subject',`PM to \${user.name}`,"Subject template for outbound message"],
+		['article_message_from_subject',`PM from \${user.name}`,"Subject template for inbound message"],
+	],
+	origins: {
+		otrs:true,
+		osm:true,
+	},
+	getSpecsWithoutHeaders: function*() {
+		for (const spec of settingsManager.specs) {
+			if (typeof spec == 'string') continue
+			yield spec
+		}
+	},
+	read: async()=>{
+		const kvs=await browser.storage.local.get()
+		for (const [k,v] of settingsManager.getSpecsWithoutHeaders()) {
+			if (kvs[k]==null) kvs[k]=v
+		}
+		return kvs
+	},
+	readPermissions: async()=>{
+		const settings=await settingsManager.read()
+		const filteredSettings={}
+		const missingOrigins=[]
+		for (const key of Object.keys(settingsManager.origins)) {
+			if (!settings[key]) continue
+			const origin=settings[key]+'*'
+			const containsOrigin=await browser.permissions.contains({
+				origins:[origin],
+			})
+			if (containsOrigin) {
+				filteredSettings[key]=settings[key]
+			} else {
+				missingOrigins.push(origin)
+			}
+		}
+		return [filteredSettings,missingOrigins]
+	},
+	write: async(kvs)=>{
+		if (tabActions.size>0) {
+			tabActions.clear()
+			reactToActionsUpdate()
+		}
+		tabStates.clear()
+		await browser.storage.local.set(kvs)
+		const activeTabs=await browser.tabs.query({active:true})
+		for (const tab of activeTabs) {
+			updateTabState(tab)
+		}
+	},
+}
 
 class TabAction {
 	getPanelHtml() {
@@ -39,6 +92,7 @@ class ScrapeReportedItemThenCreateIssueTicket extends TabAction {
 		return `scrape reported item then create ticket`
 	}
 	async act(tab,tabState) {
+		const settings=await settingsManager.read()
 		let ticketData
 		if (tabState.type=='user' && tabState.userData.id!=null) {
 			ticketData=convertIssueDataToTicketData(settings,this.issueData,tabState.userData)
@@ -84,6 +138,7 @@ class CommentIssueWithTicketUrl extends TabAction {
 		return `add comment to issue for created ticket`
 	}
 	async act(tab,tabState) {
+		const settings=await settingsManager.read()
 		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			tabActions.set(tab.id,this)
@@ -117,6 +172,7 @@ class GoToLastMessageThenAddMessageToTicket extends TabAction {
 			// tabActions.set(tab.id,this)
 			return
 		}
+		const settings=await settingsManager.read()
 		const messageUrl=`${settings.osm}messages/${encodeURIComponent(messageId)}`
 		tabActions.set(tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.mailbox,this.addAs))
 		browser.tabs.update(tab.id,{url:messageUrl})
@@ -155,6 +211,7 @@ class AddMessageToTicket extends TabAction {
 		return `add message to <em>${escapeHtml(this.messageTo)}</em> as ${this.addAs} article`
 	}
 	async act(tab,tabState) {
+		const settings=await settingsManager.read()
 		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			tabActions.set(tab.id,this)
@@ -207,19 +264,6 @@ window.TabActions={
 	GoToLastMessageThenAddMessageToTicket
 }
 
-window.updateSettings=async(text)=>{
-	if (tabActions.size>0) {
-		tabActions.clear()
-		reactToActionsUpdate()
-	}
-	tabStates.clear()
-	settings=parseSettingsText(text)
-	const activeTabs=await browser.tabs.query({active:true})
-	for (const tab of activeTabs) {
-		updateTabState(tab)
-	}
-}
-
 window.reportPermissionsUpdate=async()=>{
 	sendUpdatePanelPermissionsMessage()
 }
@@ -244,18 +288,6 @@ window.removeTabAction=(tabId)=>{
 		tabActions.delete(tabId)
 		reactToActionsUpdate()
 	}
-}
-
-function parseSettingsText(text) {
-	const settings={}
-	for (const line of text.split('\n')) {
-		let match
-		if (match=line.match(/^\s*([a-z_]+)\s*=\s*(.*)$/)) {
-			const [,key,value]=match
-			settings[key]=value
-		}
-	}
-	return settings
 }
 
 function reactToActionsUpdate() {
@@ -305,29 +337,18 @@ async function updateTabState(tab,forcePanelUpdate=false) {
 	return tabState
 }
 
-function sendUpdatePanelActionsMessage(tabId,tabState) {
-	// const origins={}
-	// for (const key of ['otrs','osm']) {
-	// 	origins[key]=settings[key]
-	// }
+async function sendUpdatePanelActionsMessage(tabId,tabState) {
+	const settings=await settingsManager.read()
+	const [permissions]=await settingsManager.readPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelActionsNew',
-		// origins,
-		settings,
+		settings,permissions,
 		tabId,tabState
 	})
 }
 
 async function sendUpdatePanelPermissionsMessage() {
-	const missingOrigins=[]
-	for (const key of ['otrs','osm']) {
-		if (!settings[key]) continue
-		const origin=settings[key]+'*'
-		const containsOrigin=await browser.permissions.contains({
-			origins:[origin],
-		})
-		if (!containsOrigin) missingOrigins.push(origin)
-	}
+	const [,missingOrigins]=await settingsManager.readPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelPermissions',
 		missingOrigins
@@ -351,6 +372,8 @@ function isTabStateEqual(data1,data2) {
 }
 
 async function getTabState(tab) {
+	const settings=await settingsManager.read()
+	const [permissions]=await settingsManager.readPermissions()
 	const tabState={}
 	if (settings.osm) {
 		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
@@ -361,35 +384,42 @@ async function getTabState(tab) {
 				id:issueId,
 				url:tab.url
 			}
-			const contentIssueData=await addListenerAndSendMessage(tab.id,'issue',{action:'getIssueData'})
-			if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
+			if (permissions.osm) {
+				const contentIssueData=await addListenerAndSendMessage(tab.id,'issue',{action:'getIssueData'})
+				if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
+			}
 		}
 	}
 	if (settings.osm) {
+		// TODO get username from url - not necessary for now
 		if (isOsmUserUrl(settings.osm,tab.url)) {
 			tabState.type='user'
 			tabState.userData={}
-			const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
-			if (userId!=null) {
-				let apiUrl='#' // not important for now - only used in templates
-				if (settings.osm_api) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
-				tabState.userData={
-					id:userId,
-					apiUrl
+			if (permissions.osm) {
+				const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
+				if (userId!=null) {
+					let apiUrl='#' // not important for now - only used in templates
+					if (settings.osm_api) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
+					tabState.userData={
+						id:userId,
+						apiUrl
+					}
 				}
 			}
 		}
 	}
-	if (settings.osm && settings.otrs) {
+	if (settings.otrs) {
 		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
 			tabState.type='ticket'
 			tabState.issueData={}
-			const contentIssueId=await addListenerAndSendMessage(tab.id,'ticket',{action:'getIssueId'})
-			if (contentIssueId!=null) {
-				tabState.issueData={
-					osmRoot:settings.osm,
-					id:contentIssueId,
-					url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+			if (settings.osm && permissions.otrs) {
+				const contentIssueId=await addListenerAndSendMessage(tab.id,'ticket',{action:'getIssueId'})
+				if (contentIssueId!=null) {
+					tabState.issueData={
+						osmRoot:settings.osm,
+						id:contentIssueId,
+						url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+					}
 				}
 			}
 		}
