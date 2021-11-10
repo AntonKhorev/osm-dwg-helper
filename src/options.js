@@ -26,7 +26,7 @@ async function downloadSettingsFile(getText) {
 
 function parseSettingsText(text) {
 	const validKeys={}
-	for (const [k] of settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k] of background.settingsManager.getSpecsWithoutHeaders()) {
 		validKeys[k]=true
 	}
 	const settings={}
@@ -42,7 +42,7 @@ function parseSettingsText(text) {
 
 async function makeDefaultSettingsText() {
 	let text=''
-	for (const [k,v] of settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k,v] of background.settingsManager.getSpecsWithoutHeaders()) {
 		text+=`${k} = ${v}\n`
 	}
 	return text
@@ -51,7 +51,7 @@ async function makeDefaultSettingsText() {
 async function makeCurrentSettingsText() {
 	const settings=await background.settingsManager.read()
 	let text=''
-	for (const [k] of settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k] of background.settingsManager.getSpecsWithoutHeaders()) {
 		text+=`${k} = ${settings[k]}\n`
 	}
 	return text
