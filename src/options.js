@@ -4,14 +4,30 @@ document.getElementById('settings-load').addEventListener('change',readSettingsF
 document.getElementById('settings-save').addEventListener('click',()=>downloadSettingsFile(makeCurrentSettingsText))
 document.getElementById('settings-sample').addEventListener('click',()=>downloadSettingsFile(makeDefaultSettingsText))
 
+let inputTimeoutId
+let inputUpdateValues={}
+window.addEventListener('unload',flushInputs)
+function inputEventHandler() {
+	clearTimeout(inputTimeoutId)
+	inputUpdateValues[this.name]=this.value
+	inputTimeoutId=setTimeout(flushInputs,500)
+}
+function flushInputs() {
+	inputTimeoutId=undefined
+	const writePromise=background.settingsManager.write(inputUpdateValues)
+	inputUpdateValues={} // don't need to wait for write completion
+	return writePromise
+}
+
 updateSettingsUI()
 
 function readSettingsFile() {
 	const [file]=this.files
 	const reader=new FileReader()
-	reader.addEventListener('load',()=>{
+	reader.addEventListener('load',async()=>{
 		const settings=parseSettingsText(reader.result)
-		background.settingsManager.write(settings)
+		await flushInputs()
+		await background.settingsManager.write(settings)
 		updateSettingsUI()
 	})
 	reader.readAsText(file)
@@ -50,6 +66,7 @@ async function makeDefaultSettingsText() {
 }
 
 async function makeCurrentSettingsText() {
+	await flushInputs()
 	const settings=await background.settingsManager.read()
 	let text=''
 	for (const [k] of background.settingsManager.getSpecsWithoutHeaders()) {
@@ -90,6 +107,7 @@ async function updateSettingsUI() {
 
 			const $input=document.createElement('input')
 			$input.id='option-'+key
+			$input.name=key
 			if (attrs?.type=='url') {
 				$input.type='url'
 			} else {
@@ -98,14 +116,7 @@ async function updateSettingsUI() {
 			$input.value=settings[key]
 			$input.placeholder=defaultValue
 			//$input.setAttribute('list','list-'+key)
-			let inputTimeoutId
-			$input.addEventListener('input',()=>{
-				if (inputTimeoutId!=null) clearTimeout(inputTimeoutId)
-				inputTimeoutId=setTimeout(()=>{
-					inputTimeoutId=undefined
-					background.settingsManager.write({[key]:$input.value})
-				},500)
-			})
+			$input.addEventListener('input',inputEventHandler)
 			$optionContainer.append($input)
 			
 			$settings.append($optionContainer)
