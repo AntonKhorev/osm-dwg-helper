@@ -12,6 +12,7 @@ function readSettingsFile() {
 	reader.addEventListener('load',()=>{
 		const settings=parseSettingsText(reader.result)
 		background.settingsManager.write(settings)
+		updateSettingsUI()
 	})
 	reader.readAsText(file)
 }
@@ -59,6 +60,7 @@ async function makeCurrentSettingsText() {
 
 async function updateSettingsUI() {
 	const $settings=document.getElementById('settings')
+	$settings.innerHTML=""
 	const settings=await background.settingsManager.read()
 	for (const spec of background.settingsManager.specs) {
 		if (typeof spec == 'string') {
