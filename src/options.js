@@ -15,7 +15,7 @@ function inputEventHandler() {
 function flushInputs() {
 	inputTimeoutId=undefined
 	const writePromise=background.settingsManager.write(inputUpdateValues)
-	inputUpdateValues={} // don't need to wait for write completion
+	inputUpdateValues={} // don't need to wait for write completion - TODO or maybe not and it's the source of "TypeError: can't access dead object"
 	return writePromise
 }
 
@@ -76,9 +76,10 @@ async function makeCurrentSettingsText() {
 }
 
 async function updateSettingsUI() {
+	const [settings,,missingOrigins]=await background.settingsManager.readSettingsAndPermissions()
+	updateOriginPermissionsUI(missingOrigins)
 	const $settings=document.getElementById('settings')
 	$settings.innerHTML=""
-	const settings=await background.settingsManager.read()
 	for (const spec of background.settingsManager.specs) {
 		if (typeof spec == 'string') {
 			const sectionName=spec
@@ -121,5 +122,29 @@ async function updateSettingsUI() {
 			
 			$settings.append($optionContainer)
 		}
+	}
+}
+
+let originPermissionsClickListener
+
+function updateOriginPermissionsUI(missingOrigins) {
+	const $button=document.getElementById('origin-permissions')
+	if (originPermissionsClickListener) {
+		$button.removeEventListener('click',originPermissionsClickListener)
+	}
+	if (missingOrigins<=0) {
+		$button.disabled=true
+		$button.title="Permissions already granted"
+	} else {
+		$button.disabled=false
+		$button.title=""
+		originPermissionsClickListener=()=>{
+			browser.permissions.request({
+				origins:missingOrigins
+			}).then(granted=>{
+				if (granted) updateOriginPermissionsUI([])
+			})
+		}
+		$button.addEventListener('click',originPermissionsClickListener)
 	}
 }

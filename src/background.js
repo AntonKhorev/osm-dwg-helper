@@ -40,9 +40,9 @@ window.settingsManager = {
 		}
 		return kvs
 	},
-	readPermissions: async()=>{
+	readSettingsAndPermissions: async()=>{
 		const settings=await settingsManager.read()
-		const filteredSettings={}
+		const permissions={}
 		const missingOrigins=[]
 		for (const [key,,,attrs] of settingsManager.getSpecsWithoutHeaders()) {
 			if (!settings[key]) continue
@@ -52,12 +52,12 @@ window.settingsManager = {
 				origins:[origin],
 			})
 			if (containsOrigin) {
-				filteredSettings[key]=settings[key]
+				permissions[key]=settings[key]
 			} else {
 				missingOrigins.push(origin)
 			}
 		}
-		return [filteredSettings,missingOrigins]
+		return [settings,permissions,missingOrigins]
 	},
 	write: async(kvs)=>{
 		if (tabActions.size>0) {
@@ -336,8 +336,7 @@ async function updateTabState(tab,forcePanelUpdate=false) {
 }
 
 async function sendUpdatePanelActionsMessage(tabId,tabState) {
-	const settings=await settingsManager.read()
-	const [permissions]=await settingsManager.readPermissions()
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelActionsNew',
 		settings,permissions,
@@ -346,7 +345,7 @@ async function sendUpdatePanelActionsMessage(tabId,tabState) {
 }
 
 async function sendUpdatePanelPermissionsMessage() {
-	const [,missingOrigins]=await settingsManager.readPermissions()
+	const [,,missingOrigins]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelPermissions',
 		missingOrigins
@@ -370,8 +369,7 @@ function isTabStateEqual(data1,data2) {
 }
 
 async function getTabState(tab) {
-	const settings=await settingsManager.read()
-	const [permissions]=await settingsManager.readPermissions()
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const tabState={}
 	if (settings.osm) {
 		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)

@@ -3,6 +3,9 @@
 <head>
 <meta charset=utf-8>
 <style>
+#settings {
+	margin: 0 0 3em 0;
+}
 .option {
 	margin: .5em 0;
 }
@@ -12,15 +15,21 @@ input[type=url] {
 	box-sizing: border-box;
 	width: 100%;
 }
-hr {
+button {
+	display: block;
+	box-sizing: border-box;
 	width: 100%;
+	margin: .5em 0;
+	text-align: center;
 }
 </style>
 <script type=module src=options.js></script>
 </head>
 <body>
+<div>
+<button id=origin-permissions disabled>Grant permissions to access OSM/OTRS webpages</button>
+</div>
 <div id=settings></div>
-<hr>
 <div>
 <label>Read settings file <input type=file id=settings-load></label>
 </div>
