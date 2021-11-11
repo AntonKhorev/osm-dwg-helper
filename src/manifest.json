@@ -37,7 +37,8 @@
 
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "osm-dwg-helper@antonkhorev.github.io"
+			"id": "osm-dwg-helper@antonkhorev.github.io",
+			"strict_min_version": "89.0"
 		}
 	}
 }
