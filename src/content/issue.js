@@ -15,7 +15,7 @@ function messageListener(message) {
 }
 
 function scrapeIssueData() {
-	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/70d7d8d850148f714b70a3297c02a8203214dec6/app/views/issues
+	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/master/app/views/issues
 	const $content=document.getElementById('content')
 	if (!$content) return {}
 	const issueData={

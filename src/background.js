@@ -337,6 +337,7 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 })
 
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
+	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
 	const tabState=await updateTabState(tab)
 	const tabAction=tabActions.get(tabId)
 	if (tabAction && tab.status=='complete') {
