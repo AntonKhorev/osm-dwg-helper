@@ -37,7 +37,9 @@ function setupUpdateScheduler(handlerFn,filterFn) {
 
 function updatePanelPermissions(missingOrigins) {
 	const $permissions=document.getElementById('permissions')
+	const $permissionsWarning=document.getElementById('permissions-warning')
 	$permissions.innerHTML=""
+	if ($permissionsWarning) $permissionsWarning.innerHTML=""
 	if (missingOrigins.length<=0) return
 	const $button=document.createElement('button') // TODO doesn't work in sidebar - https://bugzilla.mozilla.org/show_bug.cgi?id=1493396 - fix somehow
 	$button.innerText="Grant permissions to access OSM/OTRS webpages"
@@ -49,6 +51,10 @@ function updatePanelPermissions(missingOrigins) {
 		})
 	})
 	$permissions.append($button)
+	if (!$permissionsWarning) return
+	const $p=document.createElement('p')
+	$p.innerHTML="Note that the button above won't work in Firefox until <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=1493396'>this bug</a> is fixed. Please press this button in a popup window or in the extension's options page."
+	$permissionsWarning.append($p)
 }
 
 function updatePanelActionsNew(settings,permissions,tabId,tabState) {
