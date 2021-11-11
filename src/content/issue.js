@@ -21,9 +21,8 @@ function scrapeIssueData() {
 	const issueData={
 		reports:[]
 	}
-	const $header=$content.querySelector('h2')
-	if ($header) {
-		const $reportedParagraph=$header.nextElementSibling
+	{
+		const $reportedParagraph=$content.querySelector('p')
 		if ($reportedParagraph) {
 			const $reportedLink=$reportedParagraph.querySelector('a')
 			if ($reportedLink) {
