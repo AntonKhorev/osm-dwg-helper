@@ -18,3 +18,10 @@ for (const htmlFilename of ['background.html','sidebar.html','popup.html','optio
 	const patchedContents=contents.replace(/(?<=const\s+buildScriptChromePatch\s*=\s*)false/,'true')
 	await fs.writeFile(filename,patchedContents)
 }
+
+for (const jsFilename of ['panel.js','options.js']) {
+	const filename=path.join('dist',jsFilename)
+	const contents=String(await fs.readFile(filename))
+	const patchedContents=`(async()=>{${contents}\n})() // https://github.com/mozilla/addons-linter/issues/4020\n`
+	await fs.writeFile(filename,patchedContents)
+}
