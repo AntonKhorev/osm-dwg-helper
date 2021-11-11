@@ -32,7 +32,7 @@ function scrapeIssueData() {
 			}
 		}
 	}
-	for (const $report of $content.querySelectorAll('.report')) {
+	for (const $report of $content.querySelectorAll('.row .row .col')) {
 		const report={
 			wasRead:$report.parentElement.classList.contains('text-muted'),
 			lead:[],
