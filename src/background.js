@@ -3,48 +3,36 @@ const buildScriptChromePatch=false
 const tabStates=new Map()
 const tabActions=new Map()
 
-window.settingsManager = {
-	specs: [
-		// string for a header or
-		// [key, default value, title, other attributes]
-		"Main settings",
-		['otrs','https://otrs.openstreetmap.org/',"OTRS root URL",{type:'url',origin:true}],
-		['osm','https://www.openstreetmap.org/',"OpenStreetMap root URL",{type:'url',origin:true}],
-		['osm_api','https://api.openstreetmap.org/',"OpenStreetMap API root URL",{type:'url',note:"to make a link to user id"}],
-		"OTRS ticket creation from OSM issues",
-		['ticket_customer',`\${user.name} <fwd@dwgmail.info>`,"Customer template",{note:"usually needs to be email-like for OTRS not to complain"}],
-		['ticket_subject',`Issue #\${issue.id}`,"Subject template when reported item is unknown"],
-		['ticket_subject_user',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with unknown id"],
-		['ticket_subject_user_id',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with known id"],
-		['ticket_subject_note',`Issue #\${issue.id} (Note #\${note.id})`,"Subject template when reported item is note"],
-		// TODO textareas for html templates, also need to alter textfile format
-		['ticket_body_header',`<h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>`,"Body header template",{note:"HTML"}],
-		['ticket_body_item',`<p>Reported item : <a href='\${item.url}'>osm link</a></p>`,"Body reported item template when it's unknown",{note:"HTML"}],
-		['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when it's user with unknown id",{note:"HTML"}],
-		['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when it's user with known id",{note:"HTML"}],
-		['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note",{note:"HTML"}],
-		"Addition of OSM messages to OTRS tickets",
-		['article_message_to_subject',`PM to \${user.name}`,"Subject template for outbound message"],
-		['article_message_from_subject',`PM from \${user.name}`,"Subject template for inbound message"],
-	],
-	getSpecsWithoutHeaders: function*() {
-		for (const spec of settingsManager.specs) {
+class SettingsManager {
+	// specs:
+	// string for a header or
+	// [key, default value, title, other attributes: {type: input type, state: affects tab state, origin: needs origin permission, note}]
+	constructor(specs) {
+		this.specs=specs
+		this.specKeys={}
+		for (const spec of this.getSpecsWithoutHeaders()) {
+			const [key]=spec
+			this.specKeys[key]=spec
+		}
+	}
+	*getSpecsWithoutHeaders() {
+		for (const spec of this.specs) {
 			if (typeof spec == 'string') continue
 			yield spec
 		}
-	},
-	read: async()=>{
+	}
+	async read() {
 		const kvs=await browser.storage.local.get()
-		for (const [k,v] of settingsManager.getSpecsWithoutHeaders()) {
+		for (const [k,v] of this.getSpecsWithoutHeaders()) {
 			if (kvs[k]==null) kvs[k]=v
 		}
 		return kvs
-	},
-	readSettingsAndPermissions: async()=>{
-		const settings=await settingsManager.read()
+	}
+	async readSettingsAndPermissions() {
+		const settings=await this.read()
 		const permissions={}
 		const missingOrigins=[]
-		for (const [key,,,attrs] of settingsManager.getSpecsWithoutHeaders()) {
+		for (const [key,,,attrs] of this.getSpecsWithoutHeaders()) {
 			if (!settings[key]) continue
 			if (!attrs?.origin) continue
 			const origin=settings[key]+'*'
@@ -58,20 +46,54 @@ window.settingsManager = {
 			}
 		}
 		return [settings,permissions,missingOrigins]
-	},
-	write: async(kvs)=>{
+	}
+	async write(kvs) {
 		if (tabActions.size>0) {
 			tabActions.clear()
 			reactToActionsUpdate()
 		}
-		tabStates.clear()
 		await browser.storage.local.set(kvs)
-		const activeTabs=await browser.tabs.query({active:true})
-		for (const tab of activeTabs) {
-			updateTabState(tab)
+		const needToUpdate=(attr)=>{
+			for (const key of Object.keys(kvs)) {
+				const [,,,attrs]=this.specKeys[key]
+				if (attrs?.[attr]) return true
+			}
+			return false
 		}
-	},
+		if (needToUpdate('origin')) {
+			sendUpdatePanelPermissionsMessage()
+		}
+		if (needToUpdate('state')) {
+			tabStates.clear()
+			const activeTabs=await browser.tabs.query({active:true})
+			for (const tab of activeTabs) {
+				updateTabState(tab)
+			}
+		}
+	}
 }
+
+window.settingsManager=new SettingsManager([
+	"Main settings",
+	['otrs','https://otrs.openstreetmap.org/',"OTRS root URL",{type:'url',state:true,origin:true}],
+	['osm','https://www.openstreetmap.org/',"OpenStreetMap root URL",{type:'url',state:true,origin:true}],
+	['osm_api','https://api.openstreetmap.org/',"OpenStreetMap API root URL",{type:'url',state:true,note:"to make a link to user id"}],
+	"OTRS ticket creation from OSM issues",
+	['ticket_customer',`\${user.name} <fwd@dwgmail.info>`,"Customer template",{note:"usually needs to be email-like for OTRS not to complain"}],
+	['ticket_subject',`Issue #\${issue.id}`,"Subject template when reported item is unknown"],
+	['ticket_subject_user',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with unknown id"],
+	['ticket_subject_user_id',`Issue #\${issue.id} (User "\${user.name}")`,"Subject template when reported item is user with known id"],
+	['ticket_subject_note',`Issue #\${issue.id} (Note #\${note.id})`,"Subject template when reported item is note"],
+	// TODO textareas for html templates, also need to alter textfile format
+	['ticket_body_header',`<h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>`,"Body header template",{note:"HTML"}],
+	['ticket_body_item',`<p>Reported item : <a href='\${item.url}'>osm link</a></p>`,"Body reported item template when it's unknown",{note:"HTML"}],
+	['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when it's user with unknown id",{note:"HTML"}],
+	['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when it's user with known id",{note:"HTML"}],
+	['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note",{note:"HTML"}],
+	"Addition of OSM messages to OTRS tickets",
+	['article_message_to_subject',`PM to \${user.name}`,"Subject template for outbound message"],
+	['article_message_from_subject',`PM from \${user.name}`,"Subject template for inbound message"],
+])
 
 class TabAction {
 	getPanelHtml() {
@@ -344,7 +366,7 @@ async function sendUpdatePanelActionsMessage(tabId,tabState) {
 	})
 }
 
-async function sendUpdatePanelPermissionsMessage() {
+async function sendUpdatePanelPermissionsMessage() { // TODO fix name - it's also for options window
 	const [,,missingOrigins]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelPermissions',

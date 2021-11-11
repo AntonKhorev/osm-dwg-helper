@@ -4,18 +4,30 @@ document.getElementById('settings-load').addEventListener('change',readSettingsF
 document.getElementById('settings-save').addEventListener('click',()=>downloadSettingsFile(makeCurrentSettingsText))
 document.getElementById('settings-sample').addEventListener('click',()=>downloadSettingsFile(makeDefaultSettingsText))
 
-let inputTimeoutId
-let inputUpdateValues={}
-window.addEventListener('unload',flushInputs)
+let updateTimeoutId
+let updateInputValues={}
+
+browser.runtime.onMessage.addListener(message=>{
+	if (message.action=='updatePanelPermissions') {
+		updateOriginPermissionsUI(message.missingOrigins)
+	}
+	return false
+})
+window.addEventListener('unload',()=>{
+	clearTimeout(updateTimeoutId)
+	flushInputs()
+})
 function inputEventHandler() {
-	clearTimeout(inputTimeoutId)
-	inputUpdateValues[this.name]=this.value
-	inputTimeoutId=setTimeout(flushInputs,500)
+	clearTimeout(updateTimeoutId)
+	updateInputValues[this.name]=this.value
+	updateTimeoutId=setTimeout(flushInputs,500)
 }
 function flushInputs() {
-	inputTimeoutId=undefined
-	const writePromise=background.settingsManager.write(inputUpdateValues)
-	inputUpdateValues={} // don't need to wait for write completion - TODO or maybe not and it's the source of "TypeError: can't access dead object"
+	updateTimeoutId=undefined
+	const writePromise=background.settingsManager.write(updateInputValues)
+	updateInputValues={} // don't need to wait for write completion 
+	// TODO or maybe not and it's the source of "TypeError: can't access dead object"
+	// or it's fixed already b/c window.addEventListener('unload') not clears timeout
 	return writePromise
 }
 
@@ -142,7 +154,7 @@ function updateOriginPermissionsUI(missingOrigins) {
 			browser.permissions.request({
 				origins:missingOrigins
 			}).then(granted=>{
-				if (granted) updateOriginPermissionsUI([])
+				if (granted) background.reportPermissionsUpdate()
 			})
 		}
 		$button.addEventListener('click',originPermissionsClickListener)
