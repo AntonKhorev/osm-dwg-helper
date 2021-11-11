@@ -52,27 +52,28 @@ function updatePanelPermissions(missingOrigins) {
 	})
 	$permissions.append($button)
 	if (!$permissionsWarning) return
+	const bugHref='https://bugzilla.mozilla.org/show_bug.cgi?id=1493396'
 	const $p=document.createElement('p')
-	$p.append("Note that the button above won't work in Firefox until ")
-	const $aBug=document.createElement('a')
-	$aBug.innerText="this bug"
-	$aBug.href='https://bugzilla.mozilla.org/show_bug.cgi?id=1493396'
-	$aBug.addEventListener('click',ev=>{
-		ev.preventDefault()
-		browser.tabs.create({url:$aBug.href})
-	})
-	$p.append($aBug)
-	$p.append(" is fixed. Please press this button in a popup window or in ")
-	const $aOptions=document.createElement('a')
-	$aOptions.innerText="the extension's options page"
-	$aOptions.href='#'
-	$aOptions.addEventListener('click',ev=>{
-		ev.preventDefault()
-		browser.runtime.openOptionsPage()
-	})
-	$p.append($aOptions)
-	$p.append(".")
+	$p.append(
+		"Note that the button above won't work in Firefox until ",
+		makeLink(bugHref,"this bug",()=>browser.tabs.create({url:bugHref})),
+		" is fixed. Please press this button in a ",
+		makeLink('#',"popup window",()=>browser.browserAction.openPopup()),
+		" or in ",
+		makeLink('#',"the extension's options page",()=>browser.runtime.openOptionsPage()),
+		"."
+	)
 	$permissionsWarning.append($p)
+	function makeLink(href,text,handler) {
+		const $a=document.createElement('a')
+		$a.innerText=text
+		$a.href=href
+		$a.addEventListener('click',ev=>{
+			ev.preventDefault()
+			handler()
+		})
+		return $a
+	}
 }
 
 function updatePanelActionsNew(settings,permissions,tabId,tabState) {
