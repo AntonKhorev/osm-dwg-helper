@@ -4,6 +4,18 @@ Browser extension to handle reported issues ([users](https://wiki.openstreetmap.
 Mainly of interest for [DWG members](https://wiki.osmfoundation.org/wiki/Data_Working_Group).
 Reimplements some of [osm-dwg-userscripts] features without requesting/storing OTRS account login/password.
 
+## Installation
+
+Currently it's possible to install the extension on Firefox from an xpi file. To do so , go to [the latest release page](https://github.com/AntonKhorev/osm-dwg-helper/releases/latest) and open a `osm_dwg_helper-`*`version`*`-fx.xpi` file with Firefox.
+
+There's also a `osm_dwg_helper-`*`version`*`.zip` file for any browser that supports running unsigned extensions. For example, on Chromium you can drag-and-drop it into the *Settings > Extensions* page (`chrome://extensions/`). No browsers other than Firefox and Chromium have been tested yet.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on installing from the source code.
+
+After a successful installation the extension is going to be available as a sidebar on browsers that support sidebars (*View > Sidebar > DWG Helper* in Firefox) and as a toolbar button opening a popup.
+
+Automatic updates of the extensions are still not implemented. However updating it is likely to be important because the extension relies on the specific markup of certain OSM web pages. Changes to those may break the functionality. Last known breakage happened on 2021-11-11 before v0.1.0 release. You need to update the extension if you're running an older version.
+
 ## Features
 
 Overall the goals were:
@@ -36,32 +48,5 @@ Last thing that happens is that the issue gets commented with a link to the newl
 - Search OTRS for reported items in issues.
 - Add the last inbox/outbox message to a ticket as an OTRS note or article with pending time.
 - Translate issue reports.
-
-## Installation
-
-Currently you can load the extention as a temporary extension in Firefox or as an unpacked extension in Chromium. It has not yet been tested in standard Chrome or other browsers.
-
-### As a temporary extension in Firefox
-
-1. Download the extension files (clone the repository).
-2. Open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox).
-3. Click *Load Temporary Add-on* under *Temporary Extensions*.
-4. Open any file inside the `src` subdirectory. This should load the extension and a sidebar titled *DWG Helper* should appear.
-5. If the sidebar didn't appear select *View* > *Sidebar* > *DWG Helper* from the top menu bar. If the menu bar is hidden press *Alt*.
-6. Alternatively the extension is available as a popup opened by a toolbar button.
-
-### As an unpacked extension in Chromium
-
-Version adapted to work in Chromium needs to be build with [Node.js](https://nodejs.org/).
-
-1. Install Node.js.
-2. Download the extension files (clone the repository).
-3. Build the extension:
-    1. run `npm install`
-    2. run `npm run build`
-4. Open *Settings > Extensions* in the browser: [chrome://extensions/](chrome://extensions/)
-5. Press the *Load unpacked* button.
-6. Open the `dist` subditectory that should have appeared after a successful build.
-7. The extension should be accessible as a popup with a toolbar button. Accessing it through a sidebar is not supported on Chrome/Chromium.
 
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
