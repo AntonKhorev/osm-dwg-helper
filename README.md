@@ -25,7 +25,7 @@ Overall the goals were:
 - don't submit actions right away so they can be reviewed and altered if necessary
 - try not to alter the webpage contents too much, keep most of the controls inside the extension panel (currently available as a sidebar)
 
-### Creating tickets from issues
+### Create tickets from issues
 
 The standard procedure for converting an *OSM issue* into an *OTRS ticket* involves opening a *Create New Phone Ticket* form in OTRS and populating its fields with information from the OSM issue webpage. You can do this manually by copy-pasting which is tedious. There's [dwg_issue2ticket.user.js](https://github.com/woodpeck/osm-dwg-userscripts#dwg_issue2ticketuserjs) script from [osm-dwg-userscripts] to automate the creation of tickets from issues, but you may not like how it works and you may not bother getting it fully working.
 
@@ -42,11 +42,16 @@ Another thing you may encounter before the *Create New Phone Ticket* form is the
 
 Last thing that happens is that the issue gets commented with a link to the newly created ticket. In case of [osm-dwg-userscripts], according to its readme, you need the *CORS Everywhere* addon for this to happen. This extension doesn't need any other addon to be installed.
 
+### Add the last inbox/outbox message to a ticket
+
+As noted above, tickets created with this extension add customers with a correct (as of current DWG setup) @dwgmail.info address, or the one you specified through the options. This address may function (and does so as of current DWG setup) as means to send and receive [user messages](https://wiki.openstreetmap.org/wiki/Web_front_end#User_messaging) from/to OTRS. However the implementation of this OTRS-to-OSM messaging bridge is located outside of both OTRS and OSM and may come with limitations. In case of current DWG setup, the outbound messages are stripped to plaintext. OTRS users may be unaware of this as they still see the html-formatted articles attached to the ticket. Users who receive the message see something else, possibly unreadable, if the original html message contained a lot of stuff such as reply quotations.
+
+Another way to contact the OSM user is just to send them a message from the OSM website, then manually add that message to the OTRS ticket. When the reply is received, it also needs to be added manually. This is tedious, and that's why the system described above was implemented. But if you still want to send messages through the OSM website, the extension can help you with copy-pasting them. When on the OTRS ticket page, use *Add last outbox/inbox message to ticket* in the extension panel to quickly add the last send/received message. You can select to add it either *as note* without any additional actions or *as pending* which lets you specify a pending reminder/autoclose along with the message.
+
 ### Other actions
 
 - Go to the issue page corresponding to an OTRS ticket title from a ticket page.
 - Search OTRS for reported items in issues.
-- Add the last inbox/outbox message to a ticket as an OTRS note or article with pending time.
 - Translate issue reports.
 
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
