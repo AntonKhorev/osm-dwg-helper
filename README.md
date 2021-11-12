@@ -10,11 +10,11 @@ Currently it's possible to install the extension on Firefox from an xpi file. To
 
 There's also a `osm_dwg_helper-`*`version`*`.zip` file for any browser that supports running unsigned extensions. For example, on Chromium you can drag-and-drop it into the *Settings > Extensions* page (`chrome://extensions/`). No browsers other than Firefox and Chromium have been tested yet.
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on installing from the source code.
+See [CONTRIBUTING.md](./CONTRIBUTING.md#build-and-install) for instructions on installing from the source code.
 
 After a successful installation the extension is going to be available as a sidebar on browsers that support sidebars (*View > Sidebar > DWG Helper* in Firefox) and as a toolbar button opening a popup.
 
-Automatic updates of the extensions are still not implemented. However updating it is likely to be important because the extension relies on the specific markup of certain OSM web pages. Changes to those may break the functionality. Last known breakage happened on 2021-11-11 before v0.1.0 release. You need to update the extension if you're running an older version.
+Automatic updates of the extensions are still not implemented. However updating it is likely to be important because the extension relies on the specific markup of certain OSM web pages. Changes to those may break the functionality. Last known breakage happened on 2021-11-11 before v0.1.0 release. You need to update the extension if you're running an older version. See [CONTRIBUTING.md](./CONTRIBUTING.md#content-scripts) for details.
 
 ## Features
 
@@ -29,7 +29,7 @@ Overall the goals were:
 
 The standard procedure for converting an *OSM issue* into an *OTRS ticket* involves opening a *Create New Phone Ticket* form in OTRS and populating its fields with information from the OSM issue webpage. You can do this manually by copy-pasting which is tedious. There's [dwg_issue2ticket.user.js](https://github.com/woodpeck/osm-dwg-userscripts#dwg_issue2ticketuserjs) script from [osm-dwg-userscripts] to automate the creation of tickets from issues, but you may not like how it works and you may not bother getting it fully working.
 
-This browser extension lets you do the same thing with some differences. Similar to [osm-dwg-userscripts], you start by opening the issue webpage (`https://www.openstreetmap.org/issues/`**id**). Then you click the *Create ticket* link in the extension panel. Unlike [osm-dwg-userscripts], where the ticket is created right away, this should open a *Create New Phone Ticket* form, giving you the opportunity to change ticket details. The form is going to have all of the required fields set. These fields are:
+This browser extension lets you do the same thing with some differences. Similar to [osm-dwg-userscripts], you start by opening the issue webpage (`https://www.openstreetmap.org/issues/`**`id`**). Then you click the *Create ticket* link in the extension panel. Unlike [osm-dwg-userscripts], where the ticket is created right away, this should open a *Create New Phone Ticket* form, giving you the opportunity to change ticket details. The form is going to have all of the required fields set. These fields are:
 
 - *Customer user* containing usernames of users who reported the issue formatted as email addresses. If the issue was reported by several users, multiple customer user values will be set. Unlike [osm-dwg-userscripts], the actual email address is not hardcoded to non-working `@thisdoesnotwork.users.openstreetmap.org`, `@dwgmail.info` is used instead by default.
 - *To queue* set to a first valid queue. In case of the current DWG setup this is going to be a generic *Data Working Group* queue. [osm-dwg-userscripts] also sets this queue, but here you have the opportunity to change it - which is what you want because changing the queue of an existing ticket does other things like unlocking.
