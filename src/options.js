@@ -1,5 +1,16 @@
 const background=await browser.runtime.getBackgroundPage()
 
+async function settingsWriteWrapper(settings) {
+	background.reportNeedToDropActions()
+	const needToReport=await background.settingsManager.write(settings)
+	if (needToReport.origin) {
+		await background.reportPermissionsUpdate()
+	}
+	if (needToReport.state) {
+		await background.reportStatesUpdate()
+	}
+}
+
 document.getElementById('settings-load').addEventListener('change',readSettingsFile)
 document.getElementById('settings-save').addEventListener('click',()=>downloadSettingsFile(makeCurrentSettingsText))
 document.getElementById('settings-sample').addEventListener('click',()=>downloadSettingsFile(makeDefaultSettingsText))
@@ -24,7 +35,7 @@ function inputEventHandler() {
 }
 function flushInputs() {
 	updateTimeoutId=undefined
-	const writePromise=background.settingsManager.write(updateInputValues)
+	const writePromise=settingsWriteWrapper(updateInputValues)
 	updateInputValues={} // don't need to wait for write completion 
 	// TODO or maybe not and it's the source of "TypeError: can't access dead object"
 	// or it's fixed already b/c window.addEventListener('unload') not clears timeout
@@ -39,7 +50,7 @@ function readSettingsFile() {
 	reader.addEventListener('load',async()=>{
 		const settings=parseSettingsText(reader.result)
 		await flushInputs()
-		await background.settingsManager.write(settings)
+		await settingsWriteWrapper(settings)
 		updateSettingsUI()
 	})
 	reader.readAsText(file)
