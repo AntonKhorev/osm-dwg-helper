@@ -202,9 +202,18 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 function updatePanelActionsOngoing(tabActionListItems) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	for (const [tabId,actionPanelHtml] of tabActionListItems) {
+	for (const [tabId,menuEntryElements] of tabActionListItems) {
 		const $li=document.createElement('li')
-		$li.innerHTML=actionPanelHtml+' '
+		for (const [text,type] of menuEntryElements) {
+			if (type=='em') {
+				const $em=document.createElement('em')
+				$em.innerText=text
+				$li.append($em)
+			} else {
+				$li.append(text)
+			}
+		}
+		$li.append(' ')
 		const $switchButton=document.createElement('button')
 		$switchButton.innerText='go to'
 		$switchButton.addEventListener('click',()=>{

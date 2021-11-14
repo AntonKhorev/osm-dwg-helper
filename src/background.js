@@ -28,8 +28,11 @@ window.settingsManager=new SettingsManager([
 ])
 
 class TabAction {
-	getPanelHtml() {
-		return `unknown action`
+	/**
+	 * @returns array of [text,type] items to be concatenated; type is either undefined or "em"
+	 */
+	getOngoingActionMenuEntry() {
+		return [[`unknown action`]]
 	}
 	async act(tab,tabState) {}
 }
@@ -40,8 +43,8 @@ class ScrapeReportedItemThenCreateIssueTicket extends TabAction {
 		this.openerTabId=openerTabId
 		this.issueData=issueData
 	}
-	getPanelHtml() {
-		return `scrape reported item then create ticket`
+	getOngoingActionMenuEntry() {
+		return [[`scrape reported item then create ticket`]]
 	}
 	async act(tab,tabState) {
 		const settings=await settingsManager.read()
@@ -66,8 +69,8 @@ class CreateIssueTicket extends TabAction {
 		this.openerTabId=openerTabId
 		this.ticketData=ticketData
 	}
-	getPanelHtml() {
-		return `create ticket <em>${escapeHtml(this.ticketData.Subject)}</em>`
+	getOngoingActionMenuEntry() {
+		return [[`create ticket `],[this.ticketData.Subject,'em']]
 	}
 	async act(tab,tabState) {
 		try {
@@ -86,8 +89,8 @@ class CommentIssueWithTicketUrl extends TabAction {
 		super()
 		this.openerTabId=openerTabId
 	}
-	getPanelHtml() {
-		return `add comment to issue for created ticket`
+	getOngoingActionMenuEntry() {
+		return [[`add comment to issue for created ticket`]]
 	}
 	async act(tab,tabState) {
 		const settings=await settingsManager.read()
@@ -113,8 +116,8 @@ class GoToLastMessageThenAddMessageToTicket extends TabAction {
 		this.mailbox=mailbox
 		this.addAs=addAs
 	}
-	getPanelHtml() {
-		return `go to last ${this.mailbox} message`
+	getOngoingActionMenuEntry() {
+		return [[`go to last `],[this.mailbox,'em'],[` message`]]
 	}
 	async act(tab,tabState) {
 		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'})
@@ -138,8 +141,8 @@ class ScrapeMessageThenAddMessageToTicket extends TabAction {
 		this.mailbox=mailbox
 		this.addAs=addAs
 	}
-	getPanelHtml() {
-		return `scrape ${this.mailbox} message`
+	getOngoingActionMenuEntry() {
+		return [[`scrape `],[this.mailbox,'em'],[` message`]]
 	}
 	async act(tab,tabState) {
 		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
@@ -158,8 +161,8 @@ class AddMessageToTicket extends TabAction {
 		this.messageTo=messageTo
 		this.messageText=messageText
 	}
-	getPanelHtml() {
-		return `add message to <em>${escapeHtml(this.messageTo)}</em> as ${this.addAs} article`
+	getOngoingActionMenuEntry() {
+		return [[`add message to `],[this.messageTo,'em'],[` as `],[this.addAs,'em'],[` article`]]
 	}
 	async act(tab,tabState) {
 		const settings=await settingsManager.read()
@@ -191,8 +194,8 @@ class AddTicketArticle extends TabAction {
 		this.subject=subject
 		this.body=body
 	}
-	getPanelHtml() {
-		return `add ticket article <em>${escapeHtml(this.subject)}</em>`
+	getOngoingActionMenuEntry() {
+		return [[`add ticket article `],[this.subject,'em']]
 	}
 	async act(tab,tabState) {
 		try {
@@ -259,7 +262,7 @@ window.removeTabAction=(tabId)=>{
 function reactToActionsUpdate() {
 	const tabActionListItems=[]
 	for (const [tabId,action] of tabActions) {
-		tabActionListItems.push([tabId,action.getPanelHtml()])
+		tabActionListItems.push([tabId,action.getOngoingActionMenuEntry()])
 	}
 	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActionListItems})
 }
