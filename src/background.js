@@ -226,7 +226,8 @@ window.reportNeedToDropActions=()=>{
 }
 
 window.reportPermissionsUpdate=async()=>{
-	sendUpdatePanelPermissionsMessage()
+	await sendUpdatePanelPermissionsMessage()
+	await reportStatesUpdate() // permissions update implies states update
 }
 
 window.reportStatesUpdate=async()=>{
