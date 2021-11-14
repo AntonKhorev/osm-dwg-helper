@@ -22,12 +22,21 @@ button {
 	margin: .5em 0;
 	text-align: center;
 }
+ul:empty::before {
+	content: "(none)";
+	color: gray;
+}
 </style>
 <script type=module src=options.js></script>
 </head>
 <body>
 <div>
-<button id=origin-permissions disabled>Grant permissions to access OSM/OTRS webpages</button>
+<button id=origin-grant disabled>Grant access to OSM/OTRS webpages</button>
+<button id=origin-recall disabled>Recall access to OSM/OTRS webpages</button>
+<details>
+<summary>Currently granted access to sites</summary>
+<ul id=origin-current></ul>
+</details>
 </div>
 <div id=settings></div>
 <div>

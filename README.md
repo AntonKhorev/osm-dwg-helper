@@ -12,7 +12,7 @@ There's also a `osm_dwg_helper-`*`version`*`.zip` file for any browser that supp
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md#build-and-install) for instructions on installing from the source code.
 
-After a successful installation the extension is going to be available as a sidebar on browsers that support sidebars (*View > Sidebar > DWG Helper* in Firefox) and as a toolbar button opening a popup.
+After a successful installation the extension is going to be available as a sidebar on browsers that support sidebars (*View > Sidebar > DWG Helper* in Firefox) and as a toolbar button opening a popup. First thing that you'll need to do is to grant this extension permissions to access to OSM and OTRS websites. This action is separate from granting permissions during the installation in order to avoid hardcoding urls of these websites in the extension manifest. It's possible to change those urls in the extension options.
 
 Automatic updates of the extensions are still not implemented. However updating it is likely to be important because the extension relies on the specific markup of certain OSM web pages. Changes to those may break the functionality. Last known breakage happened on 2021-11-11 before v0.1.0 release. You need to update the extension if you're running an older version. See [CONTRIBUTING.md](./CONTRIBUTING.md#content-scripts) for details.
 

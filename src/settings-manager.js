@@ -40,7 +40,8 @@ export default class {
 				missingOrigins.push(origin)
 			}
 		}
-		return [settings,permissions,missingOrigins]
+		const allPermissions=await browser.permissions.getAll()
+		return [settings,permissions,missingOrigins,allPermissions.origins]
 	}
 	async write(kvs) {
 		await browser.storage.local.set(kvs)

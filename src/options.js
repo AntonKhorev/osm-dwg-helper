@@ -20,7 +20,7 @@ let updateInputValues={}
 
 browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePanelPermissions') {
-		updateOriginPermissionsUI(message.missingOrigins)
+		updateOriginPermissionsUI(message.missingOrigins,message.existingOrigins)
 	}
 	return false
 })
@@ -99,8 +99,8 @@ async function makeCurrentSettingsText() {
 }
 
 async function updateSettingsUI() {
-	const [settings,,missingOrigins]=await background.settingsManager.readSettingsAndPermissions()
-	updateOriginPermissionsUI(missingOrigins)
+	const [settings,,missingOrigins,existingOrigins]=await background.settingsManager.readSettingsAndPermissions()
+	updateOriginPermissionsUI(missingOrigins,existingOrigins)
 	const $settings=document.getElementById('settings')
 	$settings.innerHTML=""
 	for (const spec of background.settingsManager.specs) {
@@ -148,26 +148,43 @@ async function updateSettingsUI() {
 	}
 }
 
-let originPermissionsClickListener
+let originGrantClickListener,originRecallClickListener
 
-function updateOriginPermissionsUI(missingOrigins) {
-	const $button=document.getElementById('origin-permissions')
-	if (originPermissionsClickListener) {
-		$button.removeEventListener('click',originPermissionsClickListener)
+function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
+	originGrantClickListener=handleButton(
+		originGrantClickListener,'request',
+		missingOrigins,'origin-grant',"Permissions already granted"
+	)
+	originRecallClickListener=handleButton(
+		originRecallClickListener,'remove',
+		existingOrigins,'origin-recall',"No permissions currently granted"
+	)
+	const $currentList=document.getElementById('origin-current')
+	$currentList.innerHTML=''
+	for (const origin of existingOrigins) {
+		const $li=document.createElement('li')
+		$li.innerText=origin
+		$currentList.append($li)
 	}
-	if (missingOrigins<=0) {
-		$button.disabled=true
-		$button.title="Permissions already granted"
-	} else {
-		$button.disabled=false
-		$button.title=""
-		originPermissionsClickListener=()=>{
-			browser.permissions.request({
-				origins:missingOrigins
-			}).then(granted=>{
-				if (granted) background.reportPermissionsUpdate()
-			})
+	function handleButton(listener,browserPermissionsFnName,origins,id,disabledTitle) {
+		const $button=document.getElementById(id)
+		if (listener) {
+			$button.removeEventListener('click',listener)
+			listener=undefined
 		}
-		$button.addEventListener('click',originPermissionsClickListener)
+		if (origins<=0) {
+			$button.disabled=true
+			$button.title=disabledTitle
+		} else {
+			$button.disabled=false
+			$button.title=""
+			listener=()=>{
+				browser.permissions[browserPermissionsFnName]({origins}).then(ok=>{
+					if (ok) background.reportPermissionsUpdate()
+				})
+			}
+			$button.addEventListener('click',listener)
+		}
+		return listener
 	}
 }

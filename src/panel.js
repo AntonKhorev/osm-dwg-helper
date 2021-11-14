@@ -42,7 +42,7 @@ function updatePanelPermissions(missingOrigins) {
 	if ($permissionsWarning) $permissionsWarning.innerHTML=""
 	if (missingOrigins.length<=0) return
 	const $button=document.createElement('button') // TODO doesn't work in sidebar - https://bugzilla.mozilla.org/show_bug.cgi?id=1493396 - fix somehow
-	$button.innerText="Grant permissions to access OSM/OTRS webpages"
+	$button.innerText="Grant access to OSM/OTRS webpages"
 	$button.addEventListener('click',()=>{
 		browser.permissions.request({
 			origins:missingOrigins

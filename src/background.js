@@ -320,10 +320,10 @@ async function sendUpdatePanelActionsMessage(tabId,tabState) {
 }
 
 async function sendUpdatePanelPermissionsMessage() { // TODO fix name - it's also for options window
-	const [,,missingOrigins]=await settingsManager.readSettingsAndPermissions()
+	const [,,missingOrigins,existingOrigins]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updatePanelPermissions',
-		missingOrigins
+		missingOrigins,existingOrigins
 	})
 }
 
