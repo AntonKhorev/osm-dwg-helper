@@ -1,0 +1,34 @@
+@media (prefers-color-scheme: dark) {
+	body {
+		background: #333;
+		color: #CCC;
+	}
+	*:link {
+		color: #AAF;
+	}
+	*:visited {
+		color: #CAC;
+	}
+}
+body {
+	padding: .5rem;
+	min-width: 15rem;
+}
+h2 {
+	margin: .5rem 1rem;
+	padding: 0;
+}
+ul:empty::before {
+	content: "(none)";
+	color: gray;
+}
+ul {
+	margin: 0 0 0 1rem;
+	padding: 0;
+}
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
