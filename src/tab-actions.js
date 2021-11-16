@@ -6,19 +6,48 @@ class TabAction {
 		return [[`unknown action`]]
 	}
 	/**
+	 * @returns undefined/null or url to direct the current tab to right after action creation
+	 */
+	getActionUrl(settings) {}
+	/**
 	  * @returns undefined/null or [tabId,TabAction] to schedule another action
 	  */
 	async act(tab,tabState,addListenerAndSendMessage) {}
 }
 
-export class ScrapeReportedItemThenCreateIssueTicket extends TabAction {
-	constructor(openerTabId,issueData) {
+/**
+ * Actions that start or continue the sequence of new tab updates
+ */
+class OffshootTabAction extends TabAction {
+	constructor(openerTabId) {
 		super()
 		this.openerTabId=openerTabId
+	}
+}
+
+class GoToUrl extends TabAction {
+	constructor(url) {
+		super()
+		this.url=url
+	}
+	getOngoingActionMenuEntry() {
+		return [[`go to `],[this.url,'em']]
+	}
+	getActionUrl(settings) {
+		return this.url
+	}
+}
+
+export class ScrapeReportedItemThenCreateIssueTicket extends OffshootTabAction {
+	constructor(openerTabId,issueData) {
+		super(openerTabId)
 		this.issueData=issueData
 	}
 	getOngoingActionMenuEntry() {
 		return [[`scrape reported item then create ticket`]]
+	}
+	getActionUrl(settings) {
+		return this.issueData.reportedItem.url
 	}
 	async act(tab,tabState,addListenerAndSendMessage) {
 		const settings=await settingsManager.read()
@@ -29,21 +58,20 @@ export class ScrapeReportedItemThenCreateIssueTicket extends TabAction {
 			// TODO fetch issue country - make another tab action class for this
 			ticketData=convertIssueDataToTicketData(settings,this.issueData)
 		}
-		browser.tabs.update(tab.id,{
-			url:`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-		})
 		return [tab.id,new CreateIssueTicket(this.openerTabId,ticketData)]
 	}
 }
 
-export class CreateIssueTicket extends TabAction {
+export class CreateIssueTicket extends OffshootTabAction {
 	constructor(openerTabId,ticketData) {
-		super()
-		this.openerTabId=openerTabId
+		super(openerTabId)
 		this.ticketData=ticketData
 	}
 	getOngoingActionMenuEntry() {
 		return [[`create ticket `],[this.ticketData.Subject,'em']]
+	}
+	getActionUrl(settings) {
+		return `${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 	}
 	async act(tab,tabState,addListenerAndSendMessage) {
 		try {
@@ -55,10 +83,9 @@ export class CreateIssueTicket extends TabAction {
 	}
 }
 
-class CommentIssueWithTicketUrl extends TabAction {
+class CommentIssueWithTicketUrl extends OffshootTabAction {
 	constructor(openerTabId) {
-		super()
-		this.openerTabId=openerTabId
+		super(openerTabId)
 	}
 	getOngoingActionMenuEntry() {
 		return [[`add comment to issue for created ticket`]]
@@ -74,19 +101,21 @@ class CommentIssueWithTicketUrl extends TabAction {
 			action:'addComment',
 			comment:ticketUrl
 		})
-		browser.tabs.update(tab.id,{url:ticketUrl})
+		return [tab.id,new GoToUrl(ticketUrl)]
 	}
 }
 
-export class GoToLastMessageThenAddMessageToTicket extends TabAction {
+export class GoToLastMessageThenAddMessageToTicket extends OffshootTabAction {
 	constructor(openerTabId,mailbox,addAs) {
-		super()
-		this.openerTabId=openerTabId
+		super(openerTabId)
 		this.mailbox=mailbox
 		this.addAs=addAs
 	}
 	getOngoingActionMenuEntry() {
 		return [[`go to last `],[this.mailbox,'em'],[` message`]]
+	}
+	getActionUrl(settings) {
+		return `${settings.osm}messages/${this.mailbox}`
 	}
 	async act(tab,tabState,addListenerAndSendMessage) {
 		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'})
@@ -95,27 +124,25 @@ export class GoToLastMessageThenAddMessageToTicket extends TabAction {
 			// return [tab.id,this]
 			return
 		}
-		const settings=await settingsManager.read()
-		const messageUrl=`${settings.osm}messages/${encodeURIComponent(messageId)}`
-		browser.tabs.update(tab.id,{url:messageUrl})
-		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.mailbox,this.addAs)]
+		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.mailbox,this.addAs,messageId)]
 	}
 }
 
-class ScrapeMessageThenAddMessageToTicket extends TabAction {
-	constructor(openerTabId,mailbox,addAs) {
-		super()
-		this.openerTabId=openerTabId
+class ScrapeMessageThenAddMessageToTicket extends OffshootTabAction {
+	constructor(openerTabId,mailbox,addAs,messageId) {
+		super(openerTabId)
 		this.mailbox=mailbox
 		this.addAs=addAs
+		this.messageId=messageId // TODO maybe nullable if need to process current tab... but then it's not an offshoot action
 	}
 	getOngoingActionMenuEntry() {
 		return [[`scrape `],[this.mailbox,'em'],[` message`]]
 	}
+	getActionUrl(settings) {
+		return `${settings.osm}messages/${encodeURIComponent(this.messageId)}`
+	}
 	async act(tab,tabState,addListenerAndSendMessage) {
 		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
-		browser.tabs.remove(tab.id)
-		browser.tabs.update(this.openerTabId,{active:true})
 		return [this.openerTabId,new AddMessageToTicket(this.mailbox,this.addAs,messageData.user,messageData.body)]
 	}
 }
@@ -137,16 +164,13 @@ class AddMessageToTicket extends TabAction {
 		if (!ticketId) {
 			return [tab.id,this]
 		}
-		let otrsAction='AgentTicketNote'
-		if (this.addAs=='pending') otrsAction='AgentTicketPending'
-		const ticketNoteUrl=`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${ticketId}`
 		let subjectTemplate=settings.article_message_to_subject
 		if (this.mailbox=='inbox') subjectTemplate=settings.article_message_from_subject
 		let processedMessageText=this.messageText
 		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
 		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
-		browser.tabs.update(tab.id,{url:ticketNoteUrl})
 		return [tab.id,new AddTicketArticle(
+			ticketId,this.addAs,
 			evaluateTemplate(subjectTemplate,{user:{name:this.messageTo}}),
 			processedMessageText
 		)]
@@ -154,13 +178,20 @@ class AddMessageToTicket extends TabAction {
 }
 
 class AddTicketArticle extends TabAction {
-	constructor(subject,body) {
+	constructor(ticketId,addAs,subject,body) {
 		super()
+		this.ticketId=ticketId
+		this.addAs=addAs
 		this.subject=subject
 		this.body=body
 	}
 	getOngoingActionMenuEntry() {
 		return [[`add ticket article `],[this.subject,'em']]
+	}
+	getActionUrl(settings) {
+		let otrsAction='AgentTicketNote'
+		if (this.addAs=='pending') otrsAction='AgentTicketPending'
+		return `${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(this.ticketId)}`
 	}
 	async act(tab,tabState,addListenerAndSendMessage) {
 		try {
@@ -285,4 +316,9 @@ function escapeHtml(string) {
 	.replace(/>/g,"&gt;")
 	.replace(/"/g,"&quot;")
 	.replace(/'/g,"&#039;")
+}
+
+// copypasted TODO make module with basic stuff
+function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
+	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }

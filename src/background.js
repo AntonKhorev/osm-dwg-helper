@@ -56,10 +56,10 @@ window.registerNewPanel=(tab)=>{
 	reactToActionsUpdate()
 }
 
-window.initiateNewTabAction=async(newTabUrl,tabAction)=>{
+window.initiateNewTabAction=async(tabAction)=>{
 	const newTab=await browser.tabs.create({
 		openerTabId:tabAction.openerTabId,
-		url:newTabUrl
+		url:tabAction.getActionUrl(await settingsManager.read())
 	})
 	tabActions.set(newTab.id,tabAction)
 	reactToActionsUpdate()
@@ -109,15 +109,26 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 		// TODO check if url matches, if not cancel action
 		tabActions.delete(tabId)
 		const tabActionsUpdate=await tabAction.act(tab,tabState,addListenerAndSendMessage)
-		let needToReactToActionsUpdate=true
 		if (tabActionsUpdate) {
 			const [newActionTabId,newAction]=tabActionsUpdate
 			tabActions.set(newActionTabId,newAction)
 			if (newActionTabId==tabId && newAction==tabAction) {
-				needToReactToActionsUpdate=false
+				return
+			}
+			const update={}
+			if (newActionTabId!=tabId) {
+				browser.tabs.remove(tabId)
+				update.active=true
+			}
+			if (newAction) {
+				const url=newAction.getActionUrl(await settingsManager.read())
+				if (url!=null) update.url=url
+			}
+			if (Object.keys(update).length>0) {
+				browser.tabs.update(newActionTabId,update)
 			}
 		}
-		if (needToReactToActionsUpdate) reactToActionsUpdate()
+		reactToActionsUpdate()
 	}
 })
 

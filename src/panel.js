@@ -98,7 +98,6 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
 			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
-				issueData.reportedItem.url,
 				new background.TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
 			)))
 		}
@@ -148,11 +147,12 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const outboxHref=`${settings.osm}messages/${mailbox}`
-					return makeLink(outboxHref,'as '+addAs,()=>background.initiateNewTabAction(
-						outboxHref,
-						new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
-					))
+					const action=new background.TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
+					return makeLink(
+						action.getActionUrl(settings),
+						'as '+addAs,
+						()=>background.initiateNewTabAction(action)
+					)
 				}
 			}
 		}
