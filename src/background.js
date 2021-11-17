@@ -1,7 +1,6 @@
 const buildScriptChromePatch=false
 
 import SettingsManager from './settings-manager.js'
-import * as TabActions from './tab-actions.js'
 
 const tabStates=new Map()
 const tabActions=new Map()
@@ -27,8 +26,6 @@ window.settingsManager=new SettingsManager([
 	['article_message_to_subject',`PM to \${user.name}`,"Subject template for outbound message"],
 	['article_message_from_subject',`PM from \${user.name}`,"Subject template for inbound message"],
 ])
-
-window.TabActions=TabActions
 
 window.reportNeedToDropActions=()=>{
 	if (tabActions.size>0) {
