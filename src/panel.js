@@ -2,20 +2,20 @@ import * as Actions from './actions.js'
 
 const background=await browser.runtime.getBackgroundPage()
 
-const scheduleUpdatePanelActionsNew=setupUpdateScheduler(updatePanelActionsNew,async(settings,permissions,tabId,tabState)=>{
+const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,async(settings,permissions,tabId,tabState)=>{
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 	return (currentTab.id==tabId)
 })
-const scheduleUpdatePanelActionsOngoing=setupUpdateScheduler(updatePanelActionsOngoing)
-const scheduleUpdatePanelPermissions=setupUpdateScheduler(updatePanelPermissions)
+const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
+const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
 
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action=='updatePanelPermissions') {
-		return scheduleUpdatePanelPermissions(message.missingOrigins)
-	} else if (message.action=='updatePanelActionsNew') {
-		return scheduleUpdatePanelActionsNew(message.settings,message.permissions,message.tabId,message.tabState)
-	} else if (message.action=='updatePanelActionsOngoing') {
-		return scheduleUpdatePanelActionsOngoing(message.tabActionEntries)
+	if (message.action=='updatePermissions') {
+		return scheduleUpdatePermissions(message.missingOrigins)
+	} else if (message.action=='updateActionsNew') {
+		return scheduleUpdateActionsNew(message.settings,message.permissions,message.tabId,message.tabState)
+	} else if (message.action=='updateActionsOngoing') {
+		return scheduleUpdateActionsOngoing(message.tabActionEntries)
 	}
 	return false
 })
@@ -37,7 +37,7 @@ function setupUpdateScheduler(handlerFn,filterFn) {
 	}
 }
 
-function updatePanelPermissions(missingOrigins) {
+function updatePermissions(missingOrigins) {
 	const $permissions=document.getElementById('permissions')
 	const $permissionsWarning=document.getElementById('permissions-warning')
 	$permissions.innerHTML=""
@@ -78,7 +78,7 @@ function updatePanelPermissions(missingOrigins) {
 	}
 }
 
-function updatePanelActionsNew(settings,permissions,tabId,tabState) {
+function updateActionsNew(settings,permissions,tabId,tabState) {
 	const $actions=document.getElementById('actions-new')
 	$actions.innerHTML=""
 	if (settings.osm) {
@@ -201,7 +201,7 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 	}
 }
 
-function updatePanelActionsOngoing(tabActionEntries) {
+function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
 	for (const [tabId,menuEntryElements] of tabActionEntries) {

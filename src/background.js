@@ -40,7 +40,7 @@ window.reportNeedToDropActions=()=>{
 }
 
 window.reportPermissionsUpdate=async()=>{
-	await sendUpdatePanelPermissionsMessage()
+	await sendUpdatePermissionsMessage()
 	await reportStatesUpdate() // permissions update implies states update
 }
 
@@ -53,7 +53,7 @@ window.reportStatesUpdate=async()=>{
 }
 
 window.registerNewPanel=(tab)=>{
-	sendUpdatePanelPermissionsMessage() // TODO limit the update to this tab
+	sendUpdatePermissionsMessage() // TODO limit the update to this tab
 	updateTabState(tab,true)
 	reactToActionsUpdate()
 }
@@ -74,7 +74,7 @@ window.removeTabAction=(tabId)=>{
 }
 
 function reactToActionsUpdate() {
-	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActionEntries:actionsManager.listTabActionEntries()})
+	browser.runtime.sendMessage({action:'updateActionsOngoing',tabActionEntries:actionsManager.listTabActionEntries()})
 }
 
 browser.tabs.onRemoved.addListener((tabId)=>{
@@ -87,7 +87,7 @@ browser.tabs.onRemoved.addListener((tabId)=>{
 browser.tabs.onActivated.addListener(async({tabId})=>{
 	const tabState=tabStates.get(tabId)
 	if (tabState) {
-		sendUpdatePanelActionsMessage(tabId,tabState)
+		sendUpdateActionsMessage(tabId,tabState)
 	} else {
 		const tab=await browser.tabs.get(tabId)
 		updateTabState(tab,true)
@@ -115,23 +115,23 @@ async function updateTabState(tab,forcePanelUpdate=false) {
 	const tabState=await getTabState(tab)
 	const tabStateChanged=!isTabStateEqual(tabStates.get(tab.id),tabState)
 	if (tabStateChanged) tabStates.set(tab.id,tabState)
-	if (forcePanelUpdate || tabStateChanged && tab.active) sendUpdatePanelActionsMessage(tab.id,tabState)
+	if (forcePanelUpdate || tabStateChanged && tab.active) sendUpdateActionsMessage(tab.id,tabState)
 	return tabState
 }
 
-async function sendUpdatePanelActionsMessage(tabId,tabState) {
+async function sendUpdateActionsMessage(tabId,tabState) {
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
-		action:'updatePanelActionsNew',
+		action:'updateActionsNew',
 		settings,permissions,
 		tabId,tabState
 	})
 }
 
-async function sendUpdatePanelPermissionsMessage() { // TODO fix name - it's also for options window
+async function sendUpdatePermissionsMessage() {
 	const [,,missingOrigins,existingOrigins]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
-		action:'updatePanelPermissions',
+		action:'updatePermissions',
 		missingOrigins,existingOrigins
 	})
 }

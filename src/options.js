@@ -18,8 +18,12 @@ let updateTimeoutId
 let updateInputValues={}
 
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action=='updatePanelPermissions') {
+	if (message.action=='updatePermissions') {
 		updateOriginPermissionsUI(message.missingOrigins,message.existingOrigins)
+		return Promise.resolve()
+	} else if (message.action=='updateActionsOngoing') {
+		updateOngoingActionsWarning(message.tabActionEntries)
+		return Promise.resolve()
 	}
 	return false
 })
@@ -186,4 +190,12 @@ function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
 		}
 		return listener
 	}
+}
+
+function updateOngoingActionsWarning(tabActionEntries) {
+	const $warning=document.getElementById('warning')
+	$warning.innerHTML=''
+	const n=tabActionEntries.length
+	if (n==0) return
+	$warning.innerText=`Changing the settings will cancel ${n} ongoing action${n>1?'s':''}`
 }
