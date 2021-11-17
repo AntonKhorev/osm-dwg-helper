@@ -2,55 +2,7 @@
 <html lang=en>
 <head>
 <meta charset=utf-8>
-<style>
-@media (prefers-color-scheme: dark) {
-	body {
-		background: #333;
-		color: #CCC;
-	}
-	input[type=text],
-	input[type=url] {
-		background: #222;
-		color: #DDD;
-	}
-}
-body {
-	padding: .5rem;
-}
-#warning:not(:empty) {
-	margin: .5em 0;
-	padding: 1em;
-	background: #C04;
-	color: #FFF;
-	text-align: center;
-}
-#settings {
-	margin: 0 0 3em 0;
-}
-.option {
-	margin: .5em 0;
-}
-input[type=text],
-input[type=url] {
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	padding: 2px;
-	border: 1px inset #CCC;
-	border-radius: 3px; 
-}
-button {
-	display: block;
-	box-sizing: border-box;
-	width: 100%;
-	margin: .5em 0;
-	text-align: center;
-}
-ul:empty::before {
-	content: "(none)";
-	color: gray;
-}
-</style>
+<link rel=stylesheet href=ui.css>
 <script type=module src=options.js></script>
 </head>
 <body>

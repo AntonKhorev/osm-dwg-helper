@@ -9,26 +9,60 @@
 	*:visited {
 		color: #CAC;
 	}
+	input[type=text],
+	input[type=url] {
+		background: #222;
+		color: #DDD;
+	}
 }
 body {
 	padding: .5rem;
 	min-width: 15rem;
 }
-h2 {
-	margin: .5rem 1rem;
-	padding: 0;
-}
 ul:empty::before {
 	content: "(none)";
 	color: gray;
 }
-ul {
+#warning:not(:empty) {
+	margin: .5em 0;
+	padding: 1em;
+	background: #C04;
+	color: #FFF;
+	text-align: center;
+}
+#settings {
+	margin: 0 0 3em 0;
+}
+.option {
+	margin: .5em 0;
+}
+input[type=text],
+input[type=url] {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 2px;
+	border: 1px inset #CCC;
+	border-radius: 3px; 
+}
+button {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	margin: .5em 0;
+	text-align: center;
+}
+#action-lists h2 {
+	margin: .5rem 1rem;
+	padding: 0;
+}
+#action-lists ul {
 	margin: 0 0 0 1rem;
 	padding: 0;
 }
-a {
+#action-lists a {
 	text-decoration: none;
 }
-a:hover {
+#action-lists a:hover {
 	text-decoration: underline;
 }
