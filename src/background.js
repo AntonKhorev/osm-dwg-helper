@@ -1,5 +1,10 @@
 const buildScriptChromePatch=false
 
+import {
+	getOsmIssueIdFromUrl,
+	isOsmUserUrl,
+	isOtrsTicketUrl
+} from './utils.js'
 import SettingsManager from './settings-manager.js'
 
 const tabStates=new Map()
@@ -233,31 +238,4 @@ async function addListenerAndSendMessage(tabId,contentScript,message) {
 	if (buildScriptChromePatch) await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
 	await browser.tabs.executeScript(tabId,{file:`content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)
-}
-
-function getOsmIssueIdFromUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'issues/([0-9]+)'))
-	if (match) {
-		const [,issueId]=match
-		return issueId
-	}
-}
-
-function isOsmUserUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'user/[^/]+$'))
-	return !!match
-}
-
-function isOsmNoteUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'note/[0-9]+$'))
-	return !!match
-}
-
-function isOtrsTicketUrl(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
-	return !!match
-}
-
-function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
-	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }

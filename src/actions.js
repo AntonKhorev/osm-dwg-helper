@@ -1,3 +1,9 @@
+import {
+	getOtrsTicketId,
+	getOtrsCreatedTicketId,
+	escapeHtml
+} from './utils.js'
+
 class Action {
 	/**
 	 * @returns {Array<[text:string,type:?'em']>} array of [text,type] items to be concatenated
@@ -288,34 +294,4 @@ function evaluateTemplate(template,values,escapeFn=s=>s) {
 
 function evaluateHtmlTemplate(template,values) {
 	return evaluateTemplate(template,values,escapeHtml)+'\n'
-}
-
-function getOtrsTicketId(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=')+'([0-9]+)'))
-	if (match) {
-		const [,ticketId]=match
-		return ticketId
-	}
-}
-
-function getOtrsCreatedTicketId(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketPhone;Subaction=Created;TicketID=')+'([0-9]+)'))
-	if (match) {
-		const [,ticketId]=match
-		return ticketId
-	}
-}
-
-function escapeHtml(string) {
-	return string
-	.replace(/&/g,"&amp;")
-	.replace(/</g,"&lt;")
-	.replace(/>/g,"&gt;")
-	.replace(/"/g,"&quot;")
-	.replace(/'/g,"&#039;")
-}
-
-// copypasted TODO make module with basic stuff
-function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
-	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }
