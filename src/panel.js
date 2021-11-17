@@ -90,18 +90,23 @@ function updateActionsNew(settings,permissions,tabId,tabState) {
 	if (permissions.otrs) {
 		const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 		const addSubAction=addSubmenu(`Create ticket`)
-		{
-			addSubAction(makeLink(createTicketUrl,"empty"))
-		}
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
 			let text=`issue #${issueData.id}`
 			if (issueData.reportedItem) {
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
+			if (issueData.reportedItem?.type=='user') {
+				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>background.initiateNewTabAction(
+					new Actions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+				)))
+			}
 			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
-				new Actions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+				new Actions.CreateIssueTicket(tabId,issueData)
 			)))
+		}
+		{
+			addSubAction(makeLink(createTicketUrl,"empty"))
 		}
 	}
 	if (settings.otrs) {

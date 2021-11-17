@@ -56,31 +56,34 @@ export class ScrapeReportedItemThenCreateIssueTicket extends OffshootAction {
 		return this.issueData.reportedItem.url
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		let ticketData
-		if (tabState.type=='user' && tabState.userData.id!=null) {
-			ticketData=convertIssueDataToTicketData(settings,this.issueData,tabState.userData)
-		} else {
-			// TODO fetch issue country - make another tab action class for this
-			ticketData=convertIssueDataToTicketData(settings,this.issueData)
+		const getNextAction=()=>{
+			if (tabState.type=='user' && tabState.userData.id!=null) {
+				return new CreateIssueTicket(this.openerTabId,this.issueData,tabState.userData)
+			} else {
+				// TODO fetch issue country - make another tab action class for this
+				return new CreateIssueTicket(this.openerTabId,this.issueData)
+			}
 		}
-		return [tab.id,new CreateIssueTicket(this.openerTabId,ticketData)]
+		return [tab.id,getNextAction()]
 	}
 }
 
 export class CreateIssueTicket extends OffshootAction {
-	constructor(openerTabId,ticketData) {
+	constructor(openerTabId,issueData,additionalUserData) {
 		super(openerTabId)
-		this.ticketData=ticketData
+		this.issueData=issueData
+		this.additionalUserData=additionalUserData
 	}
 	getOngoingActionMenuEntry() {
-		return [[`create ticket `],[this.ticketData.Subject,'em']]
+		return [[`create ticket for `],[`issue #${this.issueData.id}`,'em']]
 	}
 	getActionUrl(settings) {
 		return `${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
+		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
 		try {
-			await addListenerAndSendMessage(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData:this.ticketData})
+			await addListenerAndSendMessage(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData})
 		} catch {
 			return [tab.id,this]
 		}
@@ -209,13 +212,13 @@ class AddTicketArticle extends Action {
 	}
 }
 
-function convertIssueDataToTicketData(settings,issueData,additionalUserData={}) {
+function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 	if (issueData==null) return {}
 	const ticketData={}
 	ticketData.Body=evaluateHtmlTemplate(settings.ticket_body_header,{issue:issueData})
 	if (issueData.reportedItem?.type=='user') {
 		const userData=issueData.reportedItem
-		if (additionalUserData.id!=null) {
+		if (additionalUserData?.id!=null) {
 			const values={issue:issueData,user:{...userData,...additionalUserData}}
 			ticketData.Subject=evaluateTemplate(settings.ticket_subject_user_id,values)
 			ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_user_id,values)

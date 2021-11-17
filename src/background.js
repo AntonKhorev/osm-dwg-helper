@@ -147,7 +147,7 @@ function isTabStateEqual(data1,data2) {
 	}
 	if (data1.type=='issue') {
 		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff
+		// TODO compare other stuff: data1.issueData.reportedItem
 	}
 	if (data1.type=='ticket') {
 		if (data1.issueData.id!=data2.issueData.id) return false
