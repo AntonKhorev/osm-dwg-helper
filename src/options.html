@@ -8,6 +8,14 @@
 		background: #333;
 		color: #CCC;
 	}
+	input[type=text],
+	input[type=url] {
+		background: #222;
+		color: #DDD;
+	}
+}
+body {
+	padding: .5rem;
 }
 #warning:not(:empty) {
 	margin: .5em 0;
@@ -27,6 +35,9 @@ input[type=url] {
 	display: block;
 	box-sizing: border-box;
 	width: 100%;
+	padding: 2px;
+	border: 1px inset #CCC;
+	border-radius: 3px; 
 }
 button {
 	display: block;
