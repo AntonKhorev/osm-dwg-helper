@@ -1,4 +1,4 @@
-class TabAction {
+class Action {
 	/**
 	 * @returns {Array<[text:string,type:?'em']>} array of [text,type] items to be concatenated
 	 */
@@ -10,7 +10,7 @@ class TabAction {
 	 */
 	getActionUrl(settings) {}
 	/**
-	  * @returns {Promise<?[tabId:number,TabAction]>} undefined/null or [tabId,TabAction] to schedule another action
+	  * @returns {Promise<?[tabId:number,Action]>} undefined/null or [tabId,TabAction] to schedule another action
 	  */
 	async act(settings,tab,tabState,addListenerAndSendMessage) {}
 }
@@ -18,14 +18,14 @@ class TabAction {
 /**
  * Actions that start or continue the sequence of new tab updates
  */
-class OffshootTabAction extends TabAction {
+class OffshootAction extends Action {
 	constructor(openerTabId) {
 		super()
 		this.openerTabId=openerTabId
 	}
 }
 
-class GoToUrl extends TabAction {
+class GoToUrl extends Action {
 	constructor(url) {
 		super()
 		this.url=url
@@ -38,7 +38,7 @@ class GoToUrl extends TabAction {
 	}
 }
 
-export class ScrapeReportedItemThenCreateIssueTicket extends OffshootTabAction {
+export class ScrapeReportedItemThenCreateIssueTicket extends OffshootAction {
 	constructor(openerTabId,issueData) {
 		super(openerTabId)
 		this.issueData=issueData
@@ -61,7 +61,7 @@ export class ScrapeReportedItemThenCreateIssueTicket extends OffshootTabAction {
 	}
 }
 
-export class CreateIssueTicket extends OffshootTabAction {
+export class CreateIssueTicket extends OffshootAction {
 	constructor(openerTabId,ticketData) {
 		super(openerTabId)
 		this.ticketData=ticketData
@@ -82,7 +82,7 @@ export class CreateIssueTicket extends OffshootTabAction {
 	}
 }
 
-class CommentIssueWithTicketUrl extends OffshootTabAction {
+class CommentIssueWithTicketUrl extends OffshootAction {
 	constructor(openerTabId) {
 		super(openerTabId)
 	}
@@ -103,7 +103,7 @@ class CommentIssueWithTicketUrl extends OffshootTabAction {
 	}
 }
 
-export class GoToLastMessageThenAddMessageToTicket extends OffshootTabAction {
+export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
 	constructor(openerTabId,mailbox,addAs) {
 		super(openerTabId)
 		this.mailbox=mailbox
@@ -126,7 +126,7 @@ export class GoToLastMessageThenAddMessageToTicket extends OffshootTabAction {
 	}
 }
 
-class ScrapeMessageThenAddMessageToTicket extends OffshootTabAction {
+class ScrapeMessageThenAddMessageToTicket extends OffshootAction {
 	constructor(openerTabId,mailbox,addAs,messageId) {
 		super(openerTabId)
 		this.mailbox=mailbox
@@ -145,7 +145,7 @@ class ScrapeMessageThenAddMessageToTicket extends OffshootTabAction {
 	}
 }
 
-class AddMessageToTicket extends TabAction {
+class AddMessageToTicket extends Action {
 	constructor(mailbox,addAs,messageTo,messageText) {
 		super()
 		this.mailbox=mailbox
@@ -174,7 +174,7 @@ class AddMessageToTicket extends TabAction {
 	}
 }
 
-class AddTicketArticle extends TabAction {
+class AddTicketArticle extends Action {
 	constructor(ticketId,addAs,subject,body) {
 		super()
 		this.ticketId=ticketId

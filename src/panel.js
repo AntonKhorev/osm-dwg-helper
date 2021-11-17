@@ -1,4 +1,4 @@
-import * as TabActions from './tab-actions.js'
+import * as Actions from './actions.js'
 
 const background=await browser.runtime.getBackgroundPage()
 
@@ -100,7 +100,7 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
 			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
-				new TabActions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+				new Actions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
 			)))
 		}
 	}
@@ -149,7 +149,7 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const action=new TabActions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
+					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
 					return makeLink(
 						action.getActionUrl(settings),
 						'as '+addAs,
