@@ -1,6 +1,7 @@
 const background=await browser.runtime.getBackgroundPage()
 
 async function settingsWriteWrapper(settings) {
+	if (Object.keys(settings).length==0) return
 	background.reportNeedToDropActions()
 	const needToReport=await background.settingsManager.write(settings)
 	if (needToReport.origin) {
