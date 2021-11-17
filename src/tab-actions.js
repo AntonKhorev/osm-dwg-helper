@@ -1,18 +1,18 @@
 class TabAction {
 	/**
-	 * @returns array of [text,type] items to be concatenated; type is either undefined or "em"
+	 * @returns {Array<[text:string,type:?'em']>} array of [text,type] items to be concatenated
 	 */
 	getOngoingActionMenuEntry() {
 		return [[`unknown action`]]
 	}
 	/**
-	 * @returns undefined/null or url to direct the current tab to right after action creation
+	 * @returns {?string} undefined/null or url to direct the current tab to right after action creation
 	 */
 	getActionUrl(settings) {}
 	/**
-	  * @returns undefined/null or [tabId,TabAction] to schedule another action
+	  * @returns {Promise<?[tabId:number,TabAction]>} undefined/null or [tabId,TabAction] to schedule another action
 	  */
-	async act(tab,tabState,addListenerAndSendMessage) {}
+	async act(settings,tab,tabState,addListenerAndSendMessage) {}
 }
 
 /**
@@ -49,8 +49,7 @@ export class ScrapeReportedItemThenCreateIssueTicket extends OffshootTabAction {
 	getActionUrl(settings) {
 		return this.issueData.reportedItem.url
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
-		const settings=await settingsManager.read()
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		let ticketData
 		if (tabState.type=='user' && tabState.userData.id!=null) {
 			ticketData=convertIssueDataToTicketData(settings,this.issueData,tabState.userData)
@@ -73,7 +72,7 @@ export class CreateIssueTicket extends OffshootTabAction {
 	getActionUrl(settings) {
 		return `${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		try {
 			await addListenerAndSendMessage(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData:this.ticketData})
 		} catch {
@@ -90,8 +89,7 @@ class CommentIssueWithTicketUrl extends OffshootTabAction {
 	getOngoingActionMenuEntry() {
 		return [[`add comment to issue for created ticket`]]
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
-		const settings=await settingsManager.read()
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
@@ -117,7 +115,7 @@ export class GoToLastMessageThenAddMessageToTicket extends OffshootTabAction {
 	getActionUrl(settings) {
 		return `${settings.osm}messages/${this.mailbox}`
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'})
 		if (!messageId) {
 			// TODO handle login page, empty mailbox
@@ -141,7 +139,7 @@ class ScrapeMessageThenAddMessageToTicket extends OffshootTabAction {
 	getActionUrl(settings) {
 		return `${settings.osm}messages/${encodeURIComponent(this.messageId)}`
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
 		return [this.openerTabId,new AddMessageToTicket(this.mailbox,this.addAs,messageData.user,messageData.body)]
 	}
@@ -158,8 +156,7 @@ class AddMessageToTicket extends TabAction {
 	getOngoingActionMenuEntry() {
 		return [[`add message to `],[this.messageTo,'em'],[` as `],[this.addAs,'em'],[` article`]]
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
-		const settings=await settingsManager.read()
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
@@ -193,7 +190,7 @@ class AddTicketArticle extends TabAction {
 		if (this.addAs=='pending') otrsAction='AgentTicketPending'
 		return `${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(this.ticketId)}`
 	}
-	async act(tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		try {
 			await addListenerAndSendMessage(tab.id,'ticket-article',{
 				action:'addArticleSubjectAndBody',

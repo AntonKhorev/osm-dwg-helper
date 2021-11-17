@@ -108,7 +108,8 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	)) {
 		// TODO check if url matches, if not cancel action
 		tabActions.delete(tabId)
-		const tabActionsUpdate=await tabAction.act(tab,tabState,addListenerAndSendMessage)
+		const settings=await settingsManager.read()
+		const tabActionsUpdate=await tabAction.act(settings,tab,tabState,addListenerAndSendMessage)
 		if (tabActionsUpdate) {
 			const [newActionTabId,newAction]=tabActionsUpdate
 			tabActions.set(newActionTabId,newAction)
@@ -121,7 +122,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 				update.active=true
 			}
 			if (newAction) {
-				const url=newAction.getActionUrl(await settingsManager.read())
+				const url=newAction.getActionUrl(settings)
 				if (url!=null) update.url=url
 			}
 			if (Object.keys(update).length>0) {
