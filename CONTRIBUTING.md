@@ -29,4 +29,5 @@ Content scripts are run in order to retrieve and change information on OSM and O
 The places to watch (and to fix) are:
 
 - Issue rendering templates at [app/views/issues](https://github.com/openstreetmap/openstreetmap-website/tree/master/app/views/issues), particularly the issue page outline [show.html.erb](https://github.com/openstreetmap/openstreetmap-website/blob/master/app/views/issues/show.html.erb) and report template [_reports.html.erb](https://github.com/openstreetmap/openstreetmap-website/blob/master/app/views/issues/_reports.html.erb). Content script [issue.js](./src/content/issue.js) relies on their format.
-- TODO: inbox/outbox, message, user profile
+- User templates at [app/views/users](https://github.com/openstreetmap/openstreetmap-website/tree/master/app/views/users), particularly the user profile page [show.html.erb](https://github.com/openstreetmap/openstreetmap-website/blob/master/app/views/users/show.html.erb). Content script [user.js](./src/content/user.js) relies on its format.
+- TODO: inbox/outbox, message

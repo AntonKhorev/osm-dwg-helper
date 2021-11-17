@@ -10,7 +10,7 @@ function messageListener(message) {
 }
 
 function scrapeUserId() {
-	const $userInfo=document.getElementById('userinformation')
+	const $userInfo=document.querySelector('.content-heading')
 	if (!$userInfo) return
 	// need to find this link: https://www.openstreetmap.org/reports/new?reportable_id=${id}&reportable_type=User
 	for (const $a of $userInfo.querySelectorAll('a')) {
