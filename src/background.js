@@ -58,6 +58,10 @@ window.registerNewPanel=(tab)=>{
 	reactToActionsUpdate()
 }
 
+window.registerNewOptionsPage=()=>{ // need to send updateActionsOngoing message
+	reactToActionsUpdate()
+}
+
 window.initiateNewTabAction=async(tabAction)=>{
 	const newTab=await browser.tabs.create({
 		openerTabId:tabAction.openerTabId,

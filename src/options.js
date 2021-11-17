@@ -46,6 +46,7 @@ function flushInputs() {
 }
 
 updateSettingsUI()
+background.registerNewOptionsPage()
 
 function readSettingsFile() {
 	const [file]=this.files
