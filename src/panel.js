@@ -15,7 +15,7 @@ browser.runtime.onMessage.addListener(message=>{
 	} else if (message.action=='updatePanelActionsNew') {
 		return scheduleUpdatePanelActionsNew(message.settings,message.permissions,message.tabId,message.tabState)
 	} else if (message.action=='updatePanelActionsOngoing') {
-		return scheduleUpdatePanelActionsOngoing(message.tabActionListItems)
+		return scheduleUpdatePanelActionsOngoing(message.tabActionEntries)
 	}
 	return false
 })
@@ -201,10 +201,10 @@ function updatePanelActionsNew(settings,permissions,tabId,tabState) {
 	}
 }
 
-function updatePanelActionsOngoing(tabActionListItems) {
+function updatePanelActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	for (const [tabId,menuEntryElements] of tabActionListItems) {
+	for (const [tabId,menuEntryElements] of tabActionEntries) {
 		const $li=document.createElement('li')
 		for (const [text,type] of menuEntryElements) {
 			if (type=='em') {

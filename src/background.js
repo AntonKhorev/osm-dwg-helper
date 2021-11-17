@@ -6,9 +6,10 @@ import {
 	isOtrsTicketUrl
 } from './utils.js'
 import SettingsManager from './settings-manager.js'
+import ActionsManager from './actions-manager.js'
 
 const tabStates=new Map()
-const tabActions=new Map()
+const actionsManager=new ActionsManager()
 
 window.settingsManager=new SettingsManager([
 	"Main settings",
@@ -33,8 +34,7 @@ window.settingsManager=new SettingsManager([
 ])
 
 window.reportNeedToDropActions=()=>{
-	if (tabActions.size>0) {
-		tabActions.clear()
+	if (actionsManager.clearTabs()) {
 		reactToActionsUpdate()
 	}
 }
@@ -63,29 +63,23 @@ window.initiateNewTabAction=async(tabAction)=>{
 		openerTabId:tabAction.openerTabId,
 		url:tabAction.getActionUrl(await settingsManager.read())
 	})
-	tabActions.set(newTab.id,tabAction)
+	actionsManager.addTabAction(newTab.id,tabAction)
 	reactToActionsUpdate()
 }
 
 window.removeTabAction=(tabId)=>{
-	if (tabActions.has(tabId)) {
-		tabActions.delete(tabId)
+	if (actionsManager.deleteTab(tabId)) {
 		reactToActionsUpdate()
 	}
 }
 
 function reactToActionsUpdate() {
-	const tabActionListItems=[]
-	for (const [tabId,action] of tabActions) {
-		tabActionListItems.push([tabId,action.getOngoingActionMenuEntry()])
-	}
-	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActionListItems})
+	browser.runtime.sendMessage({action:'updatePanelActionsOngoing',tabActionEntries:actionsManager.listTabActionEntries()})
 }
 
 browser.tabs.onRemoved.addListener((tabId)=>{
 	tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
-	if (tabActions.has(tabId)) {
-		tabActions.delete(tabId)
+	if (actionsManager.deleteTab(tabId)) {
 		reactToActionsUpdate()
 	}
 })
@@ -103,35 +97,14 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
 	const tabState=await updateTabState(tab)
-	const tabAction=tabActions.get(tabId)
-	if (tabAction && (
+	if (actionsManager.hasTab(tabId) && (
 		changeInfo.status=='complete' || // just loaded
 		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
 	)) {
-		// TODO check if url matches, if not cancel action
-		tabActions.delete(tabId)
 		const settings=await settingsManager.read()
-		const tabActionsUpdate=await tabAction.act(settings,tab,tabState,addListenerAndSendMessage)
-		if (tabActionsUpdate) {
-			const [newActionTabId,newAction]=tabActionsUpdate
-			tabActions.set(newActionTabId,newAction)
-			if (newActionTabId==tabId && newAction==tabAction) {
-				return
-			}
-			const update={}
-			if (newActionTabId!=tabId) {
-				browser.tabs.remove(tabId)
-				update.active=true
-			}
-			if (newAction) {
-				const url=newAction.getActionUrl(settings)
-				if (url!=null) update.url=url
-			}
-			if (Object.keys(update).length>0) {
-				browser.tabs.update(newActionTabId,update)
-			}
+		if (await actionsManager.act(settings,tab,tabState,addListenerAndSendMessage)) {
+			reactToActionsUpdate()
 		}
-		reactToActionsUpdate()
 	}
 })
 
