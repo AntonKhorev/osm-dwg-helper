@@ -1,6 +1,7 @@
 const buildScriptChromePatch=false
 
 import {
+	getOsmMessageIdFromUrl,
 	getOsmIssueIdFromUrl,
 	isOsmUserUrl,
 	isOtrsTicketUrl
@@ -142,6 +143,9 @@ async function sendUpdatePermissionsMessage() {
 
 function isTabStateEqual(data1,data2) {
 	if (data1.type!=data2.type) return false
+	if (data1.type=='message') {
+		if (data1.messageData.id!=data2.messageData.id) return false
+	}
 	if (data1.type=='user') {
 		if (data1.userData.id!=data2.userData.id) return false
 	}
@@ -159,6 +163,21 @@ function isTabStateEqual(data1,data2) {
 async function getTabState(tab) {
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const tabState={}
+	if (settings.osm) {
+		const messageId=getOsmMessageIdFromUrl(settings.osm,tab.url)
+		if (messageId!=null) {
+			tabState.type='message'
+			tabState.messageData={
+				osmRoot:settings.osm,
+				id:messageId,
+				url:tab.url
+			}
+			if (permissions.osm) {
+				const contentMessageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
+				if (contentMessageData) Object.assign(tabState.messageData,contentMessageData)
+			}
+		}
+	}
 	if (settings.osm) {
 		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
 		if (issueId!=null) {

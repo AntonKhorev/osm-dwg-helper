@@ -113,10 +113,10 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 }
 
 export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
-	constructor(openerTabId,mailbox,addAs) {
+	constructor(openerTabId,addAs,mailbox) {
 		super(openerTabId)
-		this.mailbox=mailbox
 		this.addAs=addAs
+		this.mailbox=mailbox
 	}
 	getOngoingActionMenuEntry() {
 		return [[`go to last `],[this.mailbox,'em'],[` message`]]
@@ -131,55 +131,53 @@ export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
 			// return [tab.id,this]
 			return
 		}
-		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.mailbox,this.addAs,messageId)]
+		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.addAs,messageId)]
 	}
 }
 
 class ScrapeMessageThenAddMessageToTicket extends OffshootAction {
-	constructor(openerTabId,mailbox,addAs,messageId) {
+	constructor(openerTabId,addAs,messageId) {
 		super(openerTabId)
-		this.mailbox=mailbox
 		this.addAs=addAs
 		this.messageId=messageId // TODO maybe nullable if need to process current tab... but then it's not an offshoot action
 	}
 	getOngoingActionMenuEntry() {
-		return [[`scrape `],[this.mailbox,'em'],[` message`]]
+		return [[`scrape `],[`message #${this.messageId}`,'em']]
 	}
 	getActionUrl(settings) {
 		return `${settings.osm}messages/${encodeURIComponent(this.messageId)}`
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		const messageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
-		return [this.openerTabId,new AddMessageToTicket(this.mailbox,this.addAs,messageData.user,messageData.body)]
+		return [this.openerTabId,new AddMessageToTicket(this.addAs,tabState.messageData)]
 	}
 }
 
 class AddMessageToTicket extends Action {
-	constructor(mailbox,addAs,messageTo,messageText) {
+	constructor(addAs,messageData) {
 		super()
-		this.mailbox=mailbox
 		this.addAs=addAs
-		this.messageTo=messageTo
-		this.messageText=messageText
+		this.messageData=messageData
 	}
 	getOngoingActionMenuEntry() {
-		return [[`add message to `],[this.messageTo,'em'],[` as `],[this.addAs,'em'],[` article`]]
+		return [[`add message ${this.messageDirection} `],[this.messageData.user,'em'],[` as `],[this.addAs,'em'],[` article`]]
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
 		}
-		let subjectTemplate=settings.article_message_to_subject
-		if (this.mailbox=='inbox') subjectTemplate=settings.article_message_from_subject
-		let processedMessageText=this.messageText
+		const subjectTemplate=settings[`article_message_${this.messageDirection}_subject`]
+		let processedMessageText=this.messageData.body
 		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
 		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
 		return [tab.id,new AddTicketArticle(
 			ticketId,this.addAs,
-			evaluateTemplate(subjectTemplate,{user:{name:this.messageTo}}),
+			evaluateTemplate(subjectTemplate,{user:{name:this.messageData.user}}),
 			processedMessageText
 		)]
+	}
+	get messageDirection() {
+		return this.messageData.isInbound?'from':'to'
 	}
 }
 

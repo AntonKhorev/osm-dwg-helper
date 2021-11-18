@@ -109,6 +109,12 @@ function updateActionsNew(settings,permissions,tabId,tabState) {
 			addSubAction(makeLink(createTicketUrl,"empty"))
 		}
 	}
+	if (permissions.otrs) {
+		if (tabState.type=='message') {
+			const messageData=tabState.messageData
+			addAction(`TODO maybe do something with message ${messageData.isInbound?'from':'to'} ${messageData.user}`)
+		}
+	}
 	if (settings.otrs) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
@@ -154,7 +160,7 @@ function updateActionsNew(settings,permissions,tabId,tabState) {
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,mailbox,addAs)
+					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,addAs,mailbox)
 					return makeLink(
 						action.getActionUrl(settings),
 						'as '+addAs,

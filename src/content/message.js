@@ -26,5 +26,10 @@ function scrapeMessageData() {
 	if ($messageBody) {
 		messageData.body=$messageBody.innerHTML
 	}
+	messageData.isInbound=hasReplyButton($contentBody)
 	return messageData
+}
+
+function hasReplyButton($) {
+	return !!$.querySelector('a.btn[href$="/reply"]')
 }

@@ -1,9 +1,9 @@
+export function getOsmMessageIdFromUrl(osmRoot,url) {
+	return getIdFromUrl(osmRoot+'messages/',url)
+}
+
 export function getOsmIssueIdFromUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'issues/([0-9]+)'))
-	if (match) {
-		const [,issueId]=match
-		return issueId
-	}
+	return getIdFromUrl(osmRoot+'issues/',url)
 }
 
 export function isOsmUserUrl(osmRoot,url) {
@@ -22,18 +22,18 @@ export function isOtrsTicketUrl(otrsRoot,url) {
 }
 
 export function getOtrsTicketId(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=')+'([0-9]+)'))
-	if (match) {
-		const [,ticketId]=match
-		return ticketId
-	}
+	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=',url)
 }
 
 export function getOtrsCreatedTicketId(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketPhone;Subaction=Created;TicketID=')+'([0-9]+)'))
+	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketPhone;Subaction=Created;TicketID=',url)
+}
+
+function getIdFromUrl(path,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(path)+'([0-9]+)'))
 	if (match) {
-		const [,ticketId]=match
-		return ticketId
+		const [,id]=match
+		return id
 	}
 }
 
