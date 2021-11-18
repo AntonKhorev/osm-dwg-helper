@@ -1,15 +1,10 @@
 const buildScriptChromePatch=false
 
-import {
-	getOsmMessageIdFromUrl,
-	getOsmIssueIdFromUrl,
-	isOsmUserUrl,
-	isOtrsTicketUrl
-} from './utils.js'
 import SettingsManager from './settings-manager.js'
+import StatesManager from './states-manager.js'
 import ActionsManager from './actions-manager.js'
 
-const tabStates=new Map()
+const statesManager=new StatesManager()
 const actionsManager=new ActionsManager()
 
 window.settingsManager=new SettingsManager([
@@ -42,20 +37,30 @@ window.reportNeedToDropActions=()=>{
 
 window.reportPermissionsUpdate=async()=>{
 	await sendUpdatePermissionsMessage()
-	await reportStatesUpdate() // permissions update implies states update
+	await reportStateChangingSettingsUpdate() // permissions update implies states update
 }
 
-window.reportStatesUpdate=async()=>{
-	tabStates.clear()
+window.reportStateChangingSettingsUpdate=async()=>{
+	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
-	for (const tab of activeTabs) {
-		updateTabState(tab)
-	}
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(
+		settings,permissions,activeTabs,
+		tabId=>browser.tabs.get(tabId),
+		addListenerAndSendMessage
+	)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
+	// actions were just dropped, don't need to update them
 }
 
-window.registerNewPanel=(tab)=>{
+window.registerNewPanel=async(tab)=>{
 	sendUpdatePermissionsMessage() // TODO limit the update to this tab
-	updateTabState(tab,true)
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(
+		settings,permissions,tab,
+		addListenerAndSendMessage
+	)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
 	reactToActionsUpdate()
 }
 
@@ -83,25 +88,35 @@ function reactToActionsUpdate() {
 }
 
 browser.tabs.onRemoved.addListener((tabId)=>{
-	tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
+	statesManager.deleteTab(tabId)
 	if (actionsManager.deleteTab(tabId)) {
 		reactToActionsUpdate()
 	}
 })
 
-browser.tabs.onActivated.addListener(async({tabId})=>{
-	const tabState=tabStates.get(tabId)
-	if (tabState) {
-		sendUpdateActionsMessage(tabId,tabState)
-	} else {
-		const tab=await browser.tabs.get(tabId)
-		updateTabState(tab,true)
-	}
+browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
+		settings,permissions,
+		tabId,previousTabId,
+		tabId=>browser.tabs.get(tabId),
+		addListenerAndSendMessage
+	)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
 })
 
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
-	const tabState=await updateTabState(tab)
+
+	// possible optimizations:
+	// may skip update it if tab is not (active || previous || has scheduled action)
+	// may also act only on active tabs, then can skip if tab is not (active || previous)
+	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
+	const tabState=statesManager.getTabState(tabId)
+	
 	if (actionsManager.hasTab(tabId) && (
 		changeInfo.status=='complete' || // just loaded
 		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
@@ -113,23 +128,19 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
-async function updateTabState(tab,forcePanelUpdate=false) {
-	if (tabStates.get(tab.id)==null) {
-		tabStates.set(tab.id,{})
-	}
-	const tabState=await getTabState(tab)
-	const tabStateChanged=!isTabStateEqual(tabStates.get(tab.id),tabState)
-	if (tabStateChanged) tabStates.set(tab.id,tabState)
-	if (forcePanelUpdate || tabStateChanged && tab.active) sendUpdateActionsMessage(tab.id,tabState)
-	return tabState
-}
-
-async function sendUpdateActionsMessage(tabId,tabState) {
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+/**
+ * @param tabIds {Array<number>}
+ */
+async function sendUpdateActionsMessage(
+	settings,permissions, // they are always computed right before tab state updates
+	tabIds,otherTabId,tabStates
+) {
+	if (tabIds.length==0) return
+	//const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updateActionsNew',
 		settings,permissions,
-		tabId,tabState
+		tabIds,otherTabId,tabStates
 	})
 }
 
@@ -139,95 +150,6 @@ async function sendUpdatePermissionsMessage() {
 		action:'updatePermissions',
 		missingOrigins,existingOrigins
 	})
-}
-
-function isTabStateEqual(data1,data2) {
-	if (data1.type!=data2.type) return false
-	if (data1.type=='message') {
-		if (data1.messageData.id!=data2.messageData.id) return false
-	}
-	if (data1.type=='user') {
-		if (data1.userData.id!=data2.userData.id) return false
-	}
-	if (data1.type=='issue') {
-		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff: data1.issueData.reportedItem
-	}
-	if (data1.type=='ticket') {
-		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff
-	}
-	return true
-}
-
-async function getTabState(tab) {
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const tabState={}
-	if (settings.osm) {
-		const messageId=getOsmMessageIdFromUrl(settings.osm,tab.url)
-		if (messageId!=null) {
-			tabState.type='message'
-			tabState.messageData={
-				osmRoot:settings.osm,
-				id:messageId,
-				url:tab.url
-			}
-			if (permissions.osm) {
-				const contentMessageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
-				if (contentMessageData) Object.assign(tabState.messageData,contentMessageData)
-			}
-		}
-	}
-	if (settings.osm) {
-		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
-		if (issueId!=null) {
-			tabState.type='issue'
-			tabState.issueData={
-				osmRoot:settings.osm,
-				id:issueId,
-				url:tab.url
-			}
-			if (permissions.osm) {
-				const contentIssueData=await addListenerAndSendMessage(tab.id,'issue',{action:'getIssueData'})
-				if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
-			}
-		}
-	}
-	if (settings.osm) {
-		// TODO get username from url - not necessary for now
-		if (isOsmUserUrl(settings.osm,tab.url)) {
-			tabState.type='user'
-			tabState.userData={}
-			if (permissions.osm) {
-				const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
-				if (userId!=null) {
-					let apiUrl='#' // not important for now - only used in templates
-					if (settings.osm_api) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
-					tabState.userData={
-						id:userId,
-						apiUrl
-					}
-				}
-			}
-		}
-	}
-	if (settings.otrs) {
-		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
-			tabState.type='ticket'
-			tabState.issueData={}
-			if (settings.osm && permissions.otrs) {
-				const contentIssueId=await addListenerAndSendMessage(tab.id,'ticket',{action:'getIssueId'})
-				if (contentIssueId!=null) {
-					tabState.issueData={
-						osmRoot:settings.osm,
-						id:contentIssueId,
-						url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
-					}
-				}
-			}
-		}
-	}
-	return tabState
 }
 
 async function addListenerAndSendMessage(tabId,contentScript,message) {

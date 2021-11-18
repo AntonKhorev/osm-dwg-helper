@@ -162,7 +162,7 @@ class AddMessageToTicket extends Action {
 		return [[`add message ${this.messageDirection} `],[this.messageData.user,'em'],[` as `],[this.addAs,'em'],[` article`]]
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
+		const ticketId=getOtrsTicketId(settings.otrs,tab.url) // TODO use tabState
 		if (!ticketId) {
 			return [tab.id,this]
 		}

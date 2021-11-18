@@ -2,10 +2,7 @@ import * as Actions from './actions.js'
 
 const background=await browser.runtime.getBackgroundPage()
 
-const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,async(settings,permissions,tabId,tabState)=>{
-	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	return (currentTab.id==tabId)
-})
+const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
 const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
 
@@ -13,7 +10,11 @@ browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePermissions') {
 		return scheduleUpdatePermissions(message.missingOrigins)
 	} else if (message.action=='updateActionsNew') {
-		return scheduleUpdateActionsNew(message.settings,message.permissions,message.tabId,message.tabState)
+		return scheduleUpdateActionsNew(
+			message.settings,message.permissions,
+			message.tabIds,message.otherTabId,
+			message.tabStates
+		)
 	} else if (message.action=='updateActionsOngoing') {
 		return scheduleUpdateActionsOngoing(message.tabActionEntries)
 	}
@@ -28,7 +29,10 @@ browser.runtime.onMessage.addListener(message=>{
 function setupUpdateScheduler(handlerFn,filterFn) {
 	let updateTimeoutId
 	return async(...args)=>{
-		if (filterFn && !await filterFn(...args)) return
+		if (filterFn) {
+			args=await filterFn(...args)
+			if (!args) return
+		}
 		if (updateTimeoutId!=null) clearTimeout(updateTimeoutId)
 		updateTimeoutId=setTimeout(()=>{
 			updateTimeoutId=undefined
@@ -78,7 +82,20 @@ function updatePermissions(missingOrigins) {
 	}
 }
 
-function updateActionsNew(settings,permissions,tabId,tabState) {
+/**
+ * @param tabIds {Array<number>}
+ */
+async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tabStates) {
+	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+	if (!tabIds.includes(currentTab.id)) return
+	return [
+		settings,permissions,
+		currentTab.id,tabStates[currentTab.id],
+		otherTabId,tabStates[otherTabId]??{}
+	]
+}
+
+function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTabState) {
 	const $actions=document.getElementById('actions-new')
 	$actions.innerHTML=""
 	if (settings.osm) {
@@ -110,9 +127,10 @@ function updateActionsNew(settings,permissions,tabId,tabState) {
 		}
 	}
 	if (permissions.otrs) {
-		if (tabState.type=='message') {
+		if (tabState.type=='message' && otherTabState.type=='ticket') {
 			const messageData=tabState.messageData
-			addAction(`TODO maybe do something with message ${messageData.isInbound?'from':'to'} ${messageData.user}`)
+			const ticketData=otherTabState.ticketData
+			addAction(`TODO add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket ${ticketData.id}`)
 		}
 	}
 	if (settings.otrs) {

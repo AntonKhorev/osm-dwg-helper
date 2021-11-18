@@ -7,7 +7,7 @@ async function settingsWriteWrapper(settings) {
 	if (needToReport.origin) {
 		await background.reportPermissionsUpdate()
 	} else if (needToReport.state) {
-		await background.reportStatesUpdate() // don't need to do this if reportPermissionsUpdate() was called
+		await background.reportStateChangingSettingsUpdate() // don't need to do this if reportPermissionsUpdate() was called
 	}
 }
 
