@@ -1,8 +1,9 @@
 # osm-dwg-helper
 
-Browser extension to handle reported issues ([users](https://wiki.openstreetmap.org/wiki/Report_user) and [notes](https://wiki.openstreetmap.org/wiki/Notes#Reporting_notes)) on [OpenStreetMap website](https://www.openstreetmap.org/).
-Mainly of interest for [DWG members](https://wiki.osmfoundation.org/wiki/Data_Working_Group).
-Reimplements some of [osm-dwg-userscripts] features without requesting/storing OTRS account login/password.
+A browser extension to handle reported issues ([users](https://wiki.openstreetmap.org/wiki/Report_user) and [notes](https://wiki.openstreetmap.org/wiki/Notes#Reporting_notes)) on the [OpenStreetMap website](https://www.openstreetmap.org/).
+Allows to quickly create [OTRS](https://github.com/OTRS/otrs) tickets from issues and to add OSM messages to tickets.
+Mainly of interest to [OSMF Data Working Group members](https://wiki.osmfoundation.org/wiki/Data_Working_Group).
+An alternative to [osm-dwg-userscripts] without requesting/storing OTRS account login/password.
 
 ## Installation
 
