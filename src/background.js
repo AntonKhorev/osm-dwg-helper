@@ -68,12 +68,15 @@ window.registerNewOptionsPage=()=>{ // need to send updateActionsOngoing message
 	reactToActionsUpdate()
 }
 
-window.initiateNewTabAction=async(tabAction)=>{
-	const newTab=await browser.tabs.create({
-		openerTabId:tabAction.openerTabId,
-		url:tabAction.getActionUrl(await settingsManager.read())
-	})
-	actionsManager.addTabAction(newTab.id,tabAction)
+window.initiateCurrentTabAction=async(action,tabId)=>{
+	const settings=await settingsManager.read()
+	actionsManager.addCurrentTabAction(settings,action,tabId)
+	reactToActionsUpdate()
+}
+
+window.initiateNewTabAction=async(action)=>{
+	const settings=await settingsManager.read()
+	actionsManager.addNewTabAction(settings,action)
 	reactToActionsUpdate()
 }
 

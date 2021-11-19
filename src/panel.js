@@ -126,13 +126,6 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			addSubAction(makeLink(createTicketUrl,"empty"))
 		}
 	}
-	if (permissions.otrs) {
-		if (tabState.type=='message' && otherTabState.type=='ticket') {
-			const messageData=tabState.messageData
-			const ticketData=otherTabState.ticketData
-			addAction(`TODO add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket ${ticketData.id}`)
-		}
-	}
 	if (settings.otrs) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
@@ -172,13 +165,31 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		}
 	}
 	if (permissions.otrs && permissions.osm) {
+		if (tabState.type=='ticket' && otherTabState.type=='message') {
+			const messageData=otherTabState.messageData
+			const ticketData=tabState.ticketData
+			const addSubAction=addSubmenu(`Add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket`)
+			addSubAction(makeMessageLink('note'))
+			addSubAction(makeMessageLink('pending'))
+			function makeMessageLink(addAs) {
+				const action=new Actions.AddMessageToTicket(ticketData.id,addAs,messageData)
+				return makeLink(
+					action.getActionUrl(settings),
+					'as '+addAs,
+					()=>background.initiateCurrentTabAction(action,tabId)
+				)
+			}
+		}
+	}
+	if (permissions.otrs && permissions.osm) {
 		if (tabState.type=='ticket') {
 			for (const mailbox of ['outbox','inbox']) {
+				const ticketData=tabState.ticketData
 				const addSubAction=addSubmenu(`Add last ${mailbox} message to ticket`)
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,addAs,mailbox)
+					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,ticketData.id,addAs,mailbox)
 					return makeLink(
 						action.getActionUrl(settings),
 						'as '+addAs,

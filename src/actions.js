@@ -1,10 +1,9 @@
 import {
-	getOtrsTicketId,
 	getOtrsCreatedTicketId,
 	escapeHtml
 } from './utils.js'
 
-class Action {
+export class Action {
 	/**
 	 * @returns {Array<[text:string,type:?'em']>} array of [text,type] items to be concatenated
 	 */
@@ -16,6 +15,13 @@ class Action {
 	 */
 	getActionUrl(settings) {}
 	/**
+	 * @returns {boolean} true if the url doesn't match the action
+	 */
+	needToRejectUrl(settings,url) {
+		const requiredUrl=this.getActionUrl(settings)
+		return (requiredUrl!=null && url!=requiredUrl)
+	}
+	/**
 	  * @returns {Promise<?[tabId:number,Action]>} undefined/null or [tabId,TabAction] to schedule another action
 	  */
 	async act(settings,tab,tabState,addListenerAndSendMessage) {}
@@ -24,7 +30,7 @@ class Action {
 /**
  * Actions that start or continue the sequence of new tab updates
  */
-class OffshootAction extends Action {
+export class OffshootAction extends Action {
 	constructor(openerTabId) {
 		super()
 		this.openerTabId=openerTabId
@@ -98,6 +104,7 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 	getOngoingActionMenuEntry() {
 		return [[`add comment to issue for created ticket`]]
 	}
+	// getActionUrl: exact action url is unknown b/c it contains server response
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
@@ -113,8 +120,9 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 }
 
 export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
-	constructor(openerTabId,addAs,mailbox) {
+	constructor(openerTabId,ticketId,addAs,mailbox) {
 		super(openerTabId)
+		this.ticketId=ticketId
 		this.addAs=addAs
 		this.mailbox=mailbox
 	}
@@ -125,21 +133,22 @@ export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
 		return `${settings.osm}messages/${this.mailbox}`
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'})
+		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'}) // TODO use tabState
 		if (!messageId) {
 			// TODO handle login page, empty mailbox
 			// return [tab.id,this]
 			return
 		}
-		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.addAs,messageId)]
+		return [tab.id,new ScrapeMessageThenAddMessageToTicket(this.openerTabId,this.ticketId,this.addAs,messageId)]
 	}
 }
 
 class ScrapeMessageThenAddMessageToTicket extends OffshootAction {
-	constructor(openerTabId,addAs,messageId) {
+	constructor(openerTabId,ticketId,addAs,messageId) {
 		super(openerTabId)
+		this.ticketId=ticketId
 		this.addAs=addAs
-		this.messageId=messageId // TODO maybe nullable if need to process current tab... but then it's not an offshoot action
+		this.messageId=messageId
 	}
 	getOngoingActionMenuEntry() {
 		return [[`scrape `],[`message #${this.messageId}`,'em']]
@@ -148,49 +157,21 @@ class ScrapeMessageThenAddMessageToTicket extends OffshootAction {
 		return `${settings.osm}messages/${encodeURIComponent(this.messageId)}`
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		return [this.openerTabId,new AddMessageToTicket(this.addAs,tabState.messageData)]
+		return [this.openerTabId,new AddMessageToTicket(this.ticketId,this.addAs,tabState.messageData)]
 	}
 }
 
-class AddMessageToTicket extends Action {
-	constructor(addAs,messageData) {
-		super()
-		this.addAs=addAs
-		this.messageData=messageData
-	}
-	getOngoingActionMenuEntry() {
-		return [[`add message ${this.messageDirection} `],[this.messageData.user,'em'],[` as `],[this.addAs,'em'],[` article`]]
-	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		const ticketId=getOtrsTicketId(settings.otrs,tab.url) // TODO use tabState
-		if (!ticketId) {
-			return [tab.id,this]
-		}
-		const subjectTemplate=settings[`article_message_${this.messageDirection}_subject`]
-		let processedMessageText=this.messageData.body
-		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
-		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
-		return [tab.id,new AddTicketArticle(
-			ticketId,this.addAs,
-			evaluateTemplate(subjectTemplate,{user:{name:this.messageData.user}}),
-			processedMessageText
-		)]
-	}
-	get messageDirection() {
-		return this.messageData.isInbound?'from':'to'
-	}
-}
-
-class AddTicketArticle extends Action {
-	constructor(ticketId,addAs,subject,body) {
+class AddArticleToTicket extends Action {
+	/**
+	 * @param addAs {'note'|'pending'}
+	 */
+	constructor(ticketId,addAs) {
 		super()
 		this.ticketId=ticketId
 		this.addAs=addAs
-		this.subject=subject
-		this.body=body
 	}
 	getOngoingActionMenuEntry() {
-		return [[`add ticket article `],[this.subject,'em']]
+		return [[`add `],[this.addAs,'em'],[`-article to `],[`ticket #${this.ticketId}`,'em']]
 	}
 	getActionUrl(settings) {
 		let otrsAction='AgentTicketNote'
@@ -198,15 +179,41 @@ class AddTicketArticle extends Action {
 		return `${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(this.ticketId)}`
 	}
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
+		const [subject,body]=this.getSubjectAndBody(settings)
 		try {
 			await addListenerAndSendMessage(tab.id,'ticket-article',{
 				action:'addArticleSubjectAndBody',
-				subject:this.subject,
-				body:this.body
+				subject,body
 			})
 		} catch {
 			return [tab.id,this]
 		}
+	}
+}
+
+export class AddMessageToTicket extends AddArticleToTicket {
+	constructor(ticketId,addAs,messageData) {
+		super(ticketId,addAs)
+		this.messageData=messageData
+	}
+	getOngoingActionMenuEntry() {
+		return [
+			[`add message ${this.messageDirection} `],[this.messageData.user,'em'],[` as `],
+			...super.getOngoingActionMenuEntry().slice(1)
+		]
+	}
+	getSubjectAndBody(settings) {
+		const subjectTemplate=settings[`article_message_${this.messageDirection}_subject`]
+		let processedMessageText=this.messageData.body
+		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
+		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
+		return [
+			evaluateTemplate(subjectTemplate,{user:{name:this.messageData.user}}),
+			processedMessageText
+		]
+	}
+	get messageDirection() {
+		return this.messageData.isInbound?'from':'to'
 	}
 }
 

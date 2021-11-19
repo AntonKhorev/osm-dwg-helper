@@ -1,9 +1,12 @@
+/**
+ * @typedef { import('./actions.js').Action } Action
+ * @typedef { import('./actions.js').OffshootAction } OffshootAction
+ */
+
 export default class ActionsManager {
 	constructor() {
+		/** @type{Map<number,Action>} */
 		this.tabActions=new Map()
-	}
-	addTabAction(tabId,action) {
-		this.tabActions.set(tabId,action)
 	}
 	/**
 	 * Check if has registered tab with action; if no then don't need to run {@link ActionsManager.act act()}
@@ -35,12 +38,31 @@ export default class ActionsManager {
 		return tabActionEntries
 	}
 	/**
+	 * @param action {OffshootAction}
+	 */
+	async addNewTabAction(settings,action) {
+		const newTab=await browser.tabs.create({
+			openerTabId:action.openerTabId,
+			url:action.getActionUrl(settings)
+		})
+		this.tabActions.set(newTab.id,action)
+	}
+	/**
+	 * @param action {Action}
+	 */
+	async addCurrentTabAction(settings,action,tabId) {
+		this.tabActions.set(tabId,action)
+		browser.tabs.update(tabId,{
+			url:action.getActionUrl(settings)
+		})
+	}
+	/**
 	 * @returns {Promise<boolean>} true if tab actions changed
 	 */
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
 		const action=this.tabActions.get(tab.id)
 		if (!action) return false
-		// TODO check if url matches, if not cancel action
+		if (action.needToRejectUrl(settings,tab.url)) return false
 		this.tabActions.delete(tab.id)
 		const tabActionsUpdate=await action.act(settings,tab,tabState,addListenerAndSendMessage)
 		if (tabActionsUpdate) {
