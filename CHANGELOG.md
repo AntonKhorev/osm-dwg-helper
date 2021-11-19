@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-- TODO add any OSM message to a ticket
+- Add OSM message from a previous tab to a ticket
 
 ## 0.1.2
 

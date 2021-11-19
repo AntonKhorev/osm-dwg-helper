@@ -41,11 +41,19 @@ Another thing you may encounter before the *Create New Phone Ticket* form is the
 
 Last thing that happens is that the issue gets commented with a link to the newly created ticket. In case of [osm-dwg-userscripts], according to its readme, you need the *CORS Everywhere* addon for this to happen. This extension doesn't need any other addon to be installed.
 
-### Add the last inbox/outbox message to a ticket
+### Add messages to tickets
 
 As noted above, tickets created with this extension add customers with a correct (as of current DWG setup) @dwgmail.info address, or the one you specified through the options. This address may function (and does so as of current DWG setup) as means to send and receive [user messages](https://wiki.openstreetmap.org/wiki/Web_front_end#User_messaging) from/to OTRS. However the implementation of this OTRS-to-OSM messaging bridge is located outside of both OTRS and OSM and may come with limitations. In case of current DWG setup, the outbound messages are stripped to plaintext. OTRS users may be unaware of this as they still see the html-formatted articles attached to the ticket. Users who receive the message see something else, possibly unreadable, if the original html message contained a lot of stuff such as reply quotations.
 
 Another way to contact the OSM user is just to send them a message from the OSM website, then manually add that message to the OTRS ticket. When the reply is received, it also needs to be added manually. This is tedious, and that's why the system described above was implemented. But if you still want to send messages through the OSM website, the extension can help you with copy-pasting them. When on the OTRS ticket page, use *Add last outbox/inbox message to ticket* in the extension panel to quickly add the last send/received message. You can select to add it either *as note* without any additional actions or *as pending* which lets you specify a pending reminder/autoclose along with the message.
+
+In order to add a message that is not necessarily the last one in your inbox/outbox take the following steps:
+
+1. Navigate to an OTRS ticket page.
+2. Open a new browser tab.
+3. In the new tab navigate to the necessary message on the OSM website.
+4. Switch back to the tab with an OTRS ticket.
+5. *Add message from/to username to ticket* links should appear in the extension panel. Click one of those links.
 
 ### Other actions
 
