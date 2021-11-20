@@ -5,6 +5,7 @@ import {
 	getOtrsTicketId
 } from './utils.js'
 
+// tab objects expected to have fields: id, url, active
 export default class StatesManager {
 	constructor() {
 		this.tabStates=new Map()
@@ -20,6 +21,8 @@ export default class StatesManager {
 	getTabState(tabId) {
 		return this.tabStates.get(tabId)
 	}
+	// need to be aware of race conditions in async functions
+	// because of browser onActivated and onUpdated ~simultaneous events
 	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,getTab,addListenerAndSendMessage) {
 		const messagedTabIds=[]
 		let metPreviousTab=this.previousTabId==null
@@ -38,7 +41,7 @@ export default class StatesManager {
 	}
 	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tabId,previousTabId,getTab,addListenerAndSendMessage) {
 		this.previousTabId=previousTabId
-		if (!this.tabStates.get(previousTabId)) {
+		if (previousTabId!=null && !this.tabStates.get(previousTabId)) {
 			const previousTab=await getTab(previousTabId)
 			const previousTabState=await getTabState(settings,permissions,previousTab,addListenerAndSendMessage)
 			this.tabStates.set(previousTabId,previousTabState)
@@ -64,11 +67,12 @@ export default class StatesManager {
 	 * @private
 	 */
 	async pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds) {
-		if (this.tabStates.get(tab.id)==null) {
-			this.tabStates.set(tab.id,{})
+		let oldTabState=this.tabStates.get(tab.id)
+		if (oldTabState==null) {
+			this.tabStates.set(tab.id,oldTabState={})
 		}
 		const tabState=await getTabState(settings,permissions,tab,addListenerAndSendMessage)
-		const tabStateChanged=!isTabStateEqual(this.tabStates.get(tab.id),tabState)
+		const tabStateChanged=!isTabStateEqual(oldTabState,tabState)
 		this.tabStates.set(tab.id,tabState)
 		if (tabStateChanged && tab.active) {
 			messagedTabIds.push(tab.id)
