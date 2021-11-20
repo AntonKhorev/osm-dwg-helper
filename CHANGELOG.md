@@ -3,6 +3,8 @@
 ## 0.2.0
 
 - Add OSM message from a previous tab to a ticket
+- Fix: populate the document iframe of a rich text editor if it's already loaded
+- Fix due to older Rails Port update: detect if a report was read and doesn't need to be added to a new ticket
 
 ## 0.1.2
 

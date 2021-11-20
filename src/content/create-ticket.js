@@ -7,7 +7,9 @@ function messageListener(message) {
 	if (message.action=='addIssueDataToTicket') {
 		const $form=document.getElementById('NewPhoneTicket')
 		if ($form) {
+			//setTimeout(()=>{ // for testing CKEditor loading race conditions
 			populateTicketForm($form,message.ticketData)
+			//},1000)
 			return Promise.resolve()
 		}
 		const $loginBox=document.getElementById('LoginBox')
@@ -45,19 +47,17 @@ function populateTicketForm($form,ticketData) {
 		$form.Subject.dispatchEvent(new Event('change'))
 	}
 	if (ticketData.Body!=null) {
-		$form.Body.value=ticketData.Body
-
-		//// if the above doesn't work, use CKEditor 4 API: https://ckeditor.com/docs/ckeditor4/latest/api/index.html
-		// const ckeditorInstance=window.wrappedJSObject.CKEDITOR.instances.RichText
-		// ckeditorInstance.setData(ticketData.Body)
-
-		//// if don't want privileged access through wrappedJSObject, modify the iframe
-		// setTimeout(()=>{
-		// 	const $iframe=document.querySelector('#RichTextField iframe')
-		// 	$iframe.contentDocument.body.innerHTML=ticketData.Body
-		// },2000)
-
-		//// can also set up MutationObserver instead of dumb timeout above
+		$form.Body.value=ticketData.Body // this is enough if CKEditor is not yet loaded
+		// if CKEditor is loaded, need to update its state too
+		// could have used CKEditor 4 API: https://ckeditor.com/docs/ckeditor4/latest/api/index.html
+			// const ckeditorInstance=window.wrappedJSObject.CKEDITOR.instances.RichText
+			// ckeditorInstance.setData(ticketData.Body)
+		// that requires privileged access through wrappedJSObject
+		// instead modify the iframe inside CKEditor
+		const $richTextEditorIframe=document.querySelector('#RichTextField iframe')
+		if ($richTextEditorIframe) {
+			$richTextEditorIframe.contentDocument.body.innerHTML=ticketData.Body
+		}
 	}
 }
 
