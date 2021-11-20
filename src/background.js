@@ -90,14 +90,22 @@ function reactToActionsUpdate() {
 	browser.runtime.sendMessage({action:'updateActionsOngoing',tabActionEntries:actionsManager.listTabActionEntries()})
 }
 
+let rememberedPreviousTabId
+
 browser.tabs.onRemoved.addListener((tabId)=>{
+	if (rememberedPreviousTabId==tabId) {
+		rememberedPreviousTabId=undefined
+	}
 	statesManager.deleteTab(tabId)
 	if (actionsManager.deleteTab(tabId)) {
 		reactToActionsUpdate()
 	}
 })
 
-browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{
+//browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
+browser.tabs.onActivated.addListener(async({tabId})=>{
+	const previousTabId=rememberedPreviousTabId
+	rememberedPreviousTabId=tabId
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
 		settings,permissions,
