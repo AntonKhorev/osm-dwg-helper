@@ -139,6 +139,49 @@ async function sendUpdateActionsMessage(
 	tabIds,otherTabId,tabStates
 ) {
 	if (tabIds.length==0) return
+	for (const tabId of tabIds) {
+		const tabState=tabStates[tabId]
+		const iconDetails={tabId}
+		if (tabState.type=='message') {
+			const pixelart=[
+				'        ',
+				'********',
+				'**++++**',
+				'*+*++*+*',
+				'*++**++*',
+				'*++++++*',
+				'********',
+				'        ',
+			]
+			const pixelcolor=(x,y)=>{
+				const pixel=pixelart[y][x]
+				if (pixel=='*') return [255,0,0,255]
+				if (pixel=='+') return [255,255,255,255]
+				return [127,127,127,127]
+			}
+			const arr=new Uint8ClampedArray(16*16*4)
+			for (let y=0;y<16;y++) {
+				for (let x=0;x<16;x++) {
+					arr[(x+y*16)*4+0]=127
+					arr[(x+y*16)*4+1]=127
+					arr[(x+y*16)*4+2]=127
+					arr[(x+y*16)*4+3]=127
+				}
+			}
+			for (let y=0;y<8;y++) {
+				for (let x=0;x<8;x++) {
+					arr[((x+2)+(y+2)*16)*4+0]=pixelcolor(x,y)[0]
+					arr[((x+2)+(y+2)*16)*4+1]=pixelcolor(x,y)[1]
+					arr[((x+2)+(y+2)*16)*4+2]=pixelcolor(x,y)[2]
+					arr[((x+2)+(y+2)*16)*4+3]=pixelcolor(x,y)[3]
+				}
+			}
+			iconDetails.imageData=new ImageData(arr,16)
+		} else {
+			iconDetails.path='icon.png'
+		}
+		browser.browserAction.setIcon(iconDetails)
+	}
 	//const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updateActionsNew',
