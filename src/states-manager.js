@@ -10,6 +10,7 @@ export default class StatesManager {
 	constructor() {
 		this.tabStates=new Map()
 		this.previousTabId=undefined
+		this.activatedTabId=undefined // to set value for this.previousTabId when another tab activated
 	}
 	clearTabs() {
 		this.tabStates.clear()
@@ -17,6 +18,7 @@ export default class StatesManager {
 	deleteTab(tabId) {
 		this.tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
 		if (this.previousTabId==tabId) this.previousTabId=undefined
+		if (this.activatedTabId==tabId) this.activatedTabId=undefined
 	}
 	getTabState(tabId) {
 		return this.tabStates.get(tabId)
@@ -39,12 +41,13 @@ export default class StatesManager {
 		}
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tabId,previousTabId,getTab,addListenerAndSendMessage) {
-		this.previousTabId=previousTabId
-		if (previousTabId!=null && !this.tabStates.get(previousTabId)) {
-			const previousTab=await getTab(previousTabId)
+	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tabId,getTab,addListenerAndSendMessage) {
+		this.previousTabId=this.activatedTabId
+		this.activatedTabId=tabId
+		if (this.previousTabId!=null && !this.tabStates.get(this.previousTabId)) {
+			const previousTab=await getTab(this.previousTabId)
 			const previousTabState=await getTabState(settings,permissions,previousTab,addListenerAndSendMessage)
-			this.tabStates.set(previousTabId,previousTabState)
+			this.tabStates.set(this.previousTabId,previousTabState)
 		}
 		if (!this.tabStates.get(tabId)) {
 			const tab=await getTab(tabId)

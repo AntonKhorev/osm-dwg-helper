@@ -16,7 +16,7 @@ describe("StatesManager",()=>{
 			}
 		}
 		const tabMessenger=async()=>{}
-		await statesManager.updateTabStatesBecauseBrowserTabActivated({},{},342,undefined,tabGetter,tabMessenger)
+		await statesManager.updateTabStatesBecauseBrowserTabActivated({},{},342,tabGetter,tabMessenger)
 		assert.deepEqual(tabGetterCalls,[342])
 	})
 })
