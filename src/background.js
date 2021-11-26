@@ -143,40 +143,13 @@ async function sendUpdateActionsMessage(
 		const tabState=tabStates[tabId]
 		const iconDetails={tabId}
 		if (tabState.type=='message') {
-			const pixelart=[
-				'        ',
-				'********',
-				'**++++**',
-				'*+*++*+*',
-				'*++**++*',
-				'*++++++*',
-				'********',
-				'        ',
-			]
-			const pixelcolor=(x,y)=>{
-				const pixel=pixelart[y][x]
-				if (pixel=='*') return [255,0,0,255]
-				if (pixel=='+') return [255,255,255,255]
-				return [127,127,127,127]
-			}
-			const arr=new Uint8ClampedArray(16*16*4)
-			for (let y=0;y<16;y++) {
-				for (let x=0;x<16;x++) {
-					arr[(x+y*16)*4+0]=127
-					arr[(x+y*16)*4+1]=127
-					arr[(x+y*16)*4+2]=127
-					arr[(x+y*16)*4+3]=127
-				}
-			}
-			for (let y=0;y<8;y++) {
-				for (let x=0;x<8;x++) {
-					arr[((x+2)+(y+2)*16)*4+0]=pixelcolor(x,y)[0]
-					arr[((x+2)+(y+2)*16)*4+1]=pixelcolor(x,y)[1]
-					arr[((x+2)+(y+2)*16)*4+2]=pixelcolor(x,y)[2]
-					arr[((x+2)+(y+2)*16)*4+3]=pixelcolor(x,y)[3]
-				}
-			}
-			iconDetails.imageData=new ImageData(arr,16)
+			iconDetails.path="data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'>"+
+				// "<polygon points='1,31 1,5 5,5 5,1 23,1 23,5 31,5 31,8 8,31' fill='rgb(90%,90%,90%)' stroke='black' stroke-width='2' />"+
+				"<polygon points='1,31 1,5 5,5 5,1 23,1 23,5 27,5' fill='rgb(90%,90%,90%)' stroke='rgb(20%,20%,40%)' stroke-width='2' />"+
+				"<polygon points='31,1 31,27 27,27 27,31 9,31 9,27 1,27' fill='rgb(40%,40%,40%)' stroke='rgb(10%,10%,20%)' stroke-width='2' />"+
+				"<rect x='5' y='9' width='22' height='14' fill='white' stroke='red' stroke-width='2' />"+
+				"<polyline points='5,9 16,18 27,9' fill='none' stroke='red'  stroke-width='2' stroke-linecap='round' stroke-linejoin='round' />"+
+			"</svg>"
 		} else {
 			iconDetails.path='icon.png'
 		}
