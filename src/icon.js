@@ -5,13 +5,7 @@ export default function(type) {
 }
 
 function svg(content) {
-	return (
-		`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'>`+
-		`<g stroke-width='2'>`+
-		content+
-		`</g>`+
-		`</svg>`
-	)
+	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' stroke-width='2'>${content}</svg>`
 }
 
 function tabs() {
