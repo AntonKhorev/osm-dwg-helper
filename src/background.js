@@ -3,6 +3,7 @@ const buildScriptChromePatch=false
 import SettingsManager from './settings-manager.js'
 import StatesManager from './states-manager.js'
 import ActionsManager from './actions-manager.js'
+import icon from './icon.js'
 
 const statesManager=new StatesManager()
 const actionsManager=new ActionsManager()
@@ -141,17 +142,9 @@ async function sendUpdateActionsMessage(
 	if (tabIds.length==0) return
 	for (const tabId of tabIds) {
 		const tabState=tabStates[tabId]
-		const iconDetails={tabId}
-		if (tabState.type=='message') {
-			iconDetails.path="data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'>"+
-				// "<polygon points='1,31 1,5 5,5 5,1 23,1 23,5 31,5 31,8 8,31' fill='rgb(90%,90%,90%)' stroke='black' stroke-width='2' />"+
-				"<polygon points='1,31 1,5 5,5 5,1 23,1 23,5 27,5' fill='rgb(90%,90%,90%)' stroke='rgb(20%,20%,40%)' stroke-width='2' />"+
-				"<polygon points='31,1 31,27 27,27 27,31 9,31 9,27 1,27' fill='rgb(40%,40%,40%)' stroke='rgb(10%,10%,20%)' stroke-width='2' />"+
-				"<rect x='5' y='9' width='22' height='14' fill='white' stroke='red' stroke-width='2' />"+
-				"<polyline points='5,9 16,18 27,9' fill='none' stroke='red'  stroke-width='2' stroke-linecap='round' stroke-linejoin='round' />"+
-			"</svg>"
-		} else {
-			iconDetails.path='icon.png'
+		const iconDetails={
+			tabId,
+			path:"data:image/svg+xml;charset=utf-8,"+icon(tabState.type)
 		}
 		browser.browserAction.setIcon(iconDetails)
 	}
