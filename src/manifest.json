@@ -6,7 +6,7 @@
 	"homepage_url": "https://github.com/AntonKhorev/osm-dwg-helper",
 	"author": "Anton Khorev",
 	"icons": {
-		"48": "icon.png"
+		"64": "icon.svg"
 	},
 
 	"background": {
@@ -15,7 +15,7 @@
 	"sidebar_action": {
 		"default_title": "DWG Helper",
 		"default_panel": "sidebar.html",
-		"default_icon": "icon.png"
+		"default_icon": "icon.svg"
 	},
 	"browser_action": {
 		"browser_style": true,

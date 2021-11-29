@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1
+
+- Toolbar/sidebar icon changes with a detected actionable webpage
+
 ## 0.2.0
 
 - Add OSM message from a previous tab to a ticket
