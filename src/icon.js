@@ -1,8 +1,11 @@
 export default function(type) {
 	let content=tabs()
 	if (type=='message') content+=envelope()
+	if (type=='issue') content+=flag()
 	return svg(content)
 }
+
+// when read as data url, firefox won't interpret #CCC colors? they work ok when read as file
 
 function svg(content) {
 	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
@@ -19,5 +22,12 @@ function envelope() {
 	return (
 		`<rect x='-11' y='-7' width='22' height='14' fill='white' stroke='red' />`+
 		`<polyline points='-11,-7 0,2 11,-7' fill='none' stroke='red' stroke-linecap='round' stroke-linejoin='round' />`
+	)
+}
+
+function flag() {
+	return (
+		`<polygon points='-11,-7 11,-7 4,0 11,7 -11,7' fill='rgb(100%,20%,20%)' stroke='rgb(70%,0%,0%)' />`+
+		`<line x1='-11' y1='-7' x2='-11' y2='13' stroke='brown' stroke-linecap='round' />`
 	)
 }
