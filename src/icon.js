@@ -3,6 +3,7 @@ export default function(type) {
 	if (type=='message') content+=envelope()
 	if (type=='issue') content+=flag()
 	if (type=='user') content+=avatar()
+	if (type=='ticket') content+=ticket()
 	return svg(content)
 }
 
@@ -40,4 +41,15 @@ function avatar() {
 		`<path d='M -8,11 A 8 8 0 0 1 8,11 Z' />`+
 		`</g>`
 	)
+}
+
+function ticket() {
+	return (
+		`<path d='M -7,0 ${halfTicketPath(1)} ${halfTicketPath(0)}' fill='rgb(100%,70%,0%)' stroke='rgb(70%,40%,0%)' />`
+	)
+	function halfTicketPath(isUpper) {
+		const m=isUpper?'-':''
+		const p=isUpper?'':'-'
+		return `V ${m}11 H ${m}3 A 3 3 0 0 0 ${p}3,${m}11 H ${p}7 V 0`
+	}
 }
