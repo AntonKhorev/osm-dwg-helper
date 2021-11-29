@@ -2,6 +2,7 @@ export default function(type) {
 	let content=tabs()
 	if (type=='message') content+=envelope()
 	if (type=='issue') content+=flag()
+	if (type=='user') content+=avatar()
 	return svg(content)
 }
 
@@ -28,6 +29,15 @@ function envelope() {
 function flag() {
 	return (
 		`<polygon points='-11,-7 11,-7 4,0 11,7 -11,7' fill='rgb(100%,20%,20%)' stroke='rgb(70%,0%,0%)' />`+
-		`<line x1='-11' y1='-7' x2='-11' y2='13' stroke='brown' stroke-linecap='round' />`
+		`<line x1='-11' y1='-8' x2='-11' y2='12' stroke='brown' stroke-linecap='round' />`
+	)
+}
+
+function avatar() {
+	return (
+		`<g fill='rgb(70%,70%,100%)' stroke='rgb(50%,50%,100%)'>`+
+		`<circle cx='0' cy='-4' r='5' />`+
+		`<path d='M -8,11 A 8 8 0 0 1 8,11 Z' />`+
+		`</g>`
 	)
 }
