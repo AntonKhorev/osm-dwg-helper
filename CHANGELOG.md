@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.2
+
+- Quick messages to reporting users
+
 ## 0.2.1
 
 - Toolbar/sidebar icon changes with a detected actionable webpage

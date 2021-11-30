@@ -1,4 +1,5 @@
 import * as Actions from './actions.js'
+import * as templateEngine from './template-engine.js'
 
 const background=await browser.runtime.getBackgroundPage()
 
@@ -126,6 +127,55 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			addSubAction(makeLink(createTicketUrl,"empty"))
 		}
 	}
+	if (settings.osm) {
+		if (tabState.type=='issue') {
+			const issueData=tabState.issueData
+			const newUsers=new Set()
+			const oldUsers=new Set()
+			if (issueData.reports) {
+				for (const report of issueData.reports) {
+					const userName=report.by
+					if (userName==null) continue
+					if (report.wasRead) {
+						if (!newUsers.has(userName)) {
+							oldUsers.add(userName)
+						}
+					} else {
+						oldUsers.delete(userName)
+						newUsers.add(userName)
+					}
+				}
+			}
+			if (newUsers.size>0 || oldUsers.size>0) {
+				const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
+				const subject=getSubject()
+				for (const userName of newUsers) {
+					const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`))
+					if (newUsers.size==1 && oldUsers.size==0) {
+						$li.append(" - the only reporting user")
+					} else if (newUsers.size==1) {
+						$li.append(" - the only reporting user with unread report")
+					}
+				}
+				for (const userName of oldUsers) {
+					const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`))
+					$li.append(" - report was read")
+				}
+			}
+			function getSubject() {
+				if (issueData.reportedItem?.type=='user') {
+					return templateEngine.evaluate(settings.issue_message_subject_user,{user:issueData.reportedItem})
+				} else if (issueData.reportedItem?.type=='note') {
+					return templateEngine.evaluate(settings.issue_message_subject_note,{note:issueData.reportedItem})
+				} else {
+					return templateEngine.evaluate(settings.issue_message_subject,{})
+				}
+			}
+			function getUserMessageUrl(userName,subject) {
+				return issueData.osmRoot+'message/new/'+encodeURIComponent(userName)+'?message[title]='+encodeURIComponent(subject)
+			}
+		}
+	}
 	if (settings.otrs) {
 		if (tabState.type=='issue') {
 			const issueData=tabState.issueData
@@ -226,6 +276,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		const $li=document.createElement('li')
 		$li.append(...$action)
 		$actions.append($li)
+		return $li
 	}
 	function addSubmenu(name) {
 		const $span=document.createElement('span')
@@ -236,6 +287,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			const $li=document.createElement('li')
 			$li.append(...$subaction)
 			$subactions.append($li)
+			return $li
 		}
 		return addSubAction
 	}

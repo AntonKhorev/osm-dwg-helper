@@ -1,3 +1,4 @@
+import * as templateEngine from './template-engine.js'
 import {
 	getOtrsCreatedTicketId,
 	escapeHtml
@@ -208,7 +209,7 @@ export class AddMessageToTicket extends AddArticleToTicket {
 		processedMessageText=processedMessageText.replaceAll(`<blockquote>`,`<div style="border:none; border-left:solid blue 1.5pt; padding:0cm 0cm 0cm 4.0pt" type="cite">`)
 		processedMessageText=processedMessageText.replaceAll(`</blockquote>`,`</div>`)
 		return [
-			evaluateTemplate(subjectTemplate,{user:{name:this.messageData.user}}),
+			templateEngine.evaluate(subjectTemplate,{user:{name:this.messageData.user}}),
 			processedMessageText
 		]
 	}
@@ -220,26 +221,26 @@ export class AddMessageToTicket extends AddArticleToTicket {
 function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 	if (issueData==null) return {}
 	const ticketData={}
-	ticketData.Body=evaluateHtmlTemplate(settings.ticket_body_header,{issue:issueData})
+	ticketData.Body=templateEngine.evaluateHtml(settings.ticket_body_header,{issue:issueData})
 	if (issueData.reportedItem?.type=='user') {
 		const userData=issueData.reportedItem
 		if (additionalUserData?.id!=null) {
 			const values={issue:issueData,user:{...userData,...additionalUserData}}
-			ticketData.Subject=evaluateTemplate(settings.ticket_subject_user_id,values)
-			ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_user_id,values)
+			ticketData.Subject=templateEngine.evaluate(settings.ticket_subject_user_id,values)
+			ticketData.Body+=templateEngine.evaluateHtml(settings.ticket_body_item_user_id,values)
 		} else {
 			const values={issue:issueData,user:userData}
-			ticketData.Subject=evaluateTemplate(settings.ticket_subject_user,values)
-			ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_user,values)
+			ticketData.Subject=templateEngine.evaluate(settings.ticket_subject_user,values)
+			ticketData.Body+=templateEngine.evaluateHtml(settings.ticket_body_item_user,values)
 		}
 	} else if (issueData.reportedItem?.type=='note') {
 		const values={issue:issueData,note:issueData.reportedItem}
-		ticketData.Subject=evaluateTemplate(settings.ticket_subject_note,values)
-		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item_note,values)
+		ticketData.Subject=templateEngine.evaluate(settings.ticket_subject_note,values)
+		ticketData.Body+=templateEngine.evaluateHtml(settings.ticket_body_item_note,values)
 	} else {
 		const values={issue:issueData}
-		ticketData.Subject=evaluateTemplate(settings.ticket_subject,values)
-		ticketData.Body+=evaluateHtmlTemplate(settings.ticket_body_item,values)
+		ticketData.Subject=templateEngine.evaluate(settings.ticket_subject,values)
+		ticketData.Body+=templateEngine.evaluateHtml(settings.ticket_body_item,values)
 	}
 	ticketData.FromCustomers=[]
 	if (issueData.reports) {
@@ -252,7 +253,7 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
 				if (!addedCustomers[user.name]) {
 					addedCustomers[user.name]=true
-					ticketData.FromCustomers.push(evaluateTemplate(settings.ticket_customer,{user}))
+					ticketData.FromCustomers.push(templateEngine.evaluate(settings.ticket_customer,{user}))
 				}
 			}
 			if (report.lead.length==0 && report.text.length==0) continue
@@ -279,27 +280,4 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 		}
 	}
 	return ticketData
-}
-
-function evaluateTemplate(template,values,escapeFn=s=>s) {
-	if (template==null) return ''
-	const templateChunks=template.split(/\${([^}]*)}/)
-	let result=''
-	for (let i=0;i<templateChunks.length;i++) {
-		if (i%2==0) {
-			result+=templateChunks[i]
-		} else {
-			let value=values
-			for (const key of templateChunks[i].split('.')) {
-				value=value[key]
-			}
-			if (!value) continue
-			result+=escapeFn(value)
-		}
-	}
-	return result
-}
-
-function evaluateHtmlTemplate(template,values) {
-	return evaluateTemplate(template,values,escapeHtml)+'\n'
 }
