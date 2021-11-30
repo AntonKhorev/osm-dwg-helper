@@ -147,7 +147,7 @@ async function sendUpdateActionsMessage(
 			path:"data:image/svg+xml;charset=utf-8,"+icon(tabState.type)
 		}
 		browser.browserAction.setIcon(iconDetails)
-		browser.sidebarAction.setIcon(iconDetails)
+		browser.sidebarAction?.setIcon(iconDetails)
 	}
 	//const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
