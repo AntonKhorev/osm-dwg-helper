@@ -14,12 +14,13 @@
 	},
 	"sidebar_action": {
 		"default_title": "DWG Helper",
-		"default_panel": "sidebar.html",
-		"default_icon": "icon.svg"
+		"default_icon": "icon.svg",
+		"default_panel": "sidebar.html"
 	},
 	"browser_action": {
 		"browser_style": true,
 		"default_title": "DWG Helper",
+		"default_icon": "icon.svg",
 		"default_popup": "popup.html"
 	},
 	"options_ui": {

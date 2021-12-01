@@ -148,7 +148,7 @@ async function sendUpdateActionsMessage(
 		const tabState=tabStates[tabId]
 		const iconDetails={
 			tabId,
-			path:"data:image/svg+xml;charset=utf-8,"+icon(tabState.type)
+			path:icon(tabState.type)
 		}
 		browser.browserAction.setIcon(iconDetails)
 		browser.sidebarAction?.setIcon(iconDetails)
