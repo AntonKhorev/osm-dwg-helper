@@ -1,10 +1,5 @@
 export default function(type) {
-	let content=tabs()
-	if (type=='message') content+=envelope()
-	if (type=='issue') content+=flag()
-	if (type=='user') content+=avatar()
-	if (type=='ticket') content+=ticket()
-	const data=svg(content)
+	const data=svg(type)
 	const encodedData=(typeof btoa !== 'undefined'
 		? btoa(data) // browser
 		: Buffer.from(data).toString('base64') // node.js
@@ -12,9 +7,14 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-// when read as data url, firefox won't interpret #CCC colors? they work ok when read as file
+export const types=['message','issue','user','ticket']
 
-function svg(content) {
+export function svg(type) {
+	let content=tabs()
+	if (type=='message') content+=envelope()
+	if (type=='issue') content+=flag()
+	if (type=='user') content+=avatar()
+	if (type=='ticket') content+=ticket()
 	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
 }
 
