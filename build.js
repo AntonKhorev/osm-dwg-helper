@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import * as path from 'path'
+import convertSvgToPng from 'convert-svg-to-png'
 
 await fs.remove('dist')
 await fs.copy('src','dist')
@@ -24,4 +25,14 @@ for (const jsFilename of ['panel.js','options.js']) {
 	const contents=String(await fs.readFile(filename))
 	const patchedContents=contents.replace(/(?=const\s+background)/,'(async()=>{')+'\n})() // https://github.com/mozilla/addons-linter/issues/4020\n'
 	await fs.writeFile(filename,patchedContents)
+}
+
+{
+	const iconFilename=path.join('dist','icon.svg')
+	const manifestFilename=path.join('dist','manifest.json')
+	await convertSvgToPng.convertFile(iconFilename,{width:64,height:64})
+	await fs.remove(iconFilename)
+	const manifestContents=String(await fs.readFile(manifestFilename))
+	const patchedManifestContents=manifestContents.replace(/icon\.svg/g,'icon.png')
+	await fs.writeFile(manifestFilename,patchedManifestContents)
 }
