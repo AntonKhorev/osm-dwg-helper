@@ -55,6 +55,10 @@ In order to add a message that is not necessarily the last one in your inbox/out
 4. Switch back to the tab with an OTRS ticket.
 5. *Add message from/to username to ticket* links should appear in the extension panel. Click one of those links.
 
+### Quick messages from issues
+
+Sometimes you don't want to create a ticket for an issue. You may want just to send a message to the reporting user and resolve te issue. To quickly do this from the issue page, click on the username under *Quick message reporting user* in the extension panel. An OSM new message form will be opened with a pregenerated subject.
+
 ### Other actions
 
 - Go to the issue page corresponding to an OTRS ticket title from a ticket page.
