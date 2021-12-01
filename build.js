@@ -38,6 +38,8 @@ for (const jsFilename of ['panel.js','options.js']) {
 }
 
 // convert extension icon to png
+// chrome doesn't support svg icons in manifest: https://bugs.chromium.org/p/chromium/issues/detail?id=29683
+// addons.mozilla.org also asks for png/jpg icon that overrides one specified in manifest
 {
 	const filename=path.join('dist','icon.svg')
 	await convertSvgToPng.convertFile(filename,{width:64,height:64})
