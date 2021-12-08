@@ -15,6 +15,7 @@ export default [
 	['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when it's user with unknown id",{note:"HTML"}],
 	['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when it's user with known id",{note:"HTML"}],
 	['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note",{note:"HTML"}],
+	['issue_comment_ticket',`OTRS ticket created: \${ticket.url}`,"Issue comment about new ticket"],
 	"Addition of OSM messages to OTRS tickets",
 	['article_message_to_subject',`PM to \${user.name}`,"Ticket subject template for outbound message"],
 	['article_message_from_subject',`PM from \${user.name}`,"Ticket subject template for inbound message"],

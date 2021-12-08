@@ -114,7 +114,7 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 		const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
 		await addListenerAndSendMessage(this.openerTabId,'issue',{
 			action:'addComment',
-			comment:ticketUrl
+			comment:templateEngine.evaluate(settings.issue_comment_ticket,{ticket:{url:ticketUrl}})
 		})
 		return [tab.id,new GoToUrl(ticketUrl)]
 	}

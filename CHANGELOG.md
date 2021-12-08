@@ -2,6 +2,8 @@
 
 ## 0.2.3
 
+- Issue comment template for a new ticket
+
 ## 0.2.2
 
 - Quick messages to reporting users
