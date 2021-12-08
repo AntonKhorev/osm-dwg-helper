@@ -6,9 +6,14 @@ describe("Actions.CreateIssueTicket",()=>{
 	it("works with Create Ticket after New Ticket settings",async()=>{
 		const settings={
 			otrs:'OTRS/',
+			osm:'OSM/',
+			ticket_subject:`Issue #\${issue.id}`
 		}
 		const openerTabId=12
-		const issueData={}
+		const issueData={
+			id:2021,
+			url:'OSM/note/2021'
+		}
 		// CreateIssueTicket
 		const action1=new Actions.CreateIssueTicket(openerTabId,issueData)
 		const url1='OTRS/otrs/index.pl?Action=AgentTicketPhone'
@@ -27,7 +32,7 @@ describe("Actions.CreateIssueTicket",()=>{
 		assert.equal(listenerTabId1,newTabId)
 		assert.equal(listenerScript1,'create-ticket')
 		assert.equal(listenerMessage1?.action,'addIssueDataToTicket')
-		// assert.equal(listenerMessage1?.ticketData, ...)
+		assert.equal(listenerMessage1?.ticketData?.Subject,"Issue #2021")
 		assert.equal(tabId2,newTabId)
 		// CommentIssueWithTicketUrl
 		// TODO
