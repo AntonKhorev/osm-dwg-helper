@@ -10,20 +10,27 @@ const testSequence=async(input,sequence)=>{
 	assert.equal(input,undefined)
 }
 
-const makeListener=(tester)=>{
-	let listenerTabId,listenerScript,listenerMessage
+const makeListener=(testers)=>{
+	const listenerCalls=[]
+	let i=0
 	return [
 		async(tabId,script,message)=>{
-			listenerTabId=tabId
-			listenerScript=script
-			listenerMessage=message
+			const tester=(testers[i++] ?? (()=>{}))
+			listenerCalls.push(
+				()=>tester(tabId,script,message)
+			)
 		},
-		()=>tester(listenerTabId,listenerScript,listenerMessage),
+		()=>{
+			assert.equal(listenerCalls.length,testers.length)
+			for (const listenerCall of listenerCalls) {
+				listenerCall()
+			}
+		}
 	]
 }
 
-const testAct=async(action,settings,tab,tabState,tester)=>{
-	const [listener,testAfterListener]=makeListener(tester)
+const testAct=async(action,settings,tab,tabState,testers)=>{
+	const [listener,testAfterListener]=makeListener(testers)
 	const actResult=await action.act(settings,tab,tabState,listener)
 	testAfterListener()
 	return actResult
@@ -52,12 +59,12 @@ describe("Actions.CreateIssueTicket",()=>{
 			const [tabId2,action2]=await testAct(
 				action,settings,
 				{id:newTabId,url},{},
-				(tabId,script,message)=>{
+				[(tabId,script,message)=>{
 					assert.equal(tabId,newTabId)
 					assert.equal(script,'create-ticket')
 					assert.equal(message?.action,'addIssueDataToTicket')
 					assert.equal(message?.ticketData?.Subject,"Issue #2021")
-				}
+				}]
 			)
 			assert.equal(tabId2,newTabId)
 			return action2
@@ -68,14 +75,14 @@ describe("Actions.CreateIssueTicket",()=>{
 			const [tabId2,action2]=await testAct(
 				action,settings,
 				{id:newTabId,url},{},
-				(tabId,script,message)=>{
+				[(tabId,script,message)=>{
 					assert.equal(tabId,openerTabId)
 					assert.equal(script,'issue')
 					assert.deepEqual(message,{
 						action:'addComment',
 						comment:`OTRS ticket created: OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`,
 					})
-				}
+				}]
 			)
 			assert.equal(tabId2,newTabId)
 			return action2
@@ -83,12 +90,12 @@ describe("Actions.CreateIssueTicket",()=>{
 			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`
 			assert.equal(action.getActionUrl(settings),url)
 			assert.equal(action.needToRejectUrl(settings,url),false)
-			// const actResult=await testAct(
-			// 	action,settings,
-			// 	{id:newTabId,url},{},
-			// 	[]
-			// )
-			// assert.equal(actResult,undefined)
+			const actResult=await testAct(
+				action,settings,
+				{id:newTabId,url},{},
+				[]
+			)
+			assert.equal(actResult,undefined)
 		}])
 	})
 	it("works with Ticket Zoom after New Ticket settings",async()=>{
