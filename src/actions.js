@@ -107,6 +107,8 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 	}
 	// getActionUrl: exact action url is unknown b/c it contains server response
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
+		// TODO support OTRS Personal Preferences > Miscellaneous > Screen after new ticket > Ticket Zoom
+		// https://new.demo.otrsce.com/otrs/index.pl?Action=AgentTicketZoom;Subaction=Created;TicketID=5
 		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
