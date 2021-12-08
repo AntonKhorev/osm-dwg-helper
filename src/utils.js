@@ -25,8 +25,14 @@ export function getOtrsTicketId(otrsRoot,url) {
 	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=',url)
 }
 
-export function getOtrsCreatedTicketId(otrsRoot,url) {
-	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketPhone;Subaction=Created;TicketID=',url)
+export function getOtrsCreatedTicketIdAndAction(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicket')+'(Phone|Zoom);Subaction=Created;TicketID=([0-9]+)'))
+	if (match) {
+		const [,action,id]=match
+		return [id,action]
+	} else {
+		return []
+	}
 }
 
 function getIdFromUrl(path,url) {

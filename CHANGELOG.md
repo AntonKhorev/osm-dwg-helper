@@ -3,6 +3,7 @@
 ## 0.2.3
 
 - Issue comment template for a new ticket
+- Support OTRS Personal Preferences > Miscellaneous > Screen after new ticket > Ticket Zoom setting
 
 ## 0.2.2
 

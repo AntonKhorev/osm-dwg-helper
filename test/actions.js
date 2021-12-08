@@ -99,6 +99,53 @@ describe("Actions.CreateIssueTicket",()=>{
 		}])
 	})
 	it("works with Ticket Zoom after New Ticket settings",async()=>{
-		// TODO
+		const settings={
+			otrs:'OTRS/',
+			osm:'OSM/',
+			ticket_subject:`Issue #\${issue.id}`,
+			issue_comment_ticket:`OTRS ticket created: \${ticket.url}`,
+		}
+		const openerTabId=11
+		const issueData={
+			id:2022,
+			url:'OSM/note/2022'
+		}
+		const newTabId=24
+		const ticketId=777
+		await testSequence(new Actions.CreateIssueTicket(openerTabId,issueData),[
+		async(action)=>{ // CreateIssueTicket
+			const url='OTRS/otrs/index.pl?Action=AgentTicketPhone'
+			assert.equal(action.getActionUrl(settings),url)
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const [tabId2,action2]=await testAct(
+				action,settings,
+				{id:newTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,newTabId)
+					assert.equal(script,'create-ticket')
+					assert.equal(message?.action,'addIssueDataToTicket')
+					assert.equal(message?.ticketData?.Subject,"Issue #2022")
+				}]
+			)
+			assert.equal(tabId2,newTabId)
+			return action2
+		},async(action)=>{ // CommentIssueWithTicketUrl
+			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;Subaction=Created;TicketID=${ticketId}`
+			assert.equal(action.getActionUrl(settings),undefined)
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const actResult=await testAct(
+				action,settings,
+				{id:newTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,openerTabId)
+					assert.equal(script,'issue')
+					assert.deepEqual(message,{
+						action:'addComment',
+						comment:`OTRS ticket created: OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`,
+					})
+				}]
+			)
+			assert.equal(actResult,undefined)
+		}])
 	})
 })

@@ -1,6 +1,6 @@
 import * as templateEngine from './template-engine.js'
 import {
-	getOtrsCreatedTicketId,
+	getOtrsCreatedTicketIdAndAction,
 	escapeHtml
 } from './utils.js'
 
@@ -107,9 +107,7 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 	}
 	// getActionUrl: exact action url is unknown b/c it contains server response
 	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		// TODO support OTRS Personal Preferences > Miscellaneous > Screen after new ticket > Ticket Zoom
-		// https://new.demo.otrsce.com/otrs/index.pl?Action=AgentTicketZoom;Subaction=Created;TicketID=5
-		const ticketId=getOtrsCreatedTicketId(settings.otrs,tab.url)
+		const [ticketId,ticketAction]=getOtrsCreatedTicketIdAndAction(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
 		}
@@ -118,7 +116,9 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 			action:'addComment',
 			comment:templateEngine.evaluate(settings.issue_comment_ticket,{ticket:{url:ticketUrl}})
 		})
-		return [tab.id,new GoToUrl(ticketUrl)]
+		if (ticketAction=='Phone') {
+			return [tab.id,new GoToUrl(ticketUrl)]
+		}
 	}
 }
 
