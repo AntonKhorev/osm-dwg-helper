@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.2.4
+
 ## 0.2.3
 
 - Issue comment template for a new ticket
