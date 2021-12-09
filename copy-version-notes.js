@@ -3,26 +3,43 @@
 
 import fs from 'fs-extra'
 import clipboard from 'clipboardy'
+import {escapeHtml} from './src/utils.js'
 
 const lines=await getFileLines('CHANGELOG.md')
 
-let contents=`<ul>\n`
+let contents=''
 let inList=false
 for (const line of lines) {
-	const match=line.match(/^-\s+(.*)/)
-	if (!inList) {
-		if (!match) continue
-		inList=true
-	}
-	if (inList) {
-		if (!match) break
+	let match
+	if (match=line.match(/^##\s+(.*)/)) {
+		if (inList) {
+			inList=false
+			contents+=`</ul>\n`
+		}
+		const [,header]=match
+		contents+=`<strong>${processMarkdown(header)}</strong>\n`
+	} else if (match=line.match(/^-\s+(.*)/)) {
+		if (!inList) {
+			inList=true
+			contents+=`<ul>\n`
+		}
 		const [,item]=match
-		contents+=`<li>${item}\n`
+		contents+=`<li>${processMarkdown(item)}</li>\n`
 	}
 }
-contents+=`</ul>\n`
+if (inList) {
+	contents+=`</ul>\n`
+}
 
 await clipboard.write(contents)
+
+/**
+ * @param s {string} Markdown string
+ * @returns {string} HTML string
+ */
+function processMarkdown(s) {
+	return s.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,(_,text,href)=>`<a href='${escapeHtml(href)}'>${escapeHtml(text)}</a>`)
+}
 
 async function getFileLines(filename) {
 	return String(

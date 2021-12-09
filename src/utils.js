@@ -43,6 +43,9 @@ function getIdFromUrl(path,url) {
 	}
 }
 
+/**
+ * @param string {string}
+ */
 export function escapeHtml(string) {
 	return string
 	.replace(/&/g,"&amp;")
@@ -52,6 +55,9 @@ export function escapeHtml(string) {
 	.replace(/'/g,"&#039;")
 }
 
+/**
+ * @param string {string}
+ */
 export function escapeRegex(string) { // https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript/3561711
 	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')
 }
