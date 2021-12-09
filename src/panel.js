@@ -103,7 +103,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
 	}
 	if (settings.otrs) {
-		addAction(makeLink(settings.otrs,"Go to OTRS"))
+		addAction(makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS")) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
 	}
 	if (permissions.otrs) {
 		const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
