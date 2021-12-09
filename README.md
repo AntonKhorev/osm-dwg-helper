@@ -65,4 +65,40 @@ Sometimes you don't want to create a ticket for an issue. You may want just to s
 - Search OTRS for reported items in issues.
 - Translate issue reports.
 
+## Use outside of DWG
+
+The extension can be set up work with other [Rails Port](https://github.com/openstreetmap/openstreetmap-website) (OpenStreetMap web server) and [OTRS](https://github.com/OTRS/otrs) instances.
+
+### Rails Port
+
+- any version with [2021-11-11 changes](https://github.com/openstreetmap/openstreetmap-website/commit/e21b9b2bf16d8d27312a82ae4ede5500e618fe88)
+- any user account is enough for message/translation/search-related functionality
+- [moderator account](https://wiki.openstreetmap.org/wiki/Web_front_end#Moderators) for issue-related functionality
+- use the *OpenStreetMap root URL* option to setup your Rails Port instance
+  - default value for DWG workflow is `https://www.openstreetmap.org/`
+  - value for [dev.openstreetmap.org-hosted sandbox](https://wiki.openstreetmap.org/wiki/Master.apis.dev.openstreetmap.org) is `https://master.apis.dev.openstreetmap.org/`
+- there's also the *OpenStreetMap API root URL* option
+  - currently only in use to provide links to user ids, because all user links on the web server use *display names*
+  - no data is read by the extension from this address
+  - default value for DWG workflow is `https://api.openstreetmap.org/`
+  - sandbox value is `https://master.apis.dev.openstreetmap.org/`
+
+### OTRS
+
+- *((OTRS)) Community Edition* 6.x, which is discontinued, or one of its forks
+  - checked to work with [Centuran Consulting fork](https://otrscommunityedition.com/)
+- agent account for all ticket-related functionality
+- use the *OTRS root URL* option to setup your Rails Port instance
+
+If you want to try Centuran fork online demo:
+
+1. to avoid accidentally submitting real issue data, set up the Rails Port sandbox or other dummy instance as described in the previous section
+2. go to [https://demo.otrsce.com/] or [https://new.demo.otrsce.com/]
+3. click *Open Agent Interface*
+4. change the extension option *OTRS root URL* to either `https://demo.otrsce.com/` or `https://new.demo.otrsce.com/`
+
+### Mail-to-issue forwarder
+
+Part of the code that processes the mail sent from OTRS is available [here](https://github.com/AntonKhorev/osm-dwg-mail-reader). You likely want to put the receiving email address in the *Customer template* extension option.
+
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
