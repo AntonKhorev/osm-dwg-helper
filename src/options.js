@@ -46,6 +46,12 @@ function flushInputs() {
 	return writePromise
 }
 
+function resetEventHandler() {
+	const $input=this.previousElementSibling
+	$input.value=$input.placeholder
+	$input.dispatchEvent(new Event('input'))
+}
+
 updateSettingsUI()
 background.registerNewOptionsPage()
 
@@ -147,6 +153,12 @@ async function updateSettingsUI() {
 			//$input.setAttribute('list','list-'+key)
 			$input.addEventListener('input',inputEventHandler)
 			$optionContainer.append($input)
+
+			const $reset=document.createElement('button')
+			$reset.classList.add('reset')
+			$reset.innerHTML='reset to default'
+			$reset.addEventListener('click',resetEventHandler)
+			$optionContainer.append($reset)
 			
 			$settings.append($optionContainer)
 		}

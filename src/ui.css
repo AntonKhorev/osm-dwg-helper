@@ -36,6 +36,18 @@ ul:empty::before {
 .option {
 	margin: .5em 0;
 }
+.option .reset {
+	text-decoration: underline dashed;
+	background: none;
+	border: none;
+	padding: 0;
+	color: #88C;
+}
+.option:not(:focus-within) .reset {
+	opacity: 0;
+	z-index: -1;
+	position: relative;
+}
 input[type=text],
 input[type=url] {
 	display: block;
