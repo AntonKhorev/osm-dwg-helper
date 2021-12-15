@@ -33,8 +33,11 @@ window.addEventListener('unload',()=>{
 	flushInputs()
 })
 function inputEventHandler() {
+	const $input=this
+	const $reset=this.nextElementSibling
+	updateResetButton($reset,$input)
 	clearTimeout(updateTimeoutId)
-	updateInputValues[this.name]=this.value
+	updateInputValues[$input.name]=$input.value
 	updateTimeoutId=setTimeout(flushInputs,500)
 }
 function flushInputs() {
@@ -47,9 +50,35 @@ function flushInputs() {
 }
 
 function resetEventHandler() {
+	const $reset=this
 	const $input=this.previousElementSibling
-	$input.value=$input.placeholder
-	$input.dispatchEvent(new Event('input'))
+	if ($reset.dataset.value!=null) {
+		const storedValue=$input.value
+		$input.value=$reset.dataset.value
+		if (storedValue!=$input.placeholder) {
+			$reset.dataset.value=storedValue
+		} else {
+			delete $reset.dataset.value
+		}
+		$input.dispatchEvent(new Event('input'))
+	} else if ($input.value!=$input.placeholder) {
+		const storedValue=$input.value
+		$input.value=$input.placeholder
+		$reset.dataset.value=storedValue
+		$input.dispatchEvent(new Event('input'))
+	}
+}
+function updateResetButton($reset,$input) {
+	if ($input.value!=$input.placeholder && $reset.dataset.value!=null) {
+		delete $reset.dataset.value
+	}
+	if ($reset.dataset.value!=null) {
+		$reset.innerText='restore previous value: '+$reset.dataset.value
+	} else if ($input.value!=$input.placeholder) {
+		$reset.innerText='reset to default value: '+$input.placeholder
+	} else {
+		$reset.innerText='has default value'
+	}
 }
 
 updateSettingsUI()
@@ -156,7 +185,7 @@ async function updateSettingsUI() {
 
 			const $reset=document.createElement('button')
 			$reset.classList.add('reset')
-			$reset.innerHTML='reset to default'
+			updateResetButton($reset,$input)
 			$reset.addEventListener('click',resetEventHandler)
 			$optionContainer.append($reset)
 			

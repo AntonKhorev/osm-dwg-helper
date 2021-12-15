@@ -2,6 +2,8 @@
 
 ## 0.2.4
 
+- Reset/restore button in options
+
 ## 0.2.3
 
 - Issue comment template for a new ticket
