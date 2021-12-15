@@ -42,6 +42,11 @@ ul:empty::before {
 	border: none;
 	padding: 0;
 	color: #88C;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: 100%;
+	box-sizing: border-box;
 }
 .option:not(:focus-within) .reset {
 	opacity: 0;
