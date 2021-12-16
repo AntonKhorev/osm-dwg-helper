@@ -1,4 +1,3 @@
-import * as Actions from './actions.js'
 import * as templateEngine from './template-engine.js'
 
 const background=await browser.runtime.getBackgroundPage()
@@ -48,7 +47,7 @@ function updatePermissions(missingOrigins) {
 	$permissions.innerHTML=""
 	if ($permissionsWarning) $permissionsWarning.innerHTML=""
 	if (missingOrigins.length<=0) return
-	const $button=document.createElement('button') // TODO doesn't work in sidebar - https://bugzilla.mozilla.org/show_bug.cgi?id=1493396 - fix somehow
+	const $button=document.createElement('button')
 	$button.innerText="Grant access to OSM/OTRS webpages"
 	$button.addEventListener('click',()=>{
 		browser.permissions.request({
@@ -116,11 +115,11 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			}
 			if (issueData.reportedItem?.type=='user') {
 				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>background.initiateNewTabAction(
-					new Actions.ScrapeReportedItemThenCreateIssueTicket(tabId,issueData)
+					background.makeAction('ScrapeReportedItemThenCreateIssueTicket',tabId,issueData)
 				)))
 			}
 			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
-				new Actions.CreateIssueTicket(tabId,issueData)
+				background.makeAction('CreateIssueTicket',tabId,issueData)
 			)))
 		}
 		{
@@ -222,7 +221,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			addSubAction(makeMessageLink('note'))
 			addSubAction(makeMessageLink('pending'))
 			function makeMessageLink(addAs) {
-				const action=new Actions.AddMessageToTicket(ticketData.id,addAs,messageData)
+				const action=background.makeAction('AddMessageToTicket',ticketData.id,addAs,messageData)
 				return makeLink(
 					action.getActionUrl(settings),
 					'as '+addAs,
@@ -239,7 +238,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const action=new Actions.GoToLastMessageThenAddMessageToTicket(tabId,ticketData.id,addAs,mailbox)
+					const action=background.makeAction('GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox)
 					return makeLink(
 						action.getActionUrl(settings),
 						'as '+addAs,

@@ -4,6 +4,7 @@ import settingsData from './settings-data.js'
 import SettingsManager from './settings-manager.js'
 import StatesManager from './states-manager.js'
 import ActionsManager from './actions-manager.js'
+import * as Actions from './actions.js'
 import icon from './icon.js'
 
 const statesManager=new StatesManager()
@@ -48,6 +49,15 @@ window.registerNewPanel=async(tab)=>{
 
 window.registerNewOptionsPage=()=>{ // need to send updateActionsOngoing message
 	reactToActionsUpdate()
+}
+
+/**
+ * Make action object in background window to avoid dead objects when panels are closed
+ * FIXME not going to work
+ */
+window.makeAction=(actionClassName,...args)=>{
+	const actionClass=Actions[actionClassName]
+	return new actionClass(...args)
 }
 
 window.initiateCurrentTabAction=async(action,tabId)=>{
