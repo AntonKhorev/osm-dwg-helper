@@ -23,7 +23,7 @@ browser.runtime.onMessage.addListener(message=>{
 
 {
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	background.registerNewPanel(currentTab)
+	browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
 }
 
 function setupUpdateScheduler(handlerFn,filterFn) {

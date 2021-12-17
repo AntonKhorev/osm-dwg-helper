@@ -21,7 +21,12 @@ browser.runtime.onMessage.addListener(message=>{
 		sendUpdatePermissionsMessage()
 		return handleStateChangingSettingsChange() // permissions update implies states update
 	} else if (message.action=='reportStateChangingSettingsWereChanged') {
-		return handleStateChangingSettingsChange() // permissions update implies states update
+		return handleStateChangingSettingsChange()
+	} else if (message.action=='registerNewPanel') {
+		return registerNewPanel(message.tab)
+	} else if (message.action=='registerNewOptionsPage') {
+		reactToActionsUpdate() // need to send updateActionsOngoing message
+		return Promise.resolve()
 	}
 	return false
 })
@@ -39,7 +44,7 @@ async function handleStateChangingSettingsChange() {
 	// actions were just dropped, don't need to update them
 }
 
-window.registerNewPanel=async(tab)=>{
+async function registerNewPanel(tab) {
 	sendUpdatePermissionsMessage() // TODO limit the update to this tab
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(
@@ -47,10 +52,6 @@ window.registerNewPanel=async(tab)=>{
 		addListenerAndSendMessage
 	)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
-	reactToActionsUpdate()
-}
-
-window.registerNewOptionsPage=()=>{ // need to send updateActionsOngoing message
 	reactToActionsUpdate()
 }
 

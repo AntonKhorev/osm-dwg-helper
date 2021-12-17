@@ -87,7 +87,7 @@ function updateResetButton($reset,$input) {
 }
 
 updateSettingsUI()
-background.registerNewOptionsPage()
+browser.runtime.sendMessage({action:'registerNewOptionsPage'})
 
 function readSettingsFile() {
 	const [file]=this.files
