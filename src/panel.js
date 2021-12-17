@@ -114,13 +114,15 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
 			if (issueData.reportedItem?.type=='user') {
-				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>background.initiateNewTabAction(
-					background.makeAction('ScrapeReportedItemThenCreateIssueTicket',tabId,issueData)
-				)))
+				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>browser.runtime.sendMessage({
+					action:'initiateNewTabAction',
+					tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
+				})))
 			}
-			addSubAction(makeLink(createTicketUrl,text,()=>background.initiateNewTabAction(
-				background.makeAction('CreateIssueTicket',tabId,issueData)
-			)))
+			addSubAction(makeLink(createTicketUrl,text,()=>browser.runtime.sendMessage({
+				action:'initiateNewTabAction',
+				tabAction:['CreateIssueTicket',tabId,issueData]
+			})))
 		}
 		{
 			addSubAction(makeLink(createTicketUrl,"empty"))
@@ -221,11 +223,16 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			addSubAction(makeMessageLink('note'))
 			addSubAction(makeMessageLink('pending'))
 			function makeMessageLink(addAs) {
-				const action=background.makeAction('AddMessageToTicket',ticketData.id,addAs,messageData)
+				let otrsAction='AgentTicketNote'
+				if (addAs=='pending') otrsAction='AgentTicketPending'
 				return makeLink(
-					action.getActionUrl(settings),
+					`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(ticketData.id)}`,
 					'as '+addAs,
-					()=>background.initiateCurrentTabAction(action,tabId)
+					()=>browser.runtime.sendMessage({
+						action:'initiateCurrentTabAction',
+						tabAction:['AddMessageToTicket',ticketData.id,addAs,messageData],
+						tabId
+					})
 				)
 			}
 		}
@@ -238,11 +245,13 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 				addSubAction(makeMessageLink('note'))
 				addSubAction(makeMessageLink('pending'))
 				function makeMessageLink(addAs) {
-					const action=background.makeAction('GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox)
 					return makeLink(
-						action.getActionUrl(settings),
+						`${settings.osm}messages/${mailbox}`,
 						'as '+addAs,
-						()=>background.initiateNewTabAction(action)
+						()=>browser.runtime.sendMessage({
+							action:'initiateNewTabAction',
+							tabAction:['GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox]
+						})
 					)
 				}
 			}
@@ -316,7 +325,7 @@ function updateActionsOngoing(tabActionEntries) {
 		const $cancelButton=document.createElement('button')
 		$cancelButton.innerText='cancel'
 		$cancelButton.addEventListener('click',()=>{
-			background.removeTabAction(tabId)
+			browser.runtime.sendMessage({action:'cancelTabAction',tabId})
 		})
 		$li.append($cancelButton)
 		$actions.append($li)

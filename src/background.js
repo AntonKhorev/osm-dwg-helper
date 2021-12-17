@@ -27,6 +27,17 @@ browser.runtime.onMessage.addListener(message=>{
 	} else if (message.action=='registerNewOptionsPage') {
 		reactToActionsUpdate() // need to send updateActionsOngoing message
 		return Promise.resolve()
+	} else if (message.action=='initiateCurrentTabAction') {
+		const tabAction=makeAction(...message.tabAction)
+		return initiateCurrentTabAction(tabAction,message.tabId)
+	} else if (message.action=='initiateNewTabAction') {
+		const tabAction=makeAction(...message.tabAction)
+		return initiateNewTabAction(tabAction)
+	} else if (message.action=='cancelTabAction') {
+		if (actionsManager.deleteTab(message.tabId)) {
+			reactToActionsUpdate()
+		}
+		return Promise.resolve()
 	}
 	return false
 })
@@ -55,31 +66,21 @@ async function registerNewPanel(tab) {
 	reactToActionsUpdate()
 }
 
-/**
- * Make action object in background window to avoid dead objects when panels are closed
- * FIXME not going to work
- */
-window.makeAction=(actionClassName,...args)=>{
+function makeAction(actionClassName,...args) {
 	const actionClass=Actions[actionClassName]
 	return new actionClass(...args)
 }
 
-window.initiateCurrentTabAction=async(action,tabId)=>{
+async function initiateCurrentTabAction(action,tabId) {
 	const settings=await settingsManager.read()
 	actionsManager.addCurrentTabAction(settings,action,tabId)
 	reactToActionsUpdate()
 }
 
-window.initiateNewTabAction=async(action)=>{
+async function initiateNewTabAction(action) {
 	const settings=await settingsManager.read()
 	actionsManager.addNewTabAction(settings,action)
 	reactToActionsUpdate()
-}
-
-window.removeTabAction=(tabId)=>{
-	if (actionsManager.deleteTab(tabId)) {
-		reactToActionsUpdate()
-	}
 }
 
 function reactToActionsUpdate() {
