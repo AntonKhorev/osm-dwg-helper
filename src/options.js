@@ -10,9 +10,9 @@ async function settingsWriteWrapper(settings) {
 	await browser.runtime.sendMessage({action:'reportSettingsWillChange'})
 	const needToReport=await settingsManager.write(settings)
 	if (needToReport.origin) {
-		browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
+		await browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
 	} else if (needToReport.state) {
-		await background.reportStateChangingSettingsUpdate() // don't need to do this if reportPermissionsWereChanged was sent
+		await browser.runtime.sendMessage({action:'reportStateChangingSettingsWereChanged'}) // don't need to do this if reportPermissionsWereChanged was sent
 	}
 }
 

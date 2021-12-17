@@ -19,13 +19,14 @@ browser.runtime.onMessage.addListener(message=>{
 		return Promise.resolve()
 	} else if (message.action=='reportPermissionsWereChanged') {
 		sendUpdatePermissionsMessage()
-		reportStateChangingSettingsUpdate() // permissions update implies states update
-		return Promise.resolve()
+		return handleStateChangingSettingsChange() // permissions update implies states update
+	} else if (message.action=='reportStateChangingSettingsWereChanged') {
+		return handleStateChangingSettingsChange() // permissions update implies states update
 	}
 	return false
 })
 
-window.reportStateChangingSettingsUpdate=async()=>{
+async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
