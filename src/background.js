@@ -12,19 +12,18 @@ const actionsManager=new ActionsManager()
 const settingsManager=new SettingsManager(settingsData)
 
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action=='reportSettingsChange') {
+	if (message.action=='reportSettingsWillChange') {
 		if (actionsManager.clearTabs()) {
 			reactToActionsUpdate()
 		}
 		return Promise.resolve()
+	} else if (message.action=='reportPermissionsWereChanged') {
+		sendUpdatePermissionsMessage()
+		reportStateChangingSettingsUpdate() // permissions update implies states update
+		return Promise.resolve()
 	}
 	return false
 })
-
-window.reportPermissionsUpdate=async()=>{
-	await sendUpdatePermissionsMessage()
-	await reportStateChangingSettingsUpdate() // permissions update implies states update
-}
 
 window.reportStateChangingSettingsUpdate=async()=>{
 	statesManager.clearTabs()

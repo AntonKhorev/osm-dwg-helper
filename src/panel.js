@@ -53,7 +53,7 @@ function updatePermissions(missingOrigins) {
 		browser.permissions.request({
 			origins:missingOrigins
 		}).then(granted=>{
-			if (granted) background.reportPermissionsUpdate()
+			if (granted) browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
 		})
 	})
 	$permissions.append($button)

@@ -7,12 +7,12 @@ const settingsManager=new SettingsManager(settingsData)
 
 async function settingsWriteWrapper(settings) {
 	if (Object.keys(settings).length==0) return
-	await browser.runtime.sendMessage({action:'reportSettingsChange'})
+	await browser.runtime.sendMessage({action:'reportSettingsWillChange'})
 	const needToReport=await settingsManager.write(settings)
 	if (needToReport.origin) {
-		await background.reportPermissionsUpdate()
+		browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
 	} else if (needToReport.state) {
-		await background.reportStateChangingSettingsUpdate() // don't need to do this if reportPermissionsUpdate() was called
+		await background.reportStateChangingSettingsUpdate() // don't need to do this if reportPermissionsWereChanged was sent
 	}
 }
 
@@ -231,7 +231,7 @@ function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
 			$button.title=""
 			listener=()=>{
 				browser.permissions[browserPermissionsFnName]({origins}).then(ok=>{
-					if (ok) background.reportPermissionsUpdate()
+					if (ok) browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
 				})
 			}
 			$button.addEventListener('click',listener)
