@@ -1,9 +1,14 @@
+import settingsData from './settings-data.js'
+import SettingsManager from './settings-manager.js'
+
 const background=await browser.runtime.getBackgroundPage()
+
+const settingsManager=new SettingsManager(settingsData)
 
 async function settingsWriteWrapper(settings) {
 	if (Object.keys(settings).length==0) return
 	background.reportNeedToDropActions()
-	const needToReport=await background.settingsManager.write(settings)
+	const needToReport=await settingsManager.write(settings)
 	if (needToReport.origin) {
 		await background.reportPermissionsUpdate()
 	} else if (needToReport.state) {
@@ -106,7 +111,7 @@ async function downloadSettingsFile(getText) {
 
 function parseSettingsText(text) {
 	const validKeys={}
-	for (const [k] of background.settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k] of settingsManager.getSpecsWithoutHeaders()) {
 		validKeys[k]=true
 	}
 	const settings={}
@@ -122,7 +127,7 @@ function parseSettingsText(text) {
 
 async function makeDefaultSettingsText() {
 	let text=''
-	for (const [k,v] of background.settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k,v] of settingsManager.getSpecsWithoutHeaders()) {
 		text+=`${k} = ${v}\n`
 	}
 	return text
@@ -130,20 +135,20 @@ async function makeDefaultSettingsText() {
 
 async function makeCurrentSettingsText() {
 	await flushInputs()
-	const settings=await background.settingsManager.read()
+	const settings=await settingsManager.read()
 	let text=''
-	for (const [k] of background.settingsManager.getSpecsWithoutHeaders()) {
+	for (const [k] of settingsManager.getSpecsWithoutHeaders()) {
 		text+=`${k} = ${settings[k]}\n`
 	}
 	return text
 }
 
 async function updateSettingsUI() {
-	const [settings,,missingOrigins,existingOrigins]=await background.settingsManager.readSettingsAndPermissions()
+	const [settings,,missingOrigins,existingOrigins]=await settingsManager.readSettingsAndPermissions()
 	updateOriginPermissionsUI(missingOrigins,existingOrigins)
 	const $settings=document.getElementById('settings')
 	$settings.innerHTML=""
-	for (const spec of background.settingsManager.specs) {
+	for (const spec of settingsManager.specs) {
 		if (typeof spec == 'string') {
 			const sectionName=spec
 			const $h=document.createElement('h2')

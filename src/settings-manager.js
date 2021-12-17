@@ -1,7 +1,10 @@
 export default class {
-	// specs:
-	// string for a header or
-	// [key, default value, title, other attributes: {type: input type, state: affects tab state, origin: needs origin permission, note}]
+	/**
+	 * Settings manager, doesn't have internal state, can be instantiated from multiple windows
+	 * @param specs {Array} string for a header or an option spec
+	 *              option spec: [key, default value, title, other attributes]
+	 *              other attributes: {type: input type, state: affects tab state, origin: needs origin permission, note}
+	 */
 	constructor(specs) {
 		this.specs=specs
 		this.specKeys={}

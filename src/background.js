@@ -9,8 +9,16 @@ import icon from './icon.js'
 
 const statesManager=new StatesManager()
 const actionsManager=new ActionsManager()
+const settingsManager=new SettingsManager(settingsData)
 
-window.settingsManager=new SettingsManager(settingsData)
+/*
+browser.runtime.onMessage.addListener(message=>{
+	if (message.action=='writeSettings') { // don't need this one
+		return settingsManager.write(message.settings)
+	}
+	return false
+})
+*/
 
 window.reportNeedToDropActions=()=>{
 	if (actionsManager.clearTabs()) {
