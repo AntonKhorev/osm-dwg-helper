@@ -7,7 +7,7 @@ const settingsManager=new SettingsManager(settingsData)
 
 async function settingsWriteWrapper(settings) {
 	if (Object.keys(settings).length==0) return
-	background.reportNeedToDropActions()
+	await browser.runtime.sendMessage({action:'reportSettingsChange'})
 	const needToReport=await settingsManager.write(settings)
 	if (needToReport.origin) {
 		await background.reportPermissionsUpdate()

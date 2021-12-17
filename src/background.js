@@ -11,20 +11,15 @@ const statesManager=new StatesManager()
 const actionsManager=new ActionsManager()
 const settingsManager=new SettingsManager(settingsData)
 
-/*
 browser.runtime.onMessage.addListener(message=>{
-	if (message.action=='writeSettings') { // don't need this one
-		return settingsManager.write(message.settings)
+	if (message.action=='reportSettingsChange') {
+		if (actionsManager.clearTabs()) {
+			reactToActionsUpdate()
+		}
+		return Promise.resolve()
 	}
 	return false
 })
-*/
-
-window.reportNeedToDropActions=()=>{
-	if (actionsManager.clearTabs()) {
-		reactToActionsUpdate()
-	}
-}
 
 window.reportPermissionsUpdate=async()=>{
 	await sendUpdatePermissionsMessage()
