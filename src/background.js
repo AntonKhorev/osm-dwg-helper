@@ -11,6 +11,9 @@ const statesManager=new StatesManager()
 const actionsManager=new ActionsManager()
 const settingsManager=new SettingsManager(settingsData)
 
+// can't use window.* here and browser.runtime.getBackgroundPage() in panel/options pages because:
+// https://stackoverflow.com/questions/52618377/firefox-web-extension-cant-access-dead-object-error
+// all communication between pages needs to be done with messages
 browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='reportSettingsWillChange') {
 		if (actionsManager.clearTabs()) {

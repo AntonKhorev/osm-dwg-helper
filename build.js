@@ -29,14 +29,6 @@ for (const htmlFilename of ['background.html','sidebar.html','popup.html','optio
 	await fs.writeFile(filename,patchedContents)
 }
 
-// wrap with async fn to avoid linter errors about top-level asyncs
-for (const jsFilename of ['panel.js','options.js']) {
-	const filename=path.join('dist',jsFilename)
-	const contents=String(await fs.readFile(filename))
-	const patchedContents=contents.replace(/(?=const\s+background)/,'(async()=>{')+'\n})() // https://github.com/mozilla/addons-linter/issues/4020\n'
-	await fs.writeFile(filename,patchedContents)
-}
-
 // convert extension icon to png
 // chrome doesn't support svg icons in manifest: https://bugs.chromium.org/p/chromium/issues/detail?id=29683
 // addons.mozilla.org also asks for png/jpg icon that overrides one specified in manifest

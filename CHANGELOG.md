@@ -2,7 +2,8 @@
 
 ## 0.2.4
 
-- Reset/restore button in options
+- Reset/restore buttons in options
+- Firefox-specific fix: actions launched from a popup weren't working because they were referencing dead objects as soon as the popup has been closed, this should be fixed by passing messages instead of objects between the extension windows
 
 ## 0.2.3
 

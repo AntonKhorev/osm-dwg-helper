@@ -1,7 +1,5 @@
 import * as templateEngine from './template-engine.js'
 
-const background=await browser.runtime.getBackgroundPage()
-
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
 const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
@@ -21,10 +19,11 @@ browser.runtime.onMessage.addListener(message=>{
 	return false
 })
 
-{
+;(async()=>{
+	// top-level async is supported, but: https://github.com/mozilla/addons-linter/issues/4020
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 	browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
-}
+})()
 
 function setupUpdateScheduler(handlerFn,filterFn) {
 	let updateTimeoutId

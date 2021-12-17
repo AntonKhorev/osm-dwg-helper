@@ -1,8 +1,6 @@
 import settingsData from './settings-data.js'
 import SettingsManager from './settings-manager.js'
 
-const background=await browser.runtime.getBackgroundPage()
-
 const settingsManager=new SettingsManager(settingsData)
 
 async function settingsWriteWrapper(settings) {
