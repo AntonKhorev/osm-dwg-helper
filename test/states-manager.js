@@ -1,23 +1,25 @@
 import {strict as assert} from 'assert'
 
+import makeMessageTabTest from './test-message-tab.js'
 import StatesManager from '../src/states-manager.js'
 
 describe("StatesManager",()=>{
 	it("evaluates tab states of unknown type over clean state",async()=>{
 		const statesManager=new StatesManager()
-		const tabMessenger=async()=>{}
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
 		const activeTabs=[
 			{id:23, url:`http://example.com/23.html`, active:true},
 			{id:42, url:`http://example.com/42.html`, active:true},
 		]
 		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
+		testAfterTabMessenger()
 		assert.deepEqual(tabIds,[])
 		assert.equal(otherTabId,undefined)
 		assert.deepEqual(tabStates,{})
 	})
 	it("evaluates message tab state over clean state without permissions",async()=>{
 		const statesManager=new StatesManager()
-		const tabMessenger=async()=>{}
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
 		const settings={
 			osm: `https://myosm.org/`,
 		}
@@ -26,10 +28,39 @@ describe("StatesManager",()=>{
 			{id:23, url:`https://myosm.org/messages/321`, active:true},
 		]
 		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,tabMessenger)
+		testAfterTabMessenger()
 		assert.deepEqual(tabIds,[23])
 		assert.equal(otherTabId,undefined)
 		assert.equal(tabStates[23].type,'message')
 		assert.equal(tabStates[23].messageData.id,'321')
 		assert.equal(tabStates[23].messageData.url,`https://myosm.org/messages/321`)
+		assert.equal(tabStates[23].messageData.extraStuff,undefined)
+	})
+	it("evaluates message tab state over clean state with permissions",async()=>{
+		const statesManager=new StatesManager()
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest([(tabId,script,message)=>{
+			assert.equal(tabId,23)
+			assert.equal(script,'message')
+			assert.equal(message.action,'getMessageData')
+		}],[
+			{extraStuff:'Extra stuff!!'}
+		])
+		const settings={
+			osm: `https://myosm.org/`,
+		}
+		const permissions={
+			osm: `https://myosm.org/`,
+		}
+		const activeTabs=[
+			{id:23, url:`https://myosm.org/messages/321`, active:true},
+		]
+		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,tabMessenger)
+		testAfterTabMessenger()
+		assert.deepEqual(tabIds,[23])
+		assert.equal(otherTabId,undefined)
+		assert.equal(tabStates[23].type,'message')
+		assert.equal(tabStates[23].messageData.id,'321')
+		assert.equal(tabStates[23].messageData.url,`https://myosm.org/messages/321`)
+		assert.equal(tabStates[23].messageData.extraStuff,'Extra stuff!!')
 	})
 })
