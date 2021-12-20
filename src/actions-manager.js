@@ -59,12 +59,12 @@ export default class ActionsManager {
 	/**
 	 * @returns {Promise<boolean>} true if tab actions changed
 	 */
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		const action=this.tabActions.get(tab.id)
 		if (!action) return false
 		if (action.needToRejectUrl(settings,tab.url)) return false
 		this.tabActions.delete(tab.id)
-		const tabActionsUpdate=await action.act(settings,tab,tabState,addListenerAndSendMessage)
+		const tabActionsUpdate=await action.act(settings,tab,tabState,messageTab)
 		if (tabActionsUpdate) {
 			const [newTabId,newAction]=tabActionsUpdate
 			this.tabActions.set(newTabId,newAction)

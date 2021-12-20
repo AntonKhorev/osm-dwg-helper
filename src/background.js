@@ -51,7 +51,7 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 	const tab=await browser.tabs.get(tabId)
 	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
 		settings,permissions,tab,
-		addListenerAndSendMessage
+		messageTab
 	)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
@@ -65,7 +65,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	// may also act only on active tabs, then can skip if tab is not (active || previous)
 	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
+	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,messageTab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	const tabState=statesManager.getTabState(tabId)
@@ -75,7 +75,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
 	)) {
 		const settings=await settingsManager.read()
-		if (await actionsManager.act(settings,tab,tabState,addListenerAndSendMessage)) {
+		if (await actionsManager.act(settings,tab,tabState,messageTab)) {
 			reactToActionsUpdate()
 		}
 	}
@@ -87,10 +87,7 @@ async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(
-		settings,permissions,activeTabs,
-		addListenerAndSendMessage
-	)
+	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
 	}
@@ -101,10 +98,7 @@ async function handleStateChangingSettingsChange() {
 async function registerNewPanel(tab) {
 	sendUpdatePermissionsMessage() // TODO limit the update to this tab
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(
-		settings,permissions,tab,
-		addListenerAndSendMessage
-	)
+	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	reactToActionsUpdate()
@@ -176,7 +170,7 @@ async function sendUpdatePermissionsMessage() {
 	})
 }
 
-async function addListenerAndSendMessage(tabId,contentScript,message) {
+async function messageTab(tabId,contentScript,message) {
 	if (buildScriptChromePatch) await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
 	await browser.tabs.executeScript(tabId,{file:`content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)

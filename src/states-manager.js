@@ -25,53 +25,53 @@ export default class StatesManager {
 	}
 	// need to be aware of race conditions in async functions
 	// because of browser onActivated and onUpdated ~simultaneous events
-	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,addListenerAndSendMessage) {
+	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab) {
 		const messagedTabIds=[]
 		let needToUpdatePreviousTab=this.previousTab!=null
 		for (const tab of activeTabs) {
 			if (tab.id==this.previousTab?.id) {
 				needToUpdatePreviousTab=false
 			}
-			await this.pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds)
+			await this.pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds)
 		}
 		if (needToUpdatePreviousTab) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,addListenerAndSendMessage)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,addListenerAndSendMessage) {
+	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,messageTab) {
 		this.previousTab=this.activatedTab
 		this.activatedTab=tab
 		if (this.previousTab!=null && !this.tabStates.get(this.previousTab.id)) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,addListenerAndSendMessage)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		if (!this.tabStates.get(tab.id)) {
-			const tabState=await getTabState(settings,permissions,tab,addListenerAndSendMessage)
+			const tabState=await getTabState(settings,permissions,tab,messageTab)
 			this.tabStates.set(tab.id,tabState)
 		}
 		return this.getMessageArgs([tab.id]) // active + result of tab switch
 	}
-	async updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage) {
+	async updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,messageTab) {
 		const messagedTabIds=[]
-		await this.pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds)
+		await this.pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds)
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStateBecauseNewPanelOpened(settings,permissions,tab,addListenerAndSendMessage) {
-		const tabState=await getTabState(settings,permissions,tab,addListenerAndSendMessage)
+	async updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab) {
+		const tabState=await getTabState(settings,permissions,tab,messageTab)
 		this.tabStates.set(tab.id,tabState)
 		return this.getMessageArgs([tab.id])
 	}
 	/**
 	 * @private
 	 */
-	async pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds) {
+	async pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds) {
 		let oldTabState=this.tabStates.get(tab.id)
 		if (oldTabState==null) {
 			this.tabStates.set(tab.id,oldTabState={})
 		}
-		const tabState=await getTabState(settings,permissions,tab,addListenerAndSendMessage)
+		const tabState=await getTabState(settings,permissions,tab,messageTab)
 		const tabStateChanged=!isTabStateEqual(oldTabState,tabState)
 		this.tabStates.set(tab.id,tabState)
 		if (tabStateChanged && tab.active) {
@@ -94,7 +94,7 @@ export default class StatesManager {
 	}
 }
 
-async function getTabState(settings,permissions,tab,addListenerAndSendMessage) {
+async function getTabState(settings,permissions,tab,messageTab) {
 	const tabState={}
 	if (settings.osm) {
 		const messageId=getOsmMessageIdFromUrl(settings.osm,tab.url)
@@ -106,7 +106,7 @@ async function getTabState(settings,permissions,tab,addListenerAndSendMessage) {
 				url:tab.url
 			}
 			if (permissions.osm) {
-				const contentMessageData=await addListenerAndSendMessage(tab.id,'message',{action:'getMessageData'})
+				const contentMessageData=await messageTab(tab.id,'message',{action:'getMessageData'})
 				if (contentMessageData) Object.assign(tabState.messageData,contentMessageData)
 			}
 		}
@@ -121,7 +121,7 @@ async function getTabState(settings,permissions,tab,addListenerAndSendMessage) {
 				url:tab.url
 			}
 			if (permissions.osm) {
-				const contentIssueData=await addListenerAndSendMessage(tab.id,'issue',{action:'getIssueData'})
+				const contentIssueData=await messageTab(tab.id,'issue',{action:'getIssueData'})
 				if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 			}
 		}
@@ -132,7 +132,7 @@ async function getTabState(settings,permissions,tab,addListenerAndSendMessage) {
 			tabState.type='user'
 			tabState.userData={}
 			if (permissions.osm) {
-				const userId=await addListenerAndSendMessage(tab.id,'user',{action:'getUserId'})
+				const userId=await messageTab(tab.id,'user',{action:'getUserId'})
 				if (userId!=null) {
 					let apiUrl='#' // not important for now - only used in templates
 					if (settings.osm_api) apiUrl=settings.osm_api+'api/0.6/user/'+encodeURIComponent(userId)
@@ -154,7 +154,7 @@ async function getTabState(settings,permissions,tab,addListenerAndSendMessage) {
 			}
 			tabState.issueData={}
 			if (settings.osm && permissions.otrs) {
-				const contentIssueId=await addListenerAndSendMessage(tab.id,'ticket',{action:'getIssueId'})
+				const contentIssueId=await messageTab(tab.id,'ticket',{action:'getIssueId'})
 				if (contentIssueId!=null) {
 					tabState.issueData={
 						osmRoot:settings.osm,

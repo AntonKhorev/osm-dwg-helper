@@ -25,7 +25,7 @@ export class Action {
 	/**
 	  * @returns {Promise<?[tabId:number,Action]>} undefined/null or [tabId,TabAction] to schedule another action
 	  */
-	async act(settings,tab,tabState,addListenerAndSendMessage) {}
+	async act(settings,tab,tabState,messageTab) {}
 }
 
 /**
@@ -62,7 +62,7 @@ export class ScrapeReportedItemThenCreateIssueTicket extends OffshootAction {
 	getActionUrl(settings) {
 		return this.issueData.reportedItem.url
 	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		const getNextAction=()=>{
 			if (tabState.type=='user' && tabState.userData.id!=null) {
 				return new CreateIssueTicket(this.openerTabId,this.issueData,tabState.userData)
@@ -87,10 +87,10 @@ export class CreateIssueTicket extends OffshootAction {
 	getActionUrl(settings) {
 		return `${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
 		try {
-			await addListenerAndSendMessage(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData})
+			await messageTab(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData})
 		} catch {
 			return [tab.id,this]
 		}
@@ -106,13 +106,13 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 		return [[`add comment to issue for created ticket`]]
 	}
 	// getActionUrl: exact action url is unknown b/c it contains server response
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		const [ticketId,ticketAction]=getOtrsCreatedTicketIdAndAction(settings.otrs,tab.url)
 		if (!ticketId) {
 			return [tab.id,this]
 		}
 		const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
-		await addListenerAndSendMessage(this.openerTabId,'issue',{
+		await messageTab(this.openerTabId,'issue',{
 			action:'addComment',
 			comment:templateEngine.evaluate(settings.issue_comment_ticket,{ticket:{url:ticketUrl}})
 		})
@@ -135,8 +135,8 @@ export class GoToLastMessageThenAddMessageToTicket extends OffshootAction {
 	getActionUrl(settings) {
 		return `${settings.osm}messages/${this.mailbox}`
 	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
-		const messageId=await addListenerAndSendMessage(tab.id,'mailbox',{action:'getTopMessageId'}) // TODO use tabState
+	async act(settings,tab,tabState,messageTab) {
+		const messageId=await messageTab(tab.id,'mailbox',{action:'getTopMessageId'}) // TODO use tabState
 		if (!messageId) {
 			// TODO handle login page, empty mailbox
 			// return [tab.id,this]
@@ -159,7 +159,7 @@ class ScrapeMessageThenAddMessageToTicket extends OffshootAction {
 	getActionUrl(settings) {
 		return `${settings.osm}messages/${encodeURIComponent(this.messageId)}`
 	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		return [this.openerTabId,new AddMessageToTicket(this.ticketId,this.addAs,tabState.messageData)]
 	}
 }
@@ -181,10 +181,10 @@ class AddArticleToTicket extends Action {
 		if (this.addAs=='pending') otrsAction='AgentTicketPending'
 		return `${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(this.ticketId)}`
 	}
-	async act(settings,tab,tabState,addListenerAndSendMessage) {
+	async act(settings,tab,tabState,messageTab) {
 		const [subject,body]=this.getSubjectAndBody(settings)
 		try {
-			await addListenerAndSendMessage(tab.id,'ticket-article',{
+			await messageTab(tab.id,'ticket-article',{
 				action:'addArticleSubjectAndBody',
 				subject,body
 			})
