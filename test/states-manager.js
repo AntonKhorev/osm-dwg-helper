@@ -3,22 +3,13 @@ import {strict as assert} from 'assert'
 import StatesManager from '../src/states-manager.js'
 
 describe("StatesManager",()=>{
-	/*
-	it("doesn't try to get state of undefined tab",async()=>{
+	it("reevaluates tab states of unknown type over clean state",async()=>{
 		const statesManager=new StatesManager()
-		const activeTabId=342
-		const tabGetterCalls=[]
-		const tabGetter=async(tabId)=>{
-			tabGetterCalls.push(tabId)
-			return {
-				id:tabId,
-				url:`http://example.com/${tabId}.html`,
-				active:tabId==activeTabId
-			}
-		}
 		const tabMessenger=async()=>{}
-		await statesManager.updateTabStatesBecauseBrowserTabActivated({},{},342,tabGetter,tabMessenger)
-		assert.deepEqual(tabGetterCalls,[342])
+		const activeTabs=[
+			{id:23, url:`http://example.com/23.html`, active:true},
+			{id:42, url:`http://example.com/42.html`, active:true},
+		]
+		await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
 	})
-	*/
 })

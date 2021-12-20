@@ -3,6 +3,7 @@
 ## 0.2.5
 
 - Fix: icon was reset after reloading a tab
+- Fix: icons weren't set on startup for browsers without sidebars
 
 ## 0.2.4
 

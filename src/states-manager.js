@@ -17,8 +17,8 @@ export default class StatesManager {
 	}
 	deleteTab(tabId) {
 		this.tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
-		if (this.previousTab.id==tabId) this.previousTab=undefined
-		if (this.activatedTab.id==tabId) this.activatedTab=undefined
+		if (this.previousTab?.id==tabId) this.previousTab=undefined
+		if (this.activatedTab?.id==tabId) this.activatedTab=undefined
 	}
 	getTabState(tabId) {
 		return this.tabStates.get(tabId)
@@ -27,14 +27,14 @@ export default class StatesManager {
 	// because of browser onActivated and onUpdated ~simultaneous events
 	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,addListenerAndSendMessage) {
 		const messagedTabIds=[]
-		let metPreviousTab=this.previousTab==null
+		let needToUpdatePreviousTab=this.previousTab!=null
 		for (const tab of activeTabs) {
-			if (tab.id==this.previousTab.id) {
-				metPreviousTab=true
+			if (tab.id==this.previousTab?.id) {
+				needToUpdatePreviousTab=false
 			}
 			await this.pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds)
 		}
-		if (!metPreviousTab) {
+		if (needToUpdatePreviousTab) {
 			const previousTabState=await getTabState(settings,permissions,this.previousTab,addListenerAndSendMessage)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
@@ -87,10 +87,10 @@ export default class StatesManager {
 		for (const tabId of tabIds) {
 			messagedTabStates[tabId]=this.tabStates.get(tabId)
 		}
-		if (this.previousTabId!=null) {
-			messagedTabStates[this.previousTabId]=this.tabStates.get(this.previousTabId)
+		if (this.previousTab!=null) {
+			messagedTabStates[this.previousTab.id]=this.tabStates.get(this.previousTab.id)
 		}
-		return [tabIds,this.previousTabId,messagedTabStates]
+		return [tabIds,this.previousTab?.id,messagedTabStates]
 	}
 }
 

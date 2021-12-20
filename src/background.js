@@ -45,7 +45,45 @@ browser.runtime.onMessage.addListener(message=>{
 	return false
 })
 
-async function handleStateChangingSettingsChange() { // TODO run this on init?
+//browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
+browser.tabs.onActivated.addListener(async({tabId})=>{
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const tab=await browser.tabs.get(tabId)
+	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
+		settings,permissions,tab,
+		addListenerAndSendMessage
+	)
+	setIconOnTab(tab)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
+})
+
+browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
+	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
+
+	// possible optimizations:
+	// may skip update it if tab is not (active || previous || has scheduled action)
+	// may also act only on active tabs, then can skip if tab is not (active || previous)
+	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
+	setIconOnTab(tab)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
+	const tabState=statesManager.getTabState(tabId)
+	
+	if (actionsManager.hasTab(tabId) && (
+		changeInfo.status=='complete' || // just loaded
+		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
+	)) {
+		const settings=await settingsManager.read()
+		if (await actionsManager.act(settings,tab,tabState,addListenerAndSendMessage)) {
+			reactToActionsUpdate()
+		}
+	}
+})
+
+handleStateChangingSettingsChange() // evaluates active tab states on startup + updates icons even if no panels exist (this happens in Chrome)
+
+async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
@@ -97,42 +135,6 @@ browser.tabs.onRemoved.addListener((tabId)=>{
 	statesManager.deleteTab(tabId)
 	if (actionsManager.deleteTab(tabId)) {
 		reactToActionsUpdate()
-	}
-})
-
-//browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
-browser.tabs.onActivated.addListener(async({tabId})=>{
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const tab=await browser.tabs.get(tabId)
-	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
-		settings,permissions,tab,
-		addListenerAndSendMessage
-	)
-	setIconOnTab(tab)
-	sendUpdateActionsMessage(settings,permissions,...messageData)
-})
-
-browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
-	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
-
-	// possible optimizations:
-	// may skip update it if tab is not (active || previous || has scheduled action)
-	// may also act only on active tabs, then can skip if tab is not (active || previous)
-	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
-	setIconOnTab(tab)
-	sendUpdateActionsMessage(settings,permissions,...messageData)
-	const tabState=statesManager.getTabState(tabId)
-	
-	if (actionsManager.hasTab(tabId) && (
-		changeInfo.status=='complete' || // just loaded
-		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
-	)) {
-		const settings=await settingsManager.read()
-		if (await actionsManager.act(settings,tab,tabState,addListenerAndSendMessage)) {
-			reactToActionsUpdate()
-		}
 	}
 })
 
