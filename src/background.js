@@ -54,7 +54,7 @@ async function handleStateChangingSettingsChange() { // TODO run this on init?
 		addListenerAndSendMessage
 	)
 	for (const tab of activeTabs) {
-		setIconOnWindowOfTab(tab)
+		setIconOnTab(tab)
 	}
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	// actions were just dropped, don't need to update them
@@ -67,7 +67,7 @@ async function registerNewPanel(tab) {
 		settings,permissions,tab,
 		addListenerAndSendMessage
 	)
-	setIconOnWindowOfTab(tab)
+	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	reactToActionsUpdate()
 }
@@ -108,7 +108,7 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 		settings,permissions,tab,
 		addListenerAndSendMessage
 	)
-	setIconOnWindowOfTab(tab)
+	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 })
 
@@ -121,7 +121,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
-	setIconOnWindowOfTab(tab)
+	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	const tabState=statesManager.getTabState(tabId)
 	
@@ -136,13 +136,14 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
-function setIconOnWindowOfTab(tab) {
+function setIconOnTab(tab) {
 	// would have been easier to set icon for tab but:
 	// https://stackoverflow.com/questions/12710061/why-does-a-browser-actions-default-icon-reapper-after-a-custom-icon-was-applied
 	// + browserAction.setIcon() and sidebarAction.setIcon() work slightly differently: sidebarAction's tab icon is not reset to default when tab is loaded
 	const tabStateType=statesManager.getTabState(tab.id)?.type
 	const iconDetails={
-		windowId: tab.windowId,
+		// windowId: tab.windowId, // not in chrome
+		tabId: tab.id,
 		path: icon(tabStateType)
 	}
 	browser.browserAction.setIcon(iconDetails)
