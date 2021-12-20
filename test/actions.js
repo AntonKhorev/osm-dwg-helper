@@ -1,5 +1,6 @@
 import {strict as assert} from 'assert'
 
+import makeMessageTabTest from './test-message-tab.js'
 import * as Actions from '../src/actions.js'
 
 const testSequence=async(input,sequence)=>{
@@ -10,29 +11,10 @@ const testSequence=async(input,sequence)=>{
 	assert.equal(input,undefined)
 }
 
-const makeListener=(testers)=>{
-	const listenerCalls=[]
-	let i=0
-	return [
-		async(tabId,script,message)=>{
-			const tester=(testers[i++] ?? (()=>{}))
-			listenerCalls.push(
-				()=>tester(tabId,script,message)
-			)
-		},
-		()=>{
-			assert.equal(listenerCalls.length,testers.length)
-			for (const listenerCall of listenerCalls) {
-				listenerCall()
-			}
-		}
-	]
-}
-
 const testAct=async(action,settings,tab,tabState,testers)=>{
-	const [listener,testAfterListener]=makeListener(testers)
-	const actResult=await action.act(settings,tab,tabState,listener)
-	testAfterListener()
+	const [messageTab,testAfterMessageTab]=makeMessageTabTest(testers)
+	const actResult=await action.act(settings,tab,tabState,messageTab)
+	testAfterMessageTab()
 	return actResult
 }
 
