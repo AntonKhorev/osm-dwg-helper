@@ -95,4 +95,30 @@ describe("StatesManager",()=>{
 			assert.equal(tabStates[23].type,'message')
 		}
 	})
+	it("switches tabs from startup state",async()=>{
+		const settings={
+			osm: `https://myosm.org/`,
+		}
+		const permissions={}
+		const statesManager=new StatesManager()
+		{
+			const activeTabs=[
+				{id:12, url:`http://example.com/`, active:true}
+			]
+			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeTabs,tabMessenger)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,undefined)
+		}
+		{
+			const tab={id:23, url:`https://myosm.org/messages/321`, active:true}
+			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,tabMessenger)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[23])
+			assert.equal(otherTabId,12)
+			assert.equal(tabStates[23].type,'message')
+		}
+	})
 })

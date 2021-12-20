@@ -5,6 +5,7 @@
 - Fix: icon was reset after reloading a tab
 - Fix: icons weren't set on startup for browsers without sidebars
 - Fix: panels weren't updated if tab state changed to unknown as a result of settings changes
+- Fix: switching from a message to a ticket didn't allow adding the message when the message tab got focus on startup
 
 ## 0.2.4
 

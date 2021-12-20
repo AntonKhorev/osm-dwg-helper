@@ -81,7 +81,19 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
-handleStateChangingSettingsChange() // evaluates active tab states on startup + updates icons even if no panels exist (this happens in Chrome)
+init()
+
+async function init() {
+	const activeTabs=await browser.tabs.query({active:true})
+	const activeFocusedTabs=await browser.tabs.query({active:true,lastFocusedWindow:true})
+	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab)
+	for (const tab of activeTabs) {
+		setIconOnTab(tab)
+	}
+	sendUpdateActionsMessage(settings,permissions,...messageData)
+	// no ongoing actions yet
+}
 
 async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()

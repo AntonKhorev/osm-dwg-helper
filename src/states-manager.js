@@ -25,6 +25,10 @@ export default class StatesManager {
 	}
 	// need to be aware of race conditions in async functions
 	// because of browser onActivated and onUpdated ~simultaneous events
+	async updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab) {
+		this.activatedTab=activeFocusedTabs[0]
+		return this.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
+	}
 	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab) {
 		const messagedTabIds=[]
 		let needToUpdatePreviousTab=this.previousTab!=null
