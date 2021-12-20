@@ -45,15 +45,17 @@ browser.runtime.onMessage.addListener(message=>{
 	return false
 })
 
-async function handleStateChangingSettingsChange() {
+async function handleStateChangingSettingsChange() { // TODO run this on init?
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(
 		settings,permissions,activeTabs,
-		tabId=>browser.tabs.get(tabId),
 		addListenerAndSendMessage
 	)
+	for (const tab of activeTabs) {
+		setIconOnWindowOfTab(tab)
+	}
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	// actions were just dropped, don't need to update them
 }
@@ -65,6 +67,7 @@ async function registerNewPanel(tab) {
 		settings,permissions,tab,
 		addListenerAndSendMessage
 	)
+	setIconOnWindowOfTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	reactToActionsUpdate()
 }
@@ -100,11 +103,12 @@ browser.tabs.onRemoved.addListener((tabId)=>{
 //browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
 browser.tabs.onActivated.addListener(async({tabId})=>{
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const tab=await browser.tabs.get(tabId)
 	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
-		settings,permissions,tabId,
-		tabId=>browser.tabs.get(tabId),
+		settings,permissions,tab,
 		addListenerAndSendMessage
 	)
+	setIconOnWindowOfTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 })
 
@@ -117,6 +121,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage)
+	setIconOnWindowOfTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	const tabState=statesManager.getTabState(tabId)
 	
@@ -131,6 +136,19 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
+function setIconOnWindowOfTab(tab) {
+	// would have been easier to set icon for tab but:
+	// https://stackoverflow.com/questions/12710061/why-does-a-browser-actions-default-icon-reapper-after-a-custom-icon-was-applied
+	// + browserAction.setIcon() and sidebarAction.setIcon() work slightly differently: sidebarAction's tab icon is not reset to default when tab is loaded
+	const tabStateType=statesManager.getTabState(tab.id)?.type
+	const iconDetails={
+		windowId: tab.windowId,
+		path: icon(tabStateType)
+	}
+	browser.browserAction.setIcon(iconDetails)
+	browser.sidebarAction?.setIcon(iconDetails)
+}
+
 /**
  * @param tabIds {Array<number>}
  */
@@ -139,15 +157,6 @@ async function sendUpdateActionsMessage(
 	tabIds,otherTabId,tabStates
 ) {
 	if (tabIds.length==0) return
-	for (const tabId of tabIds) {
-		const tabState=tabStates[tabId]
-		const iconDetails={
-			tabId,
-			path:icon(tabState.type)
-		}
-		browser.browserAction.setIcon(iconDetails)
-		browser.sidebarAction?.setIcon(iconDetails)
-	}
 	//const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
 	browser.runtime.sendMessage({
 		action:'updateActionsNew',

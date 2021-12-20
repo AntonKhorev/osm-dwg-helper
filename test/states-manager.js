@@ -3,6 +3,7 @@ import {strict as assert} from 'assert'
 import StatesManager from '../src/states-manager.js'
 
 describe("StatesManager",()=>{
+	/*
 	it("doesn't try to get state of undefined tab",async()=>{
 		const statesManager=new StatesManager()
 		const activeTabId=342
@@ -19,4 +20,5 @@ describe("StatesManager",()=>{
 		await statesManager.updateTabStatesBecauseBrowserTabActivated({},{},342,tabGetter,tabMessenger)
 		assert.deepEqual(tabGetterCalls,[342])
 	})
+	*/
 })

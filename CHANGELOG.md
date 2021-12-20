@@ -2,6 +2,8 @@
 
 ## 0.2.5
 
+- Fix: icon was reset after reloading a tab
+
 ## 0.2.4
 
 - Reset/restore buttons in options

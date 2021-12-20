@@ -9,52 +9,49 @@ import {
 export default class StatesManager {
 	constructor() {
 		this.tabStates=new Map()
-		this.previousTabId=undefined
-		this.activatedTabId=undefined // to set value for this.previousTabId when another tab activated
+		this.previousTab=undefined
+		this.activatedTab=undefined // to set value for this.previousTab when another tab activated
 	}
 	clearTabs() {
 		this.tabStates.clear()
 	}
 	deleteTab(tabId) {
 		this.tabStates.delete(tabId) // TODO what if onUpdated runs after onRemoved?
-		if (this.previousTabId==tabId) this.previousTabId=undefined
-		if (this.activatedTabId==tabId) this.activatedTabId=undefined
+		if (this.previousTab.id==tabId) this.previousTab=undefined
+		if (this.activatedTab.id==tabId) this.activatedTab=undefined
 	}
 	getTabState(tabId) {
 		return this.tabStates.get(tabId)
 	}
 	// need to be aware of race conditions in async functions
 	// because of browser onActivated and onUpdated ~simultaneous events
-	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,getTab,addListenerAndSendMessage) {
+	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,addListenerAndSendMessage) {
 		const messagedTabIds=[]
-		let metPreviousTab=this.previousTabId==null
+		let metPreviousTab=this.previousTab==null
 		for (const tab of activeTabs) {
-			if (tab.id==this.previousTabId) {
+			if (tab.id==this.previousTab.id) {
 				metPreviousTab=true
 			}
 			await this.pushIfChangedAndActive(settings,permissions,tab,addListenerAndSendMessage,messagedTabIds)
 		}
 		if (!metPreviousTab) {
-			const previousTab=await getTab(this.previousTabId)
-			const previousTabState=await getTabState(settings,permissions,previousTab,addListenerAndSendMessage)
-			this.tabStates.set(this.previousTabId,previousTabState)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,addListenerAndSendMessage)
+			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tabId,getTab,addListenerAndSendMessage) {
-		this.previousTabId=this.activatedTabId
-		this.activatedTabId=tabId
-		if (this.previousTabId!=null && !this.tabStates.get(this.previousTabId)) {
-			const previousTab=await getTab(this.previousTabId)
-			const previousTabState=await getTabState(settings,permissions,previousTab,addListenerAndSendMessage)
-			this.tabStates.set(this.previousTabId,previousTabState)
+	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,addListenerAndSendMessage) {
+		this.previousTab=this.activatedTab
+		this.activatedTab=tab
+		if (this.previousTab!=null && !this.tabStates.get(this.previousTab.id)) {
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,addListenerAndSendMessage)
+			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
-		if (!this.tabStates.get(tabId)) {
-			const tab=await getTab(tabId)
+		if (!this.tabStates.get(tab.id)) {
 			const tabState=await getTabState(settings,permissions,tab,addListenerAndSendMessage)
-			this.tabStates.set(tabId,tabState)
+			this.tabStates.set(tab.id,tabState)
 		}
-		return this.getMessageArgs([tabId]) // active + result of tab switch
+		return this.getMessageArgs([tab.id]) // active + result of tab switch
 	}
 	async updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,addListenerAndSendMessage) {
 		const messagedTabIds=[]
