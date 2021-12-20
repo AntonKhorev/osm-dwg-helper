@@ -68,11 +68,15 @@ export default class StatesManager {
 	 */
 	async pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds) {
 		let oldTabState=this.tabStates.get(tab.id)
+		let tabStateChanged=false
 		if (oldTabState==null) {
+			tabStateChanged=true
 			this.tabStates.set(tab.id,oldTabState={})
 		}
 		const tabState=await getTabState(settings,permissions,tab,messageTab)
-		const tabStateChanged=!isTabStateEqual(oldTabState,tabState)
+		if (!isTabStateEqual(oldTabState,tabState)) {
+			tabStateChanged=true
+		}
 		this.tabStates.set(tab.id,tabState)
 		if (tabStateChanged && tab.active) {
 			messagedTabIds.push(tab.id)

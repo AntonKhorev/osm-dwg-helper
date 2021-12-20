@@ -4,18 +4,26 @@ import makeMessageTabTest from './test-message-tab.js'
 import StatesManager from '../src/states-manager.js'
 
 describe("StatesManager",()=>{
-	it("evaluates tab states of unknown type over clean state",async()=>{
+	it("evaluates tab states of unknown type over clean state then reevaluates them",async()=>{
 		const statesManager=new StatesManager()
-		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
 		const activeTabs=[
 			{id:23, url:`http://example.com/23.html`, active:true},
 			{id:42, url:`http://example.com/42.html`, active:true},
 		]
-		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
-		testAfterTabMessenger()
-		assert.deepEqual(tabIds,[])
-		assert.equal(otherTabId,undefined)
-		assert.deepEqual(tabStates,{})
+		{
+			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[23,42])
+			assert.equal(otherTabId,undefined)
+		}
+		{
+			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[])
+			assert.equal(otherTabId,undefined)
+		}
 	})
 	it("evaluates message tab state over clean state without permissions",async()=>{
 		const settings={

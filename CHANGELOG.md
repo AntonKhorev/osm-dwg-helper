@@ -4,6 +4,7 @@
 
 - Fix: icon was reset after reloading a tab
 - Fix: icons weren't set on startup for browsers without sidebars
+- Fix: panels weren't updated if tab state changed to unknown as a result of settings changes
 
 ## 0.2.4
 
