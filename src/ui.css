@@ -47,6 +47,7 @@ ul:empty::before {
 	text-overflow: ellipsis;
 	max-width: 100%;
 	box-sizing: border-box;
+	cursor: pointer;
 }
 .option:not(:focus-within) .reset {
 	opacity: 0;
