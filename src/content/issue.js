@@ -6,6 +6,7 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 function messageListener(message) {
 	if (message.action=='getIssueData') {
 		const issueData=scrapeIssueData()
+		injectReportedItemPane(issueData)
 		return Promise.resolve(issueData)
 	} else if (message.action=='addComment') {
 		addComment(message.comment)
@@ -68,6 +69,29 @@ function scrapeIssueData() {
 		issueData.reports.push(report)
 	}
 	return issueData
+}
+
+function injectReportedItemPane(issueData) {
+	if (issueData?.reportedItem?.type!='note') return
+	const $existingPane=document.getElementById('osm-dwg-helper-reported-item-pane')
+	if ($existingPane) return
+	const $heading=document.querySelector('.content-heading')
+	if (!$heading) return
+	const paneColor='#7ebc6f'
+	const $pane=document.createElement('div')
+	$pane.id='osm-dwg-helper-reported-item-pane'
+	$pane.style.overflow='auto'
+	$pane.style.resize='vertical'
+	$pane.style.border=`solid 2px ${paneColor}`
+	$pane.style.height='50vh'
+	const $paneFrame=document.createElement('iframe')
+	$paneFrame.src=issueData.reportedItem.url
+	$paneFrame.style.display='block'
+	$paneFrame.style.width='100%'
+	$paneFrame.style.height='100%'
+	$paneFrame.style.border='none'
+	$pane.append($paneFrame)
+	$heading.after($pane)
 }
 
 function parseReportedLink($repotedLink) {

@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.3.0
+
 ## 0.2.5
 
 - Fix: icon was reset after reloading a tab
