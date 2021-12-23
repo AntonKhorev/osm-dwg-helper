@@ -73,25 +73,40 @@ function scrapeIssueData() {
 
 function injectReportedItemPane(issueData) {
 	if (issueData?.reportedItem?.type!='note') return
+	const note=issueData.reportedItem
 	const $existingPane=document.getElementById('osm-dwg-helper-reported-item-pane')
 	if ($existingPane) return
 	const $heading=document.querySelector('.content-heading')
 	if (!$heading) return
 	const paneColor='#7ebc6f'
-	const $pane=document.createElement('div')
+	const paneBorderWidth='2px'
+	const $pane=document.createElement('details')
 	$pane.id='osm-dwg-helper-reported-item-pane'
-	$pane.style.overflow='auto'
-	$pane.style.resize='vertical'
-	$pane.style.border=`solid 2px ${paneColor}`
-	$pane.style.height='50vh'
+	$pane.style.background=paneColor
+	const $paneSummary=document.createElement('summary')
+	$paneSummary.innerText=`Note #${note.id}`
+	$paneSummary.style.maxWidth='960px'
+	$paneSummary.style.padding=`${paneBorderWidth} 20px`
+	$paneSummary.style.margin='auto'
+	$pane.append($paneSummary)
+	const $paneContainer=document.createElement('div')
+	$paneContainer.style.overflow='auto'
+	$paneContainer.style.resize='vertical'
+	$paneContainer.style.border=`solid 2px ${paneColor}`
+	$paneContainer.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
+	$pane.addEventListener('toggle',()=>{
+		if (!$pane.open) return
+		if ($paneFrame.src) return
+		$paneFrame.src=issueData.reportedItem.url
+	})
 	$paneFrame.addEventListener('load',frameLoadListener)
-	$paneFrame.src=issueData.reportedItem.url
 	$paneFrame.style.display='block'
 	$paneFrame.style.width='100%'
 	$paneFrame.style.height='100%'
 	$paneFrame.style.border='none'
-	$pane.append($paneFrame)
+	$paneContainer.append($paneFrame)
+	$pane.append($paneContainer)
 	$heading.after($pane)
 }
 
