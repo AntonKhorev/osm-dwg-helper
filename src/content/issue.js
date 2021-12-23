@@ -92,7 +92,8 @@ function injectReportedItemPane(issueData) {
 	const $paneContainer=document.createElement('div')
 	$paneContainer.style.overflow='auto'
 	$paneContainer.style.resize='vertical'
-	$paneContainer.style.border=`solid 2px ${paneColor}`
+	$paneContainer.style.border=`solid ${paneColor}`
+	$paneContainer.style.borderWidth=`0 ${paneBorderWidth} ${paneBorderWidth}`
 	$paneContainer.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
 	$pane.addEventListener('toggle',()=>{
