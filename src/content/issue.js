@@ -87,10 +87,15 @@ function injectReportedItemPane(issueData) {
 	$pane.id='osm-dwg-helper-reported-item-pane'
 	$pane.style.background=paneColor
 	const $paneSummary=document.createElement('summary')
-	$paneSummary.innerText=getSummaryText()
-	$paneSummary.style.maxWidth='960px'
-	$paneSummary.style.padding=`${paneBorderWidth} 20px`
-	$paneSummary.style.margin='auto'
+	$paneSummary.style.listStyle='none'
+	const $paneSummaryText=document.createElement('span')
+	$paneSummaryText.innerText=getSummaryText()
+	$paneSummaryText.style.display='block'
+	$paneSummaryText.style.maxWidth='960px'
+	$paneSummaryText.style.padding=`${paneBorderWidth} 20px`
+	$paneSummaryText.style.margin='auto'
+	$paneSummaryText.style.background=`no-repeat left url(${makeIcon('closed')})`
+	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')
 	$paneContainer.style.overflow='auto'
@@ -101,6 +106,7 @@ function injectReportedItemPane(issueData) {
 	$paneContainer.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
 	$pane.addEventListener('toggle',()=>{
+		$paneSummaryText.style.backgroundImage=`url(${makeIcon($pane.open?'open':'closed')})`
 		if (!$pane.open) return
 		if ($paneFrame.src) return
 		$paneFrame.src=issueData.reportedItem.url
@@ -170,4 +176,32 @@ function addComment(comment) {
 		$commentTextarea.value+='\n\n'+comment
 	}
 	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
+}
+
+// contains copypaste from icon.js
+function makeIcon(type) {
+	const data=makeSvg(type)
+	return "data:image/svg+xml;charset=utf-8;base64,"+btoa(data)
+}
+
+function makeSvg(type) {
+	let content=drawTabs()
+	if (type=='closed') content+=drawClosedMarker()
+	if (type=='open') content+=drawOpenMarker()
+	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
+}
+
+function drawTabs() {
+	return (
+		`<polygon points='-15,15 -15,-11 -11,-11 -11,-15 7,-15 7,-11 11,-11' fill='rgb(90%,90%,90%)' stroke='rgb(20%,20%,40%)' />`+
+		`<polygon points='15,-15 15,11 11,11 11,15 -7,15 -7,11 -11,11' fill='rgb(40%,40%,40%)' stroke='rgb(10%,10%,20%)' />`
+	)
+}
+
+function drawClosedMarker() {
+	return `<polygon points='-7,-7 11,0 -7,7' stroke='#F44' fill='#FCC' />`
+}
+
+function drawOpenMarker() {
+	return `<polygon points='-7,-7 7,-7 0,11' stroke='#F44' fill='#FCC' />`
 }

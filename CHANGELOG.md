@@ -2,6 +2,8 @@
 
 ## 0.3.0
 
+- Reported item panes injected into issue pages
+
 ## 0.2.5
 
 - Fix: icon was reset after reloading a tab
