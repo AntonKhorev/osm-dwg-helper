@@ -85,6 +85,7 @@ function injectReportedItemPane(issueData) {
 	$pane.style.border=`solid 2px ${paneColor}`
 	$pane.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
+	$paneFrame.addEventListener('load',frameLoadListener)
 	$paneFrame.src=issueData.reportedItem.url
 	$paneFrame.style.display='block'
 	$paneFrame.style.width='100%'
@@ -92,6 +93,15 @@ function injectReportedItemPane(issueData) {
 	$paneFrame.style.border='none'
 	$pane.append($paneFrame)
 	$heading.after($pane)
+}
+
+function frameLoadListener() {
+	const $=this.contentDocument
+	const $header=$.querySelector('header')
+	const $content=$.getElementById('content')
+	if (!$header || !$content) return
+	$header.style.display='none'
+	$content.style.top=0
 }
 
 function parseReportedLink($repotedLink) {
