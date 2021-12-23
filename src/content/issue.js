@@ -72,8 +72,11 @@ function scrapeIssueData() {
 }
 
 function injectReportedItemPane(issueData) {
-	if (issueData?.reportedItem?.type!='note') return
-	const note=issueData.reportedItem
+	const item=issueData.reportedItem
+	if (
+		item?.type!='note' &&
+		item?.type!='user'
+	) return
 	const $existingPane=document.getElementById('osm-dwg-helper-reported-item-pane')
 	if ($existingPane) return
 	const $heading=document.querySelector('.content-heading')
@@ -84,7 +87,7 @@ function injectReportedItemPane(issueData) {
 	$pane.id='osm-dwg-helper-reported-item-pane'
 	$pane.style.background=paneColor
 	const $paneSummary=document.createElement('summary')
-	$paneSummary.innerText=`Note #${note.id}`
+	$paneSummary.innerText=getSummaryText()
 	$paneSummary.style.maxWidth='960px'
 	$paneSummary.style.padding=`${paneBorderWidth} 20px`
 	$paneSummary.style.margin='auto'
@@ -92,6 +95,7 @@ function injectReportedItemPane(issueData) {
 	const $paneContainer=document.createElement('div')
 	$paneContainer.style.overflow='auto'
 	$paneContainer.style.resize='vertical'
+	$paneContainer.style.background='#eee'
 	$paneContainer.style.border=`solid ${paneColor}`
 	$paneContainer.style.borderWidth=`0 ${paneBorderWidth} ${paneBorderWidth}`
 	$paneContainer.style.height='50vh'
@@ -109,6 +113,10 @@ function injectReportedItemPane(issueData) {
 	$paneContainer.append($paneFrame)
 	$pane.append($paneContainer)
 	$heading.after($pane)
+	function getSummaryText() {
+		if (item.type=='note') return `Note #${item.id}`
+		if (item.type=='user') return `User ${item.name}`
+	}
 }
 
 function frameLoadListener() {
