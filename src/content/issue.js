@@ -7,9 +7,9 @@ var paneColor='#7ebc6f'
 var paneBorderWidth=2
 
 function messageListener(message) {
-	if (message.action=='getIssueData') {
+	if (message.action=='getIssueDataAndInjectItemPanes') { // do both things at once to avoid extra messages
 		const issueData=scrapeIssueData()
-		injectReportedItemPane(issueData)
+		injectReportedItemPanes(issueData)
 		return Promise.resolve(issueData)
 	} else if (message.action=='addComment') {
 		addComment(message.comment)
@@ -74,24 +74,28 @@ function scrapeIssueData() {
 	return issueData
 }
 
-function injectReportedItemPane(issueData) {
+function injectReportedItemPanes(issueData) {
 	const item=issueData.reportedItem
-	if (
-		item?.type!='note' &&
-		item?.type!='user'
-	) return
-	const $existingPane=document.getElementById('osm-dwg-helper-reported-item-pane')
+	if (item?.type=='note') {
+		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`)
+	} else if (item?.type=='user') {
+		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,true)
+	}
+}
+
+function injectPane(id,url,title,shrinkable=false) {
+	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
 	const $heading=document.querySelector('.content-heading')
 	if (!$heading) return
 	const $pane=document.createElement('details')
-	$pane.id='osm-dwg-helper-reported-item-pane'
+	$pane.id=id
 	$pane.style.background=paneColor
 	$pane.style.userSelect='none'
 	const $paneSummary=document.createElement('summary')
 	$paneSummary.style.listStyle='none'
 	const $paneSummaryText=document.createElement('span')
-	$paneSummaryText.innerText=getSummaryText()
+	$paneSummaryText.innerText=title
 	$paneSummaryText.style.display='block'
 	$paneSummaryText.style.maxWidth='960px'
 	$paneSummaryText.style.padding=`${paneBorderWidth}px 20px`
@@ -100,7 +104,7 @@ function injectReportedItemPane(issueData) {
 	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')
-	$paneContainer.dataset.itemType=item.type	
+	if (shrinkable) $paneContainer.dataset.shrinkable='yes'
 	$paneContainer.style.overflow='auto'
 	$paneContainer.style.resize='vertical'
 	$paneContainer.style.background='#eee'
@@ -112,7 +116,7 @@ function injectReportedItemPane(issueData) {
 		$paneSummaryText.style.backgroundImage=`url(${makeIcon($pane.open?'open':'closed')})`
 		if (!$pane.open) return
 		if ($paneFrame.src) return
-		$paneFrame.src=issueData.reportedItem.url
+		$paneFrame.src=url
 	})
 	$paneFrame.addEventListener('load',frameLoadListener)
 	$paneFrame.style.display='block'
@@ -122,10 +126,6 @@ function injectReportedItemPane(issueData) {
 	$paneContainer.append($paneFrame)
 	$pane.append($paneContainer)
 	$heading.after($pane)
-	function getSummaryText() {
-		if (item.type=='note') return `Note #${item.id}`
-		if (item.type=='user') return `User ${item.name}`
-	}
 }
 
 function frameLoadListener() {
@@ -137,7 +137,7 @@ function frameLoadListener() {
 	$header.style.display='none'
 	$content.style.top=0
 	const $paneContainer=$paneFrame.parentElement
-	if ($paneContainer.dataset.itemType!='user') return
+	if (!$paneContainer.dataset.shrinkable) return
 	const $contentBody=$.querySelector('.content-body')
 	if ($contentBody && $contentBody.innerText=='') {
 		$contentBody.style.display='none'

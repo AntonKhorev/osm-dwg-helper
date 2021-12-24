@@ -129,7 +129,7 @@ async function getTabState(settings,permissions,tab,messageTab) {
 				url:tab.url
 			}
 			if (permissions.osm) {
-				const contentIssueData=await messageTab(tab.id,'issue',{action:'getIssueData'})
+				const contentIssueData=await messageTab(tab.id,'issue',{action:'getIssueDataAndInjectItemPanes'})
 				if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 			}
 		}

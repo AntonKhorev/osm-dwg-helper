@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.3.1
+
 ## 0.3.0
 
 - Reported item panes injected into issue pages
