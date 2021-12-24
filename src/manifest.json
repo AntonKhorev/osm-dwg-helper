@@ -29,7 +29,9 @@
 
 	"permissions": [
 		"storage",
-		"tabs"
+		"tabs",
+		"webRequest",
+		"webRequestBlocking"
 	],
 	"optional_permissions": [
 		"downloads",

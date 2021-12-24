@@ -81,12 +81,30 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
+function installHeadersReceivedListener(settings,permissions) {
+	browser.webRequest.onHeadersReceived.removeListener(headersReceivedListener)
+	if (!permissions.osmcha) return
+	const osmchaOrigin=settings.osmcha+'*'
+	browser.webRequest.onHeadersReceived.addListener(
+		headersReceivedListener,
+		{urls:[osmchaOrigin],types:['sub_frame']},
+		['blocking','responseHeaders']
+	)
+}
+
+function headersReceivedListener({documentUrl,responseHeaders}) {
+	// TODO check if documentUrl is osm
+	const newResponseHeaders=responseHeaders.filter(({name})=>name.toLowerCase()!='x-frame-options')
+	return {responseHeaders:newResponseHeaders}
+}
+
 init()
 
 async function init() {
 	const activeTabs=await browser.tabs.query({active:true})
 	const activeFocusedTabs=await browser.tabs.query({active:true,lastFocusedWindow:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	installHeadersReceivedListener(settings,permissions)
 	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
@@ -99,6 +117,7 @@ async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	installHeadersReceivedListener(settings,permissions)
 	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
