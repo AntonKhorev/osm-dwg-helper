@@ -3,6 +3,9 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 	window.osmDwgHelperIssueListenerInstalled=true
 }
 
+const paneColor='#7ebc6f'
+const paneBorderWidth=2
+
 function messageListener(message) {
 	if (message.action=='getIssueData') {
 		const issueData=scrapeIssueData()
@@ -81,8 +84,6 @@ function injectReportedItemPane(issueData) {
 	if ($existingPane) return
 	const $heading=document.querySelector('.content-heading')
 	if (!$heading) return
-	const paneColor='#7ebc6f'
-	const paneBorderWidth='2px'
 	const $pane=document.createElement('details')
 	$pane.id='osm-dwg-helper-reported-item-pane'
 	$pane.style.background=paneColor
@@ -92,17 +93,18 @@ function injectReportedItemPane(issueData) {
 	$paneSummaryText.innerText=getSummaryText()
 	$paneSummaryText.style.display='block'
 	$paneSummaryText.style.maxWidth='960px'
-	$paneSummaryText.style.padding=`${paneBorderWidth} 20px`
+	$paneSummaryText.style.padding=`${paneBorderWidth}px 20px`
 	$paneSummaryText.style.margin='auto'
 	$paneSummaryText.style.background=`no-repeat left url(${makeIcon('closed')})`
 	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')
+	$paneContainer.dataset.itemType=item.type	
 	$paneContainer.style.overflow='auto'
 	$paneContainer.style.resize='vertical'
 	$paneContainer.style.background='#eee'
 	$paneContainer.style.border=`solid ${paneColor}`
-	$paneContainer.style.borderWidth=`0 ${paneBorderWidth} ${paneBorderWidth}`
+	$paneContainer.style.borderWidth=`0 ${paneBorderWidth}px ${paneBorderWidth}px`
 	$paneContainer.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
 	$pane.addEventListener('toggle',()=>{
@@ -126,12 +128,22 @@ function injectReportedItemPane(issueData) {
 }
 
 function frameLoadListener() {
-	const $=this.contentDocument
+	const $paneFrame=this
+	const $=$paneFrame.contentDocument
 	const $header=$.querySelector('header')
 	const $content=$.getElementById('content')
 	if (!$header || !$content) return
 	$header.style.display='none'
 	$content.style.top=0
+	const $paneContainer=$paneFrame.parentElement
+	if ($paneContainer.dataset.itemType!='user') return
+	const $contentBody=$.querySelector('.content-body')
+	if ($contentBody && $contentBody.innerText=='') {
+		$contentBody.style.display='none'
+	}
+	if ($paneContainer.clientHeight>$.body.clientHeight) {
+		$paneContainer.style.height=`${$.body.clientHeight+paneBorderWidth}px`
+	}
 }
 
 function parseReportedLink($repotedLink) {
