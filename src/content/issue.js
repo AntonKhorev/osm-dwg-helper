@@ -87,6 +87,7 @@ function injectReportedItemPane(issueData) {
 	const $pane=document.createElement('details')
 	$pane.id='osm-dwg-helper-reported-item-pane'
 	$pane.style.background=paneColor
+	$pane.style.userSelect='none'
 	const $paneSummary=document.createElement('summary')
 	$paneSummary.style.listStyle='none'
 	const $paneSummaryText=document.createElement('span')
