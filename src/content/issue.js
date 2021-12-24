@@ -77,13 +77,14 @@ function scrapeIssueData() {
 function injectReportedItemPanes(issueData) {
 	const item=issueData.reportedItem
 	if (item?.type=='note') {
-		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`)
+		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`,1)
 	} else if (item?.type=='user') {
-		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,true)
+		injectPane('osm-dwg-helper-reported-item-pane-osmcha',getOsmchaUrlByUserName(item.name),`OSMCha for user ${item.name}`)
+		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,2)
 	}
 }
 
-function injectPane(id,url,title,shrinkable=false) {
+function injectPane(id,url,title,frameProcessingLevel=0) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
 	const $heading=document.querySelector('.content-heading')
@@ -104,7 +105,7 @@ function injectPane(id,url,title,shrinkable=false) {
 	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')
-	if (shrinkable) $paneContainer.dataset.shrinkable='yes'
+	if (frameProcessingLevel>=2) $paneContainer.dataset.shrinkable='yes'
 	$paneContainer.style.overflow='auto'
 	$paneContainer.style.resize='vertical'
 	$paneContainer.style.background='#eee'
@@ -118,7 +119,7 @@ function injectPane(id,url,title,shrinkable=false) {
 		if ($paneFrame.src) return
 		$paneFrame.src=url
 	})
-	$paneFrame.addEventListener('load',frameLoadListener)
+	if (frameProcessingLevel>=1) $paneFrame.addEventListener('load',frameLoadListener)
 	$paneFrame.style.display='block'
 	$paneFrame.style.width='100%'
 	$paneFrame.style.height='100%'
@@ -189,6 +190,41 @@ function addComment(comment) {
 		$commentTextarea.value+='\n\n'+comment
 	}
 	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
+}
+
+// osmcha
+
+function getOsmchaUrlByUserId(uid) {
+	const osmchaFilter=osmchaFilterTag`{"uids":${uid},"date__gte":${''}}`
+	return urlTag`https://osmcha.org/?filters=${osmchaFilter}`
+}
+
+function getOsmchaUrlByUserName(userName) {
+	const osmchaFilter=osmchaFilterTag`{"users":${userName},"date__gte":${''}}`
+	return urlTag`https://osmcha.org/?filters=${osmchaFilter}`
+}
+
+function urlTag(strings,...values) {
+	return applyEscapeFnToTemplateString(encodeURIComponent,strings,...values)
+}
+
+function osmchaFilterTag(strings,...values) {
+	const escapeFn=value=>{
+		if (!Array.isArray(value)) value=[value]
+		return '['+value.map(singleValue=>{
+			const cEscapedValue=String(singleValue).replace(/\\/g,'\\\\').replace(/"/g,'\\"')
+			return `{"label":"${cEscapedValue}","value":"${cEscapedValue}"}`
+		}).join(',')+']'
+	}
+	return applyEscapeFnToTemplateString(escapeFn,strings,...values)
+}
+
+function applyEscapeFnToTemplateString(escapeFn,strings,...values) {
+	let result=strings[0]
+	for (let i=0;i<values.length;i++) {
+		result+=escapeFn(values[i])+strings[i+1]
+	}
+	return result
 }
 
 // contains copypaste from icon.js
