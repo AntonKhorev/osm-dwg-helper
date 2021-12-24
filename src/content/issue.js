@@ -3,8 +3,8 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 	window.osmDwgHelperIssueListenerInstalled=true
 }
 
-const paneColor='#7ebc6f'
-const paneBorderWidth=2
+var paneColor='#7ebc6f'
+var paneBorderWidth=2
 
 function messageListener(message) {
 	if (message.action=='getIssueData') {
