@@ -41,8 +41,13 @@ export default function installOrUninstallHeadersReceivedListener(settings,permi
 	}
 }
 
-function headersReceivedListener({documentUrl,responseHeaders}) {
-	if (!documentUrl.startsWith(headersReceivedInstalledForOsm)) return {}
+function headersReceivedListener({documentUrl,initiator,responseHeaders}) {
+	if (documentUrl!=null) { // Firefox
+		if (!documentUrl.startsWith(headersReceivedInstalledForOsm)) return {}
+	} else if (initiator!=null) { // Chrome
+		const installedForOsmOrigin=new URL(headersReceivedInstalledForOsm).origin
+		if (initiator!=installedForOsmOrigin) return {}
+	}
 	const newResponseHeaders=responseHeaders.filter(({name})=>name.toLowerCase()!='x-frame-options')
 	return {responseHeaders:newResponseHeaders}
 }
