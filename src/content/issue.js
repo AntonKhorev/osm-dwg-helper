@@ -4,6 +4,7 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 }
 
 var paneColor='#7ebc6f'
+var paneHoverColor='#dcedd7'
 var paneBorderWidth=2
 
 function messageListener(message) {
@@ -125,6 +126,12 @@ function injectStyle(id) {
 			width: 100%;
 			height: 100%;
 			border: none;
+		}
+		.osm-dwg-helper-pane:hover {
+			background: ${paneHoverColor};
+		}
+		.osm-dwg-helper-pane:hover > div {
+			border-color: ${paneHoverColor};
 		}
 	`
 	$head.append($style)
