@@ -81,19 +81,44 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	}
 })
 
-function installHeadersReceivedListener(settings,permissions) {
-	browser.webRequest.onHeadersReceived.removeListener(headersReceivedListener)
-	if (!permissions.osmcha) return
-	const osmchaOrigin=settings.osmcha+'*'
-	browser.webRequest.onHeadersReceived.addListener(
-		headersReceivedListener,
-		{urls:[osmchaOrigin],types:['sub_frame']},
-		['blocking','responseHeaders']
-	)
+let headersReceivedInstalledForOsm,headersReceivedInstalledForOsmcha
+
+function installOrUninstallHeadersReceivedListener(settings,permissions) {
+	if (permissions.osm && permissions.osmcha) {
+		if (
+			headersReceivedInstalledForOsm!=settings.osm ||
+			headersReceivedInstalledForOsmcha!=settings.osmcha
+		) {
+			uninstall()
+		}
+		install()
+	} else {
+		if (
+			headersReceivedInstalledForOsm!=null ||
+			headersReceivedInstalledForOsmcha!=null
+		) {
+			uninstall()
+		}
+	}
+	function uninstall() {
+		browser.webRequest.onHeadersReceived.removeListener(headersReceivedListener)
+		headersReceivedInstalledForOsm=undefined
+		headersReceivedInstalledForOsmcha=undefined
+	}
+	function install() {
+		headersReceivedInstalledForOsm=settings.osm
+		headersReceivedInstalledForOsmcha=settings.osmcha
+		const osmchaOrigin=settings.osmcha+'*'
+		browser.webRequest.onHeadersReceived.addListener(
+			headersReceivedListener,
+			{urls:[osmchaOrigin],types:['sub_frame']},
+			['blocking','responseHeaders']
+		)
+	}
 }
 
 function headersReceivedListener({documentUrl,responseHeaders}) {
-	// TODO check if documentUrl is osm
+	if (!documentUrl.startsWith(headersReceivedInstalledForOsm)) return {}
 	const newResponseHeaders=responseHeaders.filter(({name})=>name.toLowerCase()!='x-frame-options')
 	return {responseHeaders:newResponseHeaders}
 }
@@ -104,7 +129,7 @@ async function init() {
 	const activeTabs=await browser.tabs.query({active:true})
 	const activeFocusedTabs=await browser.tabs.query({active:true,lastFocusedWindow:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	installHeadersReceivedListener(settings,permissions)
+	installOrUninstallHeadersReceivedListener(settings,permissions)
 	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
@@ -117,7 +142,7 @@ async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
 	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
-	installHeadersReceivedListener(settings,permissions)
+	installOrUninstallHeadersReceivedListener(settings,permissions)
 	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
