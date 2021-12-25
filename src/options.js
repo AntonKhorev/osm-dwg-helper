@@ -260,18 +260,22 @@ let webRequestGrantClickListener,webRequestRecallClickListener
 async function updateWebRequestPermissionsUI() {
 	const permissions={permissions:['webRequest','webRequestBlocking']}
 	const hasPermissions=await browser.permissions.contains(permissions)
+	const okFn=()=>{
+		browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
+		updateWebRequestPermissionsUI()
+	}
 	webRequestGrantClickListener=handleButton(
 		webRequestGrantClickListener,'webrequest-grant',!hasPermissions,
 		()=>browser.permissions.request(permissions),
-		updateWebRequestPermissionsUI,
+		okFn,
 		"Required to inject OSMCha panes in OSM issue pages",
 		"Permissions already granted"
 	)
 	webRequestRecallClickListener=handleButton(
 		webRequestRecallClickListener,'webrequest-recall',hasPermissions,
 		()=>browser.permissions.remove(permissions),
-		updateWebRequestPermissionsUI,
-		"Useful for security reasons",
+		okFn,
+		"Useful for security and performance reasons",
 		"No permissions currently granted"
 	)
 }
