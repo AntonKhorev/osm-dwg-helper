@@ -21,6 +21,7 @@ browser.runtime.onMessage.addListener(message=>{
 
 ;(async()=>{
 	// top-level async is supported, but: https://github.com/mozilla/addons-linter/issues/4020
+	document.getElementById('extension-options').addEventListener('click',()=>browser.runtime.openOptionsPage())
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 	browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
 })()

@@ -4,6 +4,7 @@
 
 - OSMCha pane injected into user issue pages
 - Added controls for webRequest permissions required by OSMCha injection
+- Options button in panels
 
 ## 0.3.0
 

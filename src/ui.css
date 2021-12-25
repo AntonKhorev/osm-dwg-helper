@@ -19,6 +19,19 @@ body {
 	padding: .5rem;
 	min-width: 15rem;
 }
+#extension-options {
+	position: absolute;
+	display: block;
+	padding: 0;
+	top: .5rem;
+	right: .5rem;
+	width: 2em;
+	height: 2em;
+	text-align: center;
+}
+#permissions:not(:empty) {
+	margin-top: 2rem;
+}
 ul:empty::before {
 	content: "(none)";
 	color: gray;
