@@ -75,6 +75,7 @@ function scrapeIssueData() {
 }
 
 function injectReportedItemPanes(issueData,osmcha) {
+	injectStyle('osm-dwg-helper-style')
 	const item=issueData.reportedItem
 	if (item?.type=='note') {
 		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`,1)
@@ -86,6 +87,49 @@ function injectReportedItemPanes(issueData,osmcha) {
 	}
 }
 
+function injectStyle(id) {
+	const $existingStyle=document.getElementById(id)
+	if ($existingStyle) return
+	const $head=document.querySelector('head')
+	if (!$head) return
+	const $style=document.createElement('style')
+	$style.id=id
+	$style.innerHTML=`
+		.osm-dwg-helper-pane {
+			background: ${paneColor};
+			user-select: none;
+		}
+		.osm-dwg-helper-pane > summary {
+			list-style: none;
+		}
+		.osm-dwg-helper-pane > summary > span {
+			display: block;
+			max-width: 960px;
+			padding: ${paneBorderWidth}px 20px;
+			margin: auto;
+			background: no-repeat left url(${makeIcon('closed')});
+		}
+		.osm-dwg-helper-pane[open] > summary > span {
+			background-image: url(${makeIcon('open')});
+		}
+		.osm-dwg-helper-pane > div {
+			overflow: auto;
+			resize: vertical;
+			background: #eee;
+			border: solid ${paneColor};
+			border-width: 0 ${paneBorderWidth}px ${paneBorderWidth}px;
+			height: 50vh;
+		}
+		.osm-dwg-helper-pane > div > iframe {
+			display: block;
+			width: 100%;
+			height: 100%;
+			border: none;
+		}
+	`
+	$head.append($style)
+}
+
 function injectPane(id,url,title,frameProcessingLevel=0) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
@@ -93,39 +137,21 @@ function injectPane(id,url,title,frameProcessingLevel=0) {
 	if (!$heading) return
 	const $pane=document.createElement('details')
 	$pane.id=id
-	$pane.style.background=paneColor
-	$pane.style.userSelect='none'
+	$pane.classList.add('osm-dwg-helper-pane')
 	const $paneSummary=document.createElement('summary')
-	$paneSummary.style.listStyle='none'
 	const $paneSummaryText=document.createElement('span')
 	$paneSummaryText.innerText=title
-	$paneSummaryText.style.display='block'
-	$paneSummaryText.style.maxWidth='960px'
-	$paneSummaryText.style.padding=`${paneBorderWidth}px 20px`
-	$paneSummaryText.style.margin='auto'
-	$paneSummaryText.style.background=`no-repeat left url(${makeIcon('closed')})`
 	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')
 	if (frameProcessingLevel>=2) $paneContainer.dataset.shrinkable='yes'
-	$paneContainer.style.overflow='auto'
-	$paneContainer.style.resize='vertical'
-	$paneContainer.style.background='#eee'
-	$paneContainer.style.border=`solid ${paneColor}`
-	$paneContainer.style.borderWidth=`0 ${paneBorderWidth}px ${paneBorderWidth}px`
-	$paneContainer.style.height='50vh'
 	const $paneFrame=document.createElement('iframe')
 	$pane.addEventListener('toggle',()=>{
-		$paneSummaryText.style.backgroundImage=`url(${makeIcon($pane.open?'open':'closed')})`
 		if (!$pane.open) return
 		if ($paneFrame.src) return
 		$paneFrame.src=url
 	})
 	if (frameProcessingLevel>=1) $paneFrame.addEventListener('load',frameLoadListener)
-	$paneFrame.style.display='block'
-	$paneFrame.style.width='100%'
-	$paneFrame.style.height='100%'
-	$paneFrame.style.border='none'
 	$paneContainer.append($paneFrame)
 	$pane.append($paneContainer)
 	$heading.after($pane)
