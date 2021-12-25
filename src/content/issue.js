@@ -76,15 +76,23 @@ function scrapeIssueData() {
 }
 
 function injectReportedItemPanes(issueData,osmcha) {
-	injectStyle('osm-dwg-helper-style')
 	const item=issueData.reportedItem
+	if (item?.type!='note' && item?.type!='user') {
+		removePane('osm-dwg-helper-reported-item-pane')
+		removePane('osm-dwg-helper-reported-item-pane-osmcha')
+		return
+	}
+	injectStyle('osm-dwg-helper-style')
 	if (item?.type=='note') {
 		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`,1)
+		removePane('osm-dwg-helper-reported-item-pane-osmcha')
 	} else if (item?.type=='user') {
+		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,2)
 		if (osmcha) {
 			injectPane('osm-dwg-helper-reported-item-pane-osmcha',getOsmchaUrlByUserName(osmcha,item.name),`OSMCha for user ${item.name}`)
+		} else {
+			removePane('osm-dwg-helper-reported-item-pane-osmcha')
 		}
-		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,2)
 	}
 }
 
@@ -137,11 +145,17 @@ function injectStyle(id) {
 	$head.append($style)
 }
 
+function removePane(id) {
+	const $existingPane=document.getElementById(id)
+	if (!$existingPane) return
+	$existingPane.remove()
+}
+
 function injectPane(id,url,title,frameProcessingLevel=0) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
-	const $heading=document.querySelector('.content-heading')
-	if (!$heading) return
+	const $contentBody=document.querySelector('.content-body')
+	if (!$contentBody) return
 	const $pane=document.createElement('details')
 	$pane.id=id
 	$pane.classList.add('osm-dwg-helper-pane')
@@ -161,7 +175,7 @@ function injectPane(id,url,title,frameProcessingLevel=0) {
 	if (frameProcessingLevel>=1) $paneFrame.addEventListener('load',frameLoadListener)
 	$paneContainer.append($paneFrame)
 	$pane.append($paneContainer)
-	$heading.after($pane)
+	$contentBody.before($pane)
 }
 
 function frameLoadListener() {
