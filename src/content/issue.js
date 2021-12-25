@@ -9,7 +9,7 @@ var paneBorderWidth=2
 function messageListener(message) {
 	if (message.action=='getIssueDataAndInjectItemPanes') { // do both things at once to avoid extra messages
 		const issueData=scrapeIssueData()
-		injectReportedItemPanes(issueData)
+		injectReportedItemPanes(issueData,message.osmcha)
 		return Promise.resolve(issueData)
 	} else if (message.action=='addComment') {
 		addComment(message.comment)
@@ -74,12 +74,14 @@ function scrapeIssueData() {
 	return issueData
 }
 
-function injectReportedItemPanes(issueData) {
+function injectReportedItemPanes(issueData,osmcha) {
 	const item=issueData.reportedItem
 	if (item?.type=='note') {
 		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`,1)
 	} else if (item?.type=='user') {
-		injectPane('osm-dwg-helper-reported-item-pane-osmcha',getOsmchaUrlByUserName(item.name),`OSMCha for user ${item.name}`)
+		if (osmcha) {
+			injectPane('osm-dwg-helper-reported-item-pane-osmcha',getOsmchaUrlByUserName(osmcha,item.name),`OSMCha for user ${item.name}`)
+		}
 		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,2)
 	}
 }
@@ -192,39 +194,23 @@ function addComment(comment) {
 	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
 }
 
-// osmcha
+function getOsmchaUrlByUserId(osmcha,uid) {
+	const osmchaFilter=`{"uids":${escapeOsmchaFilterValue(uid)},"date__gte":${escapeOsmchaFilterValue('')}}`
+	return `${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
 
-function getOsmchaUrlByUserId(uid) {
-	const osmchaFilter=osmchaFilterTag`{"uids":${uid},"date__gte":${''}}`
-	return urlTag`https://osmcha.org/?filters=${osmchaFilter}`
 }
 
-function getOsmchaUrlByUserName(userName) {
-	const osmchaFilter=osmchaFilterTag`{"users":${userName},"date__gte":${''}}`
-	return urlTag`https://osmcha.org/?filters=${osmchaFilter}`
+function getOsmchaUrlByUserName(osmcha,userName) {
+	const osmchaFilter=`{"users":${escapeOsmchaFilterValue(userName)},"date__gte":${escapeOsmchaFilterValue('')}}`
+	return `${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
 }
 
-function urlTag(strings,...values) {
-	return applyEscapeFnToTemplateString(encodeURIComponent,strings,...values)
-}
-
-function osmchaFilterTag(strings,...values) {
-	const escapeFn=value=>{
-		if (!Array.isArray(value)) value=[value]
-		return '['+value.map(singleValue=>{
-			const cEscapedValue=String(singleValue).replace(/\\/g,'\\\\').replace(/"/g,'\\"')
-			return `{"label":"${cEscapedValue}","value":"${cEscapedValue}"}`
-		}).join(',')+']'
-	}
-	return applyEscapeFnToTemplateString(escapeFn,strings,...values)
-}
-
-function applyEscapeFnToTemplateString(escapeFn,strings,...values) {
-	let result=strings[0]
-	for (let i=0;i<values.length;i++) {
-		result+=escapeFn(values[i])+strings[i+1]
-	}
-	return result
+function escapeOsmchaFilterValue(value) {
+	if (!Array.isArray(value)) value=[value]
+	return '['+value.map(singleValue=>{
+		const cEscapedValue=String(singleValue).replace(/\\/g,'\\\\').replace(/"/g,'\\"')
+		return `{"label":"${cEscapedValue}","value":"${cEscapedValue}"}`
+	}).join(',')+']'
 }
 
 // contains copypaste from icon.js

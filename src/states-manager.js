@@ -129,7 +129,10 @@ async function getTabState(settings,permissions,tab,messageTab) {
 				url:tab.url
 			}
 			if (permissions.osm) {
-				const contentIssueData=await messageTab(tab.id,'issue',{action:'getIssueDataAndInjectItemPanes'})
+				const contentIssueData=await messageTab(tab.id,'issue',{
+					action:'getIssueDataAndInjectItemPanes',
+					osmcha:settings.osmcha // let it run even w/o permission b/c other extension may grant it
+				})
 				if (contentIssueData) Object.assign(tabState.issueData,contentIssueData)
 			}
 		}
