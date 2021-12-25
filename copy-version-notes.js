@@ -9,14 +9,17 @@ const lines=await getFileLines('CHANGELOG.md')
 
 let contents=''
 let inList=false
+const majorMinorVersionSet=new Set()
 for (const line of lines) {
 	let match
-	if (match=line.match(/^##\s+(.*)/)) {
+	if (match=line.match(/^##\s+((\d+\.\d+)\.\d+)/)) {
 		if (inList) {
 			inList=false
 			contents+=`</ul>\n`
 		}
-		const [,header]=match
+		const [,header,majorMinorVersion]=match
+		majorMinorVersionSet.add(majorMinorVersion)
+		if (majorMinorVersionSet.size>2) break
 		contents+=`<strong>${processMarkdown(header)}</strong>\n`
 	} else if (match=line.match(/^-\s+(.*)/)) {
 		if (!inList) {
@@ -30,6 +33,7 @@ for (const line of lines) {
 if (inList) {
 	contents+=`</ul>\n`
 }
+contents+=`<a href="https://raw.githubusercontent.com/AntonKhorev/osm-dwg-helper/master/CHANGELOG.md">Full changelog</a>\n`
 
 await clipboard.write(contents)
 
