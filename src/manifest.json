@@ -29,13 +29,13 @@
 
 	"permissions": [
 		"storage",
-		"tabs",
-		"webRequest",
-		"webRequestBlocking"
+		"tabs"
 	],
 	"optional_permissions": [
 		"downloads",
-		"<all_urls>"
+		"<all_urls>",
+		"webRequest",
+		"webRequestBlocking"
 	],
 
 	"browser_specific_settings": {

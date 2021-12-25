@@ -201,12 +201,18 @@ let originGrantClickListener,originRecallClickListener
 
 function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
 	originGrantClickListener=handleButton(
-		originGrantClickListener,'request',
-		missingOrigins,'origin-grant',"Permissions already granted"
+		originGrantClickListener,'origin-grant',missingOrigins.length>0,
+		()=>browser.permissions.request({origins:missingOrigins}),
+		()=>browser.runtime.sendMessage({action:'reportPermissionsWereChanged'}),
+		"Required for most operations",
+		"Permissions already granted"
 	)
 	originRecallClickListener=handleButton(
-		originRecallClickListener,'remove',
-		existingOrigins,'origin-recall',"No permissions currently granted"
+		originRecallClickListener,'origin-recall',existingOrigins.length>0,
+		()=>browser.permissions.remove({origins:existingOrigins}),
+		()=>browser.runtime.sendMessage({action:'reportPermissionsWereChanged'}),
+		"Useful after changing settings",
+		"No permissions currently granted"
 	)
 	const $currentList=document.getElementById('origin-current')
 	$currentList.innerHTML=''
@@ -215,27 +221,28 @@ function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
 		$li.innerText=origin
 		$currentList.append($li)
 	}
-	function handleButton(listener,browserPermissionsFnName,origins,id,disabledTitle) {
-		const $button=document.getElementById(id)
-		if (listener) {
-			$button.removeEventListener('click',listener)
-			listener=undefined
-		}
-		if (origins<=0) {
-			$button.disabled=true
-			$button.title=disabledTitle
-		} else {
-			$button.disabled=false
-			$button.title=""
-			listener=()=>{
-				browser.permissions[browserPermissionsFnName]({origins}).then(ok=>{
-					if (ok) browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
-				})
-			}
-			$button.addEventListener('click',listener)
-		}
-		return listener
+}
+
+function handleButton(listener,id,enabled,permissionFn,okFn,enabledTitle='',disabledTitle='') {
+	const $button=document.getElementById(id)
+	if (listener) {
+		$button.removeEventListener('click',listener)
+		listener=undefined
 	}
+	if (enabled) {
+		$button.disabled=false
+		$button.title=enabledTitle
+		listener=()=>{
+			permissionFn().then(ok=>{
+				if (ok) okFn()
+			})
+		}
+		$button.addEventListener('click',listener)
+	} else {
+		$button.disabled=true
+		$button.title=disabledTitle
+	}
+	return listener
 }
 
 function updateOngoingActionsWarning(tabActionEntries) {
@@ -245,3 +252,28 @@ function updateOngoingActionsWarning(tabActionEntries) {
 	if (n==0) return
 	$warning.innerText=`Changing the settings will cancel ${n} ongoing action${n>1?'s':''}`
 }
+
+// webRequest permissions managed fully by this module
+
+let webRequestGrantClickListener,webRequestRecallClickListener
+
+async function updateWebRequestPermissionsUI() {
+	const permissions={permissions:['webRequest','webRequestBlocking']}
+	const hasPermissions=await browser.permissions.contains(permissions)
+	webRequestGrantClickListener=handleButton(
+		webRequestGrantClickListener,'webrequest-grant',!hasPermissions,
+		()=>browser.permissions.request(permissions),
+		updateWebRequestPermissionsUI,
+		"Required to inject OSMCha panes in OSM issue pages",
+		"Permissions already granted"
+	)
+	webRequestRecallClickListener=handleButton(
+		webRequestRecallClickListener,'webrequest-recall',hasPermissions,
+		()=>browser.permissions.remove(permissions),
+		updateWebRequestPermissionsUI,
+		"Useful for security reasons",
+		"No permissions currently granted"
+	)
+}
+
+updateWebRequestPermissionsUI()
