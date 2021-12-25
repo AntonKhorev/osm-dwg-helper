@@ -84,12 +84,15 @@ function injectReportedItemPanes(issueData,osmcha) {
 	}
 	injectStyle('osm-dwg-helper-style')
 	if (item?.type=='note') {
-		injectPane('osm-dwg-helper-reported-item-pane',item.url,`Note #${item.id}`,1)
+		injectPane('osm-dwg-helper-reported-item-pane',1,item.url,`Note #${item.id}`)
 		removePane('osm-dwg-helper-reported-item-pane-osmcha')
 	} else if (item?.type=='user') {
-		injectPane('osm-dwg-helper-reported-item-pane',item.url,`User ${item.name}`,2)
+		injectPane('osm-dwg-helper-reported-item-pane',2,item.url,`User ${item.name}`)
 		if (osmcha) {
-			injectPane('osm-dwg-helper-reported-item-pane-osmcha',getOsmchaUrlByUserName(osmcha,item.name),`OSMCha for user ${item.name}`)
+			injectPane(
+				'osm-dwg-helper-reported-item-pane-osmcha',0,getOsmchaUrlByUserName(osmcha,item.name),
+				`OSMCha for user ${item.name}`,`The contents won't load unless web request permission is granted in the options or the browser is configured in some way to ignore x-frame-options headers`
+			)
 		} else {
 			removePane('osm-dwg-helper-reported-item-pane-osmcha')
 		}
@@ -151,7 +154,7 @@ function removePane(id) {
 	$existingPane.remove()
 }
 
-function injectPane(id,url,title,frameProcessingLevel=0) {
+function injectPane(id,frameProcessingLevel,url,title,info) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
 	const $contentBody=document.querySelector('.content-body')
@@ -162,6 +165,12 @@ function injectPane(id,url,title,frameProcessingLevel=0) {
 	const $paneSummary=document.createElement('summary')
 	const $paneSummaryText=document.createElement('span')
 	$paneSummaryText.innerText=title
+	if (info!=null) {
+		$paneSummaryInfo=document.createElement('span')
+		$paneSummaryInfo.innerText='ℹ️'
+		$paneSummaryInfo.title=info
+		$paneSummaryText.append(' ',$paneSummaryInfo)
+	}
 	$paneSummary.append($paneSummaryText)
 	$pane.append($paneSummary)
 	const $paneContainer=document.createElement('div')

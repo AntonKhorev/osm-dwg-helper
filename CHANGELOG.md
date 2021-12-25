@@ -2,6 +2,9 @@
 
 ## 0.3.1
 
+- OSMCha pane injected into user issue pages
+- Added controls for webRequest permissions required by OSMCha injection
+
 ## 0.3.0
 
 - Reported item panes injected into issue pages
