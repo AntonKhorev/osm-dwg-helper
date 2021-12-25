@@ -3,10 +3,6 @@ if (!window.osmDwgHelperIssueListenerInstalled) {
 	window.osmDwgHelperIssueListenerInstalled=true
 }
 
-var paneColor='#7ebc6f'
-var paneHoverColor='#dcedd7'
-var paneBorderWidth=2
-
 function messageListener(message) {
 	if (message.action=='getIssueDataAndInjectItemPanes') { // do both things at once to avoid extra messages
 		const issueData=scrapeIssueData()
@@ -100,6 +96,9 @@ function injectReportedItemPanes(issueData,osmcha) {
 }
 
 function injectStyle(id) {
+	const paneColor='#7ebc6f'
+	const paneHoverColor='#dcedd7'
+	const paneBorderWidth=2
 	const $existingStyle=document.getElementById(id)
 	if ($existingStyle) return
 	const $head=document.querySelector('head')
@@ -188,6 +187,7 @@ function injectPane(id,frameProcessingLevel,url,title,info) {
 }
 
 function frameLoadListener() {
+	const paneBorderWidth=2
 	const $paneFrame=this
 	const $=$paneFrame.contentDocument
 	const $header=$.querySelector('header')
