@@ -1,5 +1,6 @@
 import settingsData from './settings-data.js'
 import SettingsManager from './settings-manager.js'
+import makePermissionsButtonPairHandler from './permissions-buttons.js'
 
 const settingsManager=new SettingsManager(settingsData)
 
@@ -86,6 +87,7 @@ function updateResetButton($reset,$input) {
 
 updateSettingsUI()
 browser.runtime.sendMessage({action:'registerNewOptionsPage'})
+updateWebRequestPermissionsUI()
 
 function readSettingsFile() {
 	const [file]=this.files
@@ -197,22 +199,17 @@ async function updateSettingsUI() {
 	}
 }
 
-let originGrantClickListener,originRecallClickListener
+const originButtonPairHandler=makePermissionsButtonPairHandler(
+	'origin',
+	"Required for most operations",
+	"Useful after changing settings",
+	()=>browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
+)
 
 function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
-	originGrantClickListener=handleButton(
-		originGrantClickListener,'origin-grant',missingOrigins.length>0,
-		()=>browser.permissions.request({origins:missingOrigins}),
-		()=>browser.runtime.sendMessage({action:'reportPermissionsWereChanged'}),
-		"Required for most operations",
-		"Permissions already granted"
-	)
-	originRecallClickListener=handleButton(
-		originRecallClickListener,'origin-recall',existingOrigins.length>0,
-		()=>browser.permissions.remove({origins:existingOrigins}),
-		()=>browser.runtime.sendMessage({action:'reportPermissionsWereChanged'}),
-		"Useful after changing settings",
-		"No permissions currently granted"
+	originButtonPairHandler(
+		missingOrigins.length>0,existingOrigins.length>0,
+		{origins:missingOrigins},{origins:existingOrigins}
 	)
 	const $currentList=document.getElementById('origin-current')
 	$currentList.innerHTML=''
@@ -223,26 +220,23 @@ function updateOriginPermissionsUI(missingOrigins,existingOrigins) {
 	}
 }
 
-function handleButton(listener,id,enabled,permissionFn,okFn,enabledTitle='',disabledTitle='') {
-	const $button=document.getElementById(id)
-	if (listener) {
-		$button.removeEventListener('click',listener)
-		listener=undefined
+const webRequestButtonPairHandler=makePermissionsButtonPairHandler(
+	'webrequest',
+	"Required to inject OSMCha panes in OSM issue pages",
+	"Useful for security and performance reasons",
+	()=>{
+		browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
+		updateWebRequestPermissionsUI()
 	}
-	if (enabled) {
-		$button.disabled=false
-		$button.title=enabledTitle
-		listener=()=>{
-			permissionFn().then(ok=>{
-				if (ok) okFn()
-			})
-		}
-		$button.addEventListener('click',listener)
-	} else {
-		$button.disabled=true
-		$button.title=disabledTitle
-	}
-	return listener
+)
+
+async function updateWebRequestPermissionsUI() {
+	const permissions={permissions:['webRequest','webRequestBlocking']}
+	const hasPermissions=await browser.permissions.contains(permissions)
+	webRequestButtonPairHandler(
+		!hasPermissions,hasPermissions,
+		permissions,permissions
+	)
 }
 
 function updateOngoingActionsWarning(tabActionEntries) {
@@ -252,32 +246,3 @@ function updateOngoingActionsWarning(tabActionEntries) {
 	if (n==0) return
 	$warning.innerText=`Changing the settings will cancel ${n} ongoing action${n>1?'s':''}`
 }
-
-// webRequest permissions managed fully by this module
-
-let webRequestGrantClickListener,webRequestRecallClickListener
-
-async function updateWebRequestPermissionsUI() {
-	const permissions={permissions:['webRequest','webRequestBlocking']}
-	const hasPermissions=await browser.permissions.contains(permissions)
-	const okFn=()=>{
-		browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
-		updateWebRequestPermissionsUI()
-	}
-	webRequestGrantClickListener=handleButton(
-		webRequestGrantClickListener,'webrequest-grant',!hasPermissions,
-		()=>browser.permissions.request(permissions),
-		okFn,
-		"Required to inject OSMCha panes in OSM issue pages",
-		"Permissions already granted"
-	)
-	webRequestRecallClickListener=handleButton(
-		webRequestRecallClickListener,'webrequest-recall',hasPermissions,
-		()=>browser.permissions.remove(permissions),
-		okFn,
-		"Useful for security and performance reasons",
-		"No permissions currently granted"
-	)
-}
-
-updateWebRequestPermissionsUI()
