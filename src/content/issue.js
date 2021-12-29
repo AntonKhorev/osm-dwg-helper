@@ -63,12 +63,43 @@ function scrapeIssueData() {
 				}
 			} else {
 				report.text.push($p.innerText)
+				markChangesetLinks($p)
 			}
 			iParagraph++
 		}
 		issueData.reports.push(report)
 	}
 	return issueData
+}
+
+function markChangesetLinks($reportText) {
+	let input=$reportText.innerText
+	$reportText.innerHTML=''
+	let match
+	while (match=input.match(/(^|.*\s)(\S*\/changeset\/(\d+))(.*)$/)) {
+		const [,before,changesetText,changesetId,after]=match
+		if (before) $reportText.append(before)
+		const $a=document.createElement('a')
+		$a.innerText=changesetText
+		$a.classList.add('osm-dwg-helper-changeset-anchor')
+		$a.dataset.changesetId=changesetId
+		$a.addEventListener('click',markedChangesetLinkClickHandler)
+		$reportText.append($a)
+		input=after
+	}
+	if (input) $reportText.append(input)
+}
+
+function markedChangesetLinkClickHandler() {
+	const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
+	if (!$osmchaPane) return
+	const changesetId=this.dataset.changesetId
+	const osmcha=$osmchaPane.dataset.osmcha
+	const osmchaFilter=$osmchaPane.dataset.osmchaFilter
+	const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}?filters=${encodeURIComponent(osmchaFilter)}`
+	const $osmchaIframe=$osmchaPane.querySelector('iframe')
+	$osmchaIframe.src=osmchaUrl
+	$osmchaPane.open=true
 }
 
 function injectReportedItemPanes(issueData,osmcha) {
@@ -80,13 +111,15 @@ function injectReportedItemPanes(issueData,osmcha) {
 	}
 	injectStyle('osm-dwg-helper-style')
 	if (item?.type=='note') {
-		injectPane('osm-dwg-helper-reported-item-pane',1,item.url,`Note #${item.id}`)
+		injectPane('osm-dwg-helper-reported-item-pane',1,item.url,{},`Note #${item.id}`)
 		removePane('osm-dwg-helper-reported-item-pane-osmcha')
 	} else if (item?.type=='user') {
-		injectPane('osm-dwg-helper-reported-item-pane',2,item.url,`User ${item.name}`)
+		injectPane('osm-dwg-helper-reported-item-pane',2,item.url,{},`User ${item.name}`)
 		if (osmcha) {
+			const osmchaFilter=getOsmchaFilterByUserName(item.name)
+			const osmchaUrl=`${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
 			injectPane(
-				'osm-dwg-helper-reported-item-pane-osmcha',0,getOsmchaUrlByUserName(osmcha,item.name),
+				'osm-dwg-helper-reported-item-pane-osmcha',0,osmchaUrl,{osmcha,osmchaFilter},
 				`OSMCha for user ${item.name}`,`The contents won't load unless web request permission is granted in the options or the browser is configured in some way to ignore x-frame-options headers`
 			)
 		} else {
@@ -143,6 +176,15 @@ function injectStyle(id) {
 		.osm-dwg-helper-pane:hover > div {
 			border-color: ${paneHoverColor};
 		}
+		.osm-dwg-helper-changeset-anchor {
+			all: unset;
+			text-decoration: underline dashed;
+		}
+		.osm-dwg-helper-changeset-anchor:hover {
+			all: unset;
+			cursor: pointer;
+			text-decoration: underline;
+		}
 	`
 	$head.append($style)
 }
@@ -153,7 +195,7 @@ function removePane(id) {
 	$existingPane.remove()
 }
 
-function injectPane(id,frameProcessingLevel,url,title,info) {
+function injectPane(id,frameProcessingLevel,url,data,title,info) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
 	const $contentBody=document.querySelector('.content-body')
@@ -183,6 +225,9 @@ function injectPane(id,frameProcessingLevel,url,title,info) {
 	if (frameProcessingLevel>=1) $paneFrame.addEventListener('load',frameLoadListener)
 	$paneContainer.append($paneFrame)
 	$pane.append($paneContainer)
+	for (const [k,v] of Object.entries(data)) {
+		$pane.dataset[k]=v
+	}
 	$contentBody.before($pane)
 }
 
@@ -250,15 +295,12 @@ function addComment(comment) {
 	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
 }
 
-function getOsmchaUrlByUserId(osmcha,uid) {
-	const osmchaFilter=`{"uids":${escapeOsmchaFilterValue(uid)},"date__gte":${escapeOsmchaFilterValue('')}}`
-	return `${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
-
+function getOsmchaFilterByUserId(uid) {
+	return `{"uids":${escapeOsmchaFilterValue(uid)},"date__gte":${escapeOsmchaFilterValue('')}}`
 }
 
-function getOsmchaUrlByUserName(osmcha,userName) {
-	const osmchaFilter=`{"users":${escapeOsmchaFilterValue(userName)},"date__gte":${escapeOsmchaFilterValue('')}}`
-	return `${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
+function getOsmchaFilterByUserName(userName) {
+	return `{"users":${escapeOsmchaFilterValue(userName)},"date__gte":${escapeOsmchaFilterValue('')}}`
 }
 
 function escapeOsmchaFilterValue(value) {

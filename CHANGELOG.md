@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.2
+
+- Open changesets from report texts in OSMCha on user issue pages
+
 ## 0.3.1
 
 - OSMCha pane injected into user issue pages
