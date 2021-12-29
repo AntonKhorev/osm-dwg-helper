@@ -97,8 +97,10 @@ function markedChangesetLinkClickHandler() {
 	const osmcha=$osmchaPane.dataset.osmcha
 	const osmchaFilter=$osmchaPane.dataset.osmchaFilter
 	const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}?filters=${encodeURIComponent(osmchaFilter)}`
-	const $osmchaIframe=$osmchaPane.querySelector('iframe')
-	$osmchaIframe.src=osmchaUrl
+	const $oldOsmchaFrame=$osmchaPane.querySelector('iframe')
+	const $osmchaFrame=document.createElement('iframe')
+	$osmchaFrame.src=osmchaUrl
+	$oldOsmchaFrame.replaceWith($osmchaFrame) // have to replace the iframe, otherwise scr change may get rejected by CSP
 	$osmchaPane.open=true
 }
 
