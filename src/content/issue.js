@@ -101,7 +101,7 @@ function markedChangesetLinkClickHandler(ev) {
 	const changesetId=this.dataset.changesetId
 	const osmcha=$osmchaPane.dataset.osmcha
 	const osmchaFilter=$osmchaPane.dataset.osmchaFilter
-	const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}?filters=${encodeURIComponent(osmchaFilter)}`
+	const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}/?filters=${encodeURIComponent(osmchaFilter)}`
 	const $oldOsmchaFrame=$osmchaPane.querySelector('iframe')
 	const $osmchaFrame=document.createElement('iframe')
 	$osmchaFrame.src=osmchaUrl
