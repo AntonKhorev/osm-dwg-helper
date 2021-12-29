@@ -83,6 +83,10 @@ function markChangesetLinks($reportText) {
 		$a.innerText=changesetText
 		$a.classList.add('osm-dwg-helper-changeset-anchor')
 		$a.dataset.changesetId=changesetId
+		try {
+			const validUrl=new URL(changesetText)
+			$a.href=changesetText
+		} catch {}
 		$a.addEventListener('click',markedChangesetLinkClickHandler)
 		$reportText.append($a)
 		input=after
@@ -90,9 +94,10 @@ function markChangesetLinks($reportText) {
 	if (input) $reportText.append(input)
 }
 
-function markedChangesetLinkClickHandler() {
+function markedChangesetLinkClickHandler(ev) {
 	const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
 	if (!$osmchaPane) return
+	ev.preventDefault()
 	const changesetId=this.dataset.changesetId
 	const osmcha=$osmchaPane.dataset.osmcha
 	const osmchaFilter=$osmchaPane.dataset.osmchaFilter
@@ -102,6 +107,7 @@ function markedChangesetLinkClickHandler() {
 	$osmchaFrame.src=osmchaUrl
 	$oldOsmchaFrame.replaceWith($osmchaFrame) // have to replace the iframe, otherwise scr change may get rejected by CSP
 	$osmchaPane.open=true
+	$osmchaPane.scrollIntoView()
 }
 
 function injectReportedItemPanes(issueData,osmcha) {
@@ -179,11 +185,9 @@ function injectStyle(id) {
 			border-color: ${paneHoverColor};
 		}
 		.osm-dwg-helper-changeset-anchor {
-			all: unset;
 			text-decoration: underline dashed;
 		}
 		.osm-dwg-helper-changeset-anchor:hover {
-			all: unset;
 			cursor: pointer;
 			text-decoration: underline;
 		}
