@@ -76,7 +76,7 @@ function markChangesetLinks($reportText) {
 	let input=$reportText.innerText
 	$reportText.innerHTML=''
 	let match
-	while (match=input.match(/(^|.*\s)(\S*\/changeset\/(\d+))(.*)$/)) {
+	while (match=input.match(/(^|.*?\s)(\S*\/changeset\/(\d+))(.*)$/)) {
 		const [,before,changesetText,changesetId,after]=match
 		if (before) $reportText.append(before)
 		const $a=document.createElement('a')
