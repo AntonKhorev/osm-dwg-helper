@@ -2,7 +2,7 @@
 
 ## Build and install
 
-At this point it's still possible to run the extension without building on Firefox as a temporary extension. The building process is there to add [the polyfill for extension api](https://github.com/mozilla/webextension-polyfill) and to satisfy the linter during the submission process on [addons.mozilla.org](https://addons.mozilla.org/developers/).
+At this point it's still possible to run the extension without building on Firefox as a temporary extension. The building process is there to add [the polyfill for extension api](https://github.com/mozilla/webextension-polyfill) and to convert svg icons to png. The last operation is the largest dev dependency to be installed because it requires a Chromium build ran by [Puppeteer](https://github.com/puppeteer/puppeteer).
 
 ### Install as a temporary extension in Firefox
 
