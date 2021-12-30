@@ -1,6 +1,6 @@
 import * as templateEngine from './template-engine.js'
 
-export default (browser,window,document)=>($actions,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{
+export default (document,closeWindow,createTab,sendMessage)=>($actions,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{
 	if (settings.osm) {
 		addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
 	}
@@ -17,12 +17,12 @@ export default (browser,window,document)=>($actions,settings,permissions,tabId,t
 				text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 			}
 			if (issueData.reportedItem?.type=='user') {
-				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>browser.runtime.sendMessage({
+				addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
 					action:'initiateNewTabAction',
 					tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
 				})))
 			}
-			addSubAction(makeLink(createTicketUrl,text,()=>browser.runtime.sendMessage({
+			addSubAction(makeLink(createTicketUrl,text,()=>sendMessage({
 				action:'initiateNewTabAction',
 				tabAction:['CreateIssueTicket',tabId,issueData]
 			})))
@@ -167,7 +167,7 @@ export default (browser,window,document)=>($actions,settings,permissions,tabId,t
 					return makeLink(
 						`${settings.osm}messages/${mailbox}`,
 						'as '+addAs,
-						()=>browser.runtime.sendMessage({
+						()=>sendMessage({
 							action:'initiateNewTabAction',
 							tabAction:['GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox]
 						})
@@ -194,17 +194,17 @@ export default (browser,window,document)=>($actions,settings,permissions,tabId,t
 		return makeLink(
 			`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(ticketId)}`,
 			'as '+addAs,
-			()=>browser.runtime.sendMessage(message)
+			()=>sendMessage(message)
 		)
 	}
-	function makeLink(href,text,clickHandler=()=>browser.tabs.create({openerTabId:tabId,url:href})) {
+	function makeLink(href,text,clickHandler=()=>createTab({openerTabId:tabId,url:href})) {
 		const $a=document.createElement('a')
 		$a.href=href
 		if (text!=null) $a.innerText=text
 		$a.addEventListener('click',ev=>{
 			ev.preventDefault()
 			clickHandler()
-			window.close() // for popup; does nothing on sidebar
+			closeWindow() // for popup; does nothing on sidebar
 		})
 		return $a
 	}

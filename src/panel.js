@@ -95,7 +95,12 @@ async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tab
 	]
 }
 
-const writeNewActionsMenu=makeNewActionsMenuWriter(browser,window,document)
+const writeNewActionsMenu=makeNewActionsMenuWriter(
+	document,
+	()=>window.close(),
+	(createProperties)=>browser.tabs.create(createProperties),
+	(message)=>browser.runtime.sendMessage(message)
+)
 
 function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTabState) {
 	const $actions=document.getElementById('actions-new')
