@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.4.0
+
+- Add unread reports to a ticket
+
 ## 0.3.2
 
 - Open changesets from report texts in OSMCha on user issue pages

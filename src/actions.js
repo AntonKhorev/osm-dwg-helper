@@ -194,6 +194,23 @@ class AddArticleToTicket extends Action {
 	}
 }
 
+export class AddUnreadReportsToTicket extends AddArticleToTicket {
+	constructor(ticketId,addAs,issueData) {
+		super(ticketId,addAs)
+		this.issueData=issueData
+	}
+	getOngoingActionMenuEntry() {
+		return [
+			[`add unread reports from `],[`issue #${this.issueData.id}`,'em'],[` as `],
+			...super.getOngoingActionMenuEntry().slice(1)
+		]
+	}
+	getSubjectAndBody(settings) {
+		const ticketData=convertIssueDataToTicketData(settings,this.issueData)
+		return [ticketData.Subject,ticketData.Body]
+	}
+}
+
 export class AddMessageToTicket extends AddArticleToTicket {
 	constructor(ticketId,addAs,messageData) {
 		super(ticketId,addAs)

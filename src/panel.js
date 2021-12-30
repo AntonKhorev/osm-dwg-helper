@@ -216,6 +216,30 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		}
 	}
 	if (permissions.otrs && permissions.osm) {
+		if (tabState.type=='ticket' && otherTabState.type=='issue') {
+			const issueData=otherTabState.issueData
+			const ticketData=tabState.ticketData
+			if (hasUnreadReports()) {
+				const addSubAction=addSubmenu(`Add unread reports from issue #${issueData.id} to ticket`)
+				addSubAction(makeIssueLink('note'))
+				addSubAction(makeIssueLink('pending'))
+			}
+			function hasUnreadReports() {
+				if (issueData.id==null) return false
+				if (issueData.reports==null) return false
+				for (const report of issueData.reports) {
+					if (!report.wasRead) return true
+				}
+				return false
+			}
+			function makeIssueLink(addAs) {
+				return makeAddToOtrsLink(addAs,ticketData.id,{
+					action:'initiateCurrentTabAction',
+					tabAction:['AddUnreadReportsToTicket',ticketData.id,addAs,issueData],
+					tabId
+				})
+			}
+		}
 		if (tabState.type=='ticket' && otherTabState.type=='message') {
 			const messageData=otherTabState.messageData
 			const ticketData=tabState.ticketData
@@ -223,21 +247,13 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			addSubAction(makeMessageLink('note'))
 			addSubAction(makeMessageLink('pending'))
 			function makeMessageLink(addAs) {
-				let otrsAction='AgentTicketNote'
-				if (addAs=='pending') otrsAction='AgentTicketPending'
-				return makeLink(
-					`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(ticketData.id)}`,
-					'as '+addAs,
-					()=>browser.runtime.sendMessage({
-						action:'initiateCurrentTabAction',
-						tabAction:['AddMessageToTicket',ticketData.id,addAs,messageData],
-						tabId
-					})
-				)
+				return makeAddToOtrsLink(addAs,ticketData.id,{
+					action:'initiateCurrentTabAction',
+					tabAction:['AddMessageToTicket',ticketData.id,addAs,messageData],
+					tabId
+				})
 			}
 		}
-	}
-	if (permissions.otrs && permissions.osm) {
 		if (tabState.type=='ticket') {
 			for (const mailbox of ['outbox','inbox']) {
 				const ticketData=tabState.ticketData
@@ -268,6 +284,15 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 			const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 			addAction(makeLink(googleTranslateUrl,'translate issue text'))
 		}
+	}
+	function makeAddToOtrsLink(addAs,ticketId,message) {
+		let otrsAction='AgentTicketNote'
+		if (addAs=='pending') otrsAction='AgentTicketPending'
+		return makeLink(
+			`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(ticketId)}`,
+			'as '+addAs,
+			()=>browser.runtime.sendMessage(message)
+		)
 	}
 	function makeLink(href,text,clickHandler=()=>browser.tabs.create({openerTabId:tabId,url:href})) {
 		const $a=document.createElement('a')
