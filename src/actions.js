@@ -1,5 +1,6 @@
 import * as templateEngine from './template-engine.js'
 import {
+	getOtrsTicketId,
 	getOtrsCreatedTicketIdAndAction,
 	escapeHtml
 } from './utils.js'
@@ -94,7 +95,7 @@ export class CreateIssueTicket extends OffshootAction {
 		} catch {
 			return [tab.id,this]
 		}
-		return [tab.id,new CommentIssueWithTicketUrl(this.openerTabId)]
+		return [tab.id,new CommentIssueWithTicketUrlForCreatedTicket(this.openerTabId)]
 	}
 }
 
@@ -107,18 +108,39 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 	}
 	// getActionUrl: exact action url is unknown b/c it contains server response
 	async act(settings,tab,tabState,messageTab) {
-		const [ticketId,ticketAction]=getOtrsCreatedTicketIdAndAction(settings.otrs,tab.url)
+		const [ticketId,ticketAction]=this.getOtrsTicketIdAndAction(settings,tab)
 		if (!ticketId) {
 			return [tab.id,this]
 		}
 		const ticketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketZoom;TicketID=${encodeURIComponent(ticketId)}`
 		await messageTab(this.openerTabId,'issue',{
 			action:'addComment',
-			comment:templateEngine.evaluate(settings.issue_comment_ticket,{ticket:{url:ticketUrl}})
+			comment:this.getComment(settings,ticketUrl)
 		})
 		if (ticketAction=='Phone') {
 			return [tab.id,new GoToUrl(ticketUrl)]
 		}
+	}
+	// abstract getOtrsTicketIdAndAction(settings,tab) {}
+	// abstract getComment(settings,ticketUrl) {}
+}
+
+class CommentIssueWithTicketUrlForCreatedTicket extends CommentIssueWithTicketUrl {
+	getOtrsTicketIdAndAction(settings,tab) {
+		return getOtrsCreatedTicketIdAndAction(settings.otrs,tab.url)
+	}
+	getComment(settings,ticketUrl) {
+		return templateEngine.evaluate(settings.issue_comment_ticket_created,{ticket:{url:ticketUrl}})
+	}
+}
+
+class CommentIssueWithTicketUrlForAddedReports extends CommentIssueWithTicketUrl {
+	// TODO here openerTabId is not really an opener tab, but an "other tab"; thus the class is not an "offshoot action", but for now it shouldn't cause any problems
+	getOtrsTicketIdAndAction(settings,tab) {
+		return [getOtrsTicketId(settings.otrs,tab.url),'Zoom']
+	}
+	getComment(settings,ticketUrl) {
+		return templateEngine.evaluate(settings.issue_comment_ticket_reports_added,{ticket:{url:ticketUrl}})
 	}
 }
 
@@ -188,16 +210,21 @@ class AddArticleToTicket extends Action {
 				action:'addArticleSubjectAndBody',
 				subject,body
 			})
+			return this.actAfterMessaging(settings,tab)
 		} catch {
 			return [tab.id,this]
 		}
 	}
+	actAfterMessaging(settings,tab) {
+		// usually don't need to anything the message is submitted
+	}
 }
 
 export class AddUnreadReportsToTicket extends AddArticleToTicket {
-	constructor(ticketId,addAs,issueData) {
+	constructor(ticketId,addAs,issueData,otherTabId) {
 		super(ticketId,addAs)
 		this.issueData=issueData
+		this.otherTabId=otherTabId
 	}
 	getOngoingActionMenuEntry() {
 		return [
@@ -208,6 +235,9 @@ export class AddUnreadReportsToTicket extends AddArticleToTicket {
 	getSubjectAndBody(settings) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData)
 		return [ticketData.Subject,ticketData.Body]
+	}
+	actAfterMessaging(settings,tab) {
+		return [tab.id,new CommentIssueWithTicketUrlForAddedReports(this.otherTabId)]
 	}
 }
 

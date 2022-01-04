@@ -92,7 +92,7 @@ describe("panel-actions-new",()=>{
 		const tabId=1
 		const issueData={
 			osmRoot:'https://myosm.example.com/',
-			id:321,
+			id:'321',
 			url:'https://myosm.example.com/issues/321',
 			reportedItem:{
 				type:'user',
@@ -120,5 +120,101 @@ describe("panel-actions-new",()=>{
 			}],
 			['closeWindow'],
 		])
+	})
+	it("writes add reports command on ticket page if there are unread reports in other tab and has both osm and otrs settings+permissions",()=>{
+		const [document,$menu]=createDocumentAndMenuPlaceholder()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const writeNewActionsMenu=makeNewActionsMenuWriter(document,...callbacks)
+		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
+		const permissions=settings
+		const tabId=1
+		const issueData={
+			osmRoot:'https://myosm.example.com/',
+			id:'321',
+			url:'https://myosm.example.com/issues/321',
+			reportedItem:{
+				type:'user',
+				ref:'SomeOsmUser',
+				name:'SomeOsmUser',
+				url:'https://myosm.example.com/user/SomeOsmUser'
+			},
+			reports:[
+				{
+					by:'WatchfulUser',
+					wasRead:false,
+					lead:[['plain','reported by '],['user','WatchfulUser']],
+					text:['he did things'],
+				}
+			]
+		}
+		const ticketData={
+			id:'54321',
+			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
+		}
+		const tabState={
+			type:'ticket',
+			ticketData
+		}
+		const otherTabId=2
+		const otherTabState={
+			type:'issue',
+			issueData
+		}
+		writeNewActionsMenu($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+		const $item=findSubItem($menu,'Add unread reports','note')
+		assert($item)
+		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
+		$item.click()
+		assert.deepEqual(callbackLog,[
+			['sendMessage',{
+				action:'initiateCurrentTabAction',
+				tabAction:['AddUnreadReportsToTicket',ticketData.id,'note',issueData,otherTabId],
+				tabId
+			}],
+			['closeWindow'],
+		])
+	})
+	it("doesn't write add reports command on ticket page if there are no unread reports in other tab",()=>{
+		const [document,$menu]=createDocumentAndMenuPlaceholder()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const writeNewActionsMenu=makeNewActionsMenuWriter(document,...callbacks)
+		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
+		const permissions=settings
+		const tabId=1
+		const issueData={
+			osmRoot:'https://myosm.example.com/',
+			id:'321',
+			url:'https://myosm.example.com/issues/321',
+			reportedItem:{
+				type:'user',
+				ref:'SomeOsmUser',
+				name:'SomeOsmUser',
+				url:'https://myosm.example.com/user/SomeOsmUser'
+			},
+			reports:[
+				{
+					by:'WatchfulUser',
+					wasRead:true,
+					lead:[['plain','reported by '],['user','WatchfulUser']],
+					text:['he did things'],
+				}
+			]
+		}
+		const ticketData={
+			id:'54321',
+			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
+		}
+		const tabState={
+			type:'ticket',
+			ticketData
+		}
+		const otherTabId=2
+		const otherTabState={
+			type:'issue',
+			issueData
+		}
+		writeNewActionsMenu($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+		const $item=findSubItem($menu,'Add unread reports','note')
+		assert.equal($item,undefined)
 	})
 })

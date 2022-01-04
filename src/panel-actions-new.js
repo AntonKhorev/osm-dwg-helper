@@ -138,7 +138,7 @@ export default (document,closeWindow,createTab,sendMessage)=>($actions,settings,
 			function makeIssueLink(addAs) {
 				return makeAddToOtrsLink(addAs,ticketData.id,{
 					action:'initiateCurrentTabAction',
-					tabAction:['AddUnreadReportsToTicket',ticketData.id,addAs,issueData],
+					tabAction:['AddUnreadReportsToTicket',ticketData.id,addAs,issueData,otherTabId],
 					tabId
 				})
 			}

@@ -24,12 +24,12 @@ describe("Actions.CreateIssueTicket",()=>{
 			otrs:'OTRS/',
 			osm:'OSM/',
 			ticket_subject:`Issue #\${issue.id}`,
-			issue_comment_ticket:`OTRS ticket created: \${ticket.url}`,
+			issue_comment_ticket_created:`OTRS ticket created: \${ticket.url}`,
 		}
 		const openerTabId=12
 		const issueData={
 			id:2021,
-			url:'OSM/note/2021'
+			url:'OSM/issues/2021'
 		}
 		const newTabId=23
 		const ticketId=7
@@ -85,12 +85,12 @@ describe("Actions.CreateIssueTicket",()=>{
 			otrs:'OTRS/',
 			osm:'OSM/',
 			ticket_subject:`Issue #\${issue.id}`,
-			issue_comment_ticket:`OTRS ticket created: \${ticket.url}`,
+			issue_comment_ticket_created:`OTRS ticket created: \${ticket.url}`,
 		}
 		const openerTabId=11
 		const issueData={
 			id:2022,
-			url:'OSM/note/2022'
+			url:'OSM/issues/2022'
 		}
 		const newTabId=24
 		const ticketId=777
@@ -111,7 +111,7 @@ describe("Actions.CreateIssueTicket",()=>{
 			)
 			assert.equal(tabId2,newTabId)
 			return action2
-		},async(action)=>{ // CommentIssueWithTicketUrl
+		},async(action)=>{ // CommentIssueWithTicketUrlForCreatedTicket
 			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;Subaction=Created;TicketID=${ticketId}`
 			assert.equal(action.getActionUrl(settings),undefined)
 			assert.equal(action.needToRejectUrl(settings,url),false)
@@ -124,6 +124,65 @@ describe("Actions.CreateIssueTicket",()=>{
 					assert.deepEqual(message,{
 						action:'addComment',
 						comment:`OTRS ticket created: OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`,
+					})
+				}]
+			)
+			assert.equal(actResult,undefined)
+		}])
+	})
+})
+
+describe("Actions.AddUnreadReportsToTicket",()=>{
+	it("adds from note issue",async()=>{
+		const settings={
+			otrs:'OTRS/',
+			osm:'OSM/',
+			ticket_subject_note:`Issue #\${issue.id} - Note #\${note.id}`,
+			issue_comment_ticket_reports_added:`Added to ticket: \${ticket.url}`,
+		}
+		const otherTabId=11
+		const issueData={
+			id:2024,
+			url:'OSM/issues/2024',
+			reportedItem:{
+				type:'note',
+				ref:'#789',
+				url:'OSM/note/789',
+				id:789
+			}
+		}
+		const openerTabId=24
+		const ticketId=777
+		await testSequence(new Actions.AddUnreadReportsToTicket(ticketId,'note',issueData,otherTabId),[
+		async(action)=>{ // AddUnreadReportsToTicket
+			const url=`OTRS/otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}`
+			assert.equal(action.getActionUrl(settings),url)
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const [tabId2,action2]=await testAct(
+				action,settings,
+				{id:openerTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,openerTabId)
+					assert.equal(script,'ticket-article')
+					assert.equal(message?.action,'addArticleSubjectAndBody')
+					assert.equal(message?.subject,"Issue #2024 - Note #789")
+				}]
+			)
+			assert.equal(tabId2,openerTabId)
+			return action2
+		},async(action)=>{ // CommentIssueWithTicketUrlForAddedReports
+			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`
+			assert.equal(action.getActionUrl(settings),undefined)
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const actResult=await testAct(
+				action,settings,
+				{id:openerTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,otherTabId)
+					assert.equal(script,'issue')
+					assert.deepEqual(message,{
+						action:'addComment',
+						comment:`Added to ticket: OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`,
 					})
 				}]
 			)
