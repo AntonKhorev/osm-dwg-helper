@@ -109,9 +109,9 @@ async function getTabState(settings,permissions,tab,messageTab) {
 		if (messageId!=null) {
 			tabState.type='message'
 			tabState.messageData={
-				osmRoot:settings.osm,
+				osmRoot:settings.osm, // TODO get rid of osmRoot, unnecessary for message
 				id:messageId,
-				url:tab.url
+				url:tab.url // TODO what if url includes anchor?
 			}
 			if (permissions.osm) {
 				const contentMessageData=await messageTab(tab.id,'message',{action:'getMessageData'})
@@ -124,7 +124,7 @@ async function getTabState(settings,permissions,tab,messageTab) {
 		if (issueId!=null) {
 			tabState.type='issue'
 			tabState.issueData={
-				osmRoot:settings.osm,
+				osmRoot:settings.osm, // TODO get rid of osmRoot, currently used to construct osm links from reported-by usernames
 				id:issueId,
 				url:tab.url
 			}

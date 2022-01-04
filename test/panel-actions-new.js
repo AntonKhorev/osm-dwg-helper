@@ -17,6 +17,16 @@ const findItem=($menu,text)=>{
 		if ($item.innerText.includes(text)) return $item
 	}
 }
+const findSubItem=($menu,text,subText)=>{
+	const $superItem=findItem($menu,text)
+	if (!$superItem) return
+	const $subMenu=$superItem.nextElementSibling
+	for (const $li of $subMenu.children) {
+		const $item=$li.firstElementChild
+		if (!$item) continue
+		if ($item.innerText.includes(subText)) return $item
+	}
+}
 
 describe("panel-actions-new",()=>{
 	it("writes nothing without settings/permissions",()=>{
@@ -54,5 +64,54 @@ describe("panel-actions-new",()=>{
 		const $item=findItem($menu,'open OSM issues')
 		assert($item)
 		assert.equal($item.href,`https://myosm.example.com/issues?status=open`)
+	})
+	it("writes create ticket command on issue page if has both osm and otrs settings+permissions",()=>{
+		const [document,$menu]=createDocumentAndMenuList()
+		const callbacks=[]
+		const writeNewActionsMenu=makeNewActionsMenuWriter(
+			document,
+			()=>{
+				callbacks.push(['closeWindow'])
+			},
+			(createProperties)=>{
+				callbacks.push(['createTab',createProperties])
+			},
+			(message)=>{
+				callbacks.push(['sendMessage',message])
+			}
+		)
+		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
+		const permissions=settings
+		const tabId=1
+		const issueData={
+			osmRoot:'https://myosm.example.com/',
+			id:321,
+			url:'https://myosm.example.com/issues/321',
+			reportedItem:{
+				type:'user',
+				ref:'SomeOsmUser',
+				name:'SomeOsmUser',
+				url:'https://myosm.example.com/user/SomeOsmUser'
+			},
+			reports:[]
+		}
+		const tabState={
+			type:'issue',
+			issueData
+		}
+		const otherTabId=2
+		const otherTabState={}
+		writeNewActionsMenu($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+		const $item=findSubItem($menu,'Create ticket','issue #321')
+		assert($item)
+		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketPhone`)
+		$item.click()
+		assert.deepEqual(callbacks,[
+			['sendMessage',{
+				action:'initiateNewTabAction',
+				tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
+			}],
+			['closeWindow'],
+		])
 	})
 })
