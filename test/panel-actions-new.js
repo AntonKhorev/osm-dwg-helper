@@ -3,11 +3,29 @@ import {JSDOM} from 'jsdom'
 
 import makeNewActionsMenuWriter from '../src/panel-actions-new.js'
 
-const createDocumentAndMenuList=()=>{
+const createDocumentAndMenuPlaceholder=()=>{
 	const {document}=(new JSDOM()).window
 	const $menu=document.createElement('ul')
 	document.body.append($menu)
 	return [document,$menu]
+}
+
+const createCallbacksWithLog=()=>{
+	const callbackLog=[]
+	return [
+		[
+			()=>{
+				callbackLog.push(['closeWindow'])
+			},
+			(createProperties)=>{
+				callbackLog.push(['createTab',createProperties])
+			},
+			(message)=>{
+				callbackLog.push(['sendMessage',message])
+			}
+		],
+		callbackLog
+	]
 }
 
 const findItem=($menu,text)=>{
@@ -30,13 +48,9 @@ const findSubItem=($menu,text,subText)=>{
 
 describe("panel-actions-new",()=>{
 	it("writes nothing without settings/permissions",()=>{
-		const [document,$menu]=createDocumentAndMenuList()
-		const writeNewActionsMenu=makeNewActionsMenuWriter(
-			document,
-			()=>{},
-			(createProperties)=>{},
-			(message)=>{}
-		)
+		const [document,$menu]=createDocumentAndMenuPlaceholder()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const writeNewActionsMenu=makeNewActionsMenuWriter(document,...callbacks)
 		const settings={}
 		const permissions={}
 		const tabId=1
@@ -47,13 +61,9 @@ describe("panel-actions-new",()=>{
 		assert.equal($menu.childElementCount,0)
 	})
 	it("writes open issues link if has osm settings",()=>{
-		const [document,$menu]=createDocumentAndMenuList()
-		const writeNewActionsMenu=makeNewActionsMenuWriter(
-			document,
-			()=>{},
-			(createProperties)=>{},
-			(message)=>{}
-		)
+		const [document,$menu]=createDocumentAndMenuPlaceholder()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const writeNewActionsMenu=makeNewActionsMenuWriter(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/'}
 		const permissions={}
 		const tabId=1
@@ -64,22 +74,19 @@ describe("panel-actions-new",()=>{
 		const $item=findItem($menu,'open OSM issues')
 		assert($item)
 		assert.equal($item.href,`https://myosm.example.com/issues?status=open`)
+		$item.click()
+		assert.deepEqual(callbackLog,[
+			['createTab',{
+				openerTabId:tabId,
+				url:`https://myosm.example.com/issues?status=open`
+			}],
+			['closeWindow'],
+		])
 	})
 	it("writes create ticket command on issue page if has both osm and otrs settings+permissions",()=>{
-		const [document,$menu]=createDocumentAndMenuList()
-		const callbacks=[]
-		const writeNewActionsMenu=makeNewActionsMenuWriter(
-			document,
-			()=>{
-				callbacks.push(['closeWindow'])
-			},
-			(createProperties)=>{
-				callbacks.push(['createTab',createProperties])
-			},
-			(message)=>{
-				callbacks.push(['sendMessage',message])
-			}
-		)
+		const [document,$menu]=createDocumentAndMenuPlaceholder()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const writeNewActionsMenu=makeNewActionsMenuWriter(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
 		const permissions=settings
 		const tabId=1
@@ -106,7 +113,7 @@ describe("panel-actions-new",()=>{
 		assert($item)
 		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketPhone`)
 		$item.click()
-		assert.deepEqual(callbacks,[
+		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateNewTabAction',
 				tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
