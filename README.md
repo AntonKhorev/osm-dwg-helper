@@ -50,10 +50,13 @@ If you want to be absolutely sure that the message is sent to a specific user an
 In order to add a message that is not necessarily the last one in your inbox/outbox take the following steps:
 
 1. Navigate to an OTRS ticket page.
-2. Open a new browser tab.
-3. In the new tab navigate to the necessary message on the OSM website.
-4. Switch back to the tab with an OTRS ticket.
-5. *Add message from/to username to ticket* links should appear in the extension panel. Click one of those links.
+2. Open a new browser tab and navigate to the necessary message on the OSM website, or just switch to the message tab if it's already open.
+3. Switch back to the tab with an OTRS ticket.
+4. *Add message from/to username to ticket* links should appear in the extension panel. Click one of those links.
+
+### Add unread reports to tickets
+
+Sometimes, after creating a ticket, you discover another issue about the same thing or that new reports got added to the original issue. In order to add these reports to a ticket, use *Add unread reports from issue* in the extension panel. Using it is similar to adding an already posted OSM message. The panel entry appears when you switch from an issue tab to a ticket tab when the issue contains unread ("new") reports. The reports, like messages, can be added as either a ticket note or a pending item, with subject and body similar to the ones you get by creating a ticket. After the reports are added, the issue gets commented with a link to the ticket, again similar to what happens when creating a ticket. You'll have to resolve the issue to turn unread reports into read ones that won't be picked up by this extension feature.
 
 ### Quick messages from issues
 
