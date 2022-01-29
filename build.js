@@ -1,5 +1,5 @@
 import fs from 'fs-extra'
-import * as path from 'path'
+import path from 'path'
 import convertSvgToPng from 'convert-svg-to-png'
 import { rollup } from 'rollup'
 import virtual from '@rollup/plugin-virtual'
