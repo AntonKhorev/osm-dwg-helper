@@ -159,6 +159,12 @@ async function getTabState(settings,permissions,tab,messageTab) {
 	if (settings.osm) {
 		if (isOsmBlockUrl(settings.osm,tab.url)) {
 			tabState.type='block'
+			tabState.blockData={}
+			if (permissions.osm) {
+				tabState.blockData=await messageTab(tab.id,'block',{
+					action:'getBlockData'
+				})
+			}
 		}
 	}
 	if (settings.otrs) {
