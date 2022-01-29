@@ -2,25 +2,40 @@
 
 ## Build and install
 
-At this point it's still possible to run the extension without building on Firefox as a temporary extension. The building process is there to add [the polyfill for extension api](https://github.com/mozilla/webextension-polyfill) and to convert svg icons to png. The last operation is the largest dev dependency to be installed because it requires a Chromium build ran by [Puppeteer](https://github.com/puppeteer/puppeteer).
+There are two build stages:
 
-### Install as a temporary extension in Firefox
+1. The required stage handled by the build script inside the source code. It generates the extension code that is runnable by browsers but inconvenient to distribute.
+2. The packaging stage handled either by `web-ext build` command or just by zipping the output of the previous stage.
 
-1. Download the extension files (clone the repository).
-2. Open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox).
-3. Click *Load Temporary Add-on* under *Temporary Extensions*.
-4. Open any file inside the [`src`](./src) subdirectory.
+### Required build
 
-Installed in this manner, the extension won't persist across different browser sessions.
-
-### Build
-
-1. Install [Node.js](https://nodejs.org/). Version 14 was tested.
-2. Download the extension files (clone the repository).
+1. install [Node.js](https://nodejs.org/). Version 14 was tested
+2. download the extension files (clone the repository)
 3. run `npm install`
 4. run `npm run build`
 
-After these steps `dist` subdirectory should contain the unpacked extension suitable to be loaded with *Settings > Extensions > Load unpacked* in Chromium. You can zip the contents of this directory to get the unsigned extension file or run [web-ext](https://github.com/mozilla/web-ext) tools there.
+After these steps `dist` subdirectory should contain the unpacked extension suitable to be loaded with *Settings > Extensions > Load unpacked* in Chromium. See the next section for loading in Firefox.
+
+The building process does these things:
+
+- adds [the polyfill for extension api](https://github.com/mozilla/webextension-polyfill)
+- bundles content scripts injected into OSM and OTRS webpages
+- converts svg icons to png
+
+The last operation is the largest dev dependency to be installed because it requires a Chromium build ran by [Puppeteer](https://github.com/puppeteer/puppeteer). This dependency is currently a source of "[high severity vulnerabilities](https://github.com/advisories/GHSA-jv7g-9g6q-cxvw)" according to `npm audit`. They are actual vulnerabilities only if an attacker can replace svgs generated during the build process.
+
+### Install as a temporary extension in Firefox
+
+1. build the extension
+2. open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
+3. click *Load Temporary Add-on* under *Temporary Extensions*
+4. open any file inside the [`dist`](./dist) subdirectory
+
+Installed in this manner, the extension won't persist across different browser sessions.
+
+### Packing
+
+You can zip the contents of this directory to get the unsigned extension file or run [web-ext](https://github.com/mozilla/web-ext) tools there. `web-ext build` will create a zip archive of the extension.
 
 ## Content scripts
 

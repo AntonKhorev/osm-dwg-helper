@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperCreateTicketListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperCreateTicketListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='addIssueDataToTicket') {
 		const $form=document.getElementById('NewPhoneTicket')
 		if ($form) {

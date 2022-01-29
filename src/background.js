@@ -1,5 +1,3 @@
-const buildScriptChromePatch=false
-
 import settingsData from './settings-data.js'
 import SettingsManager from './settings-manager.js'
 import StatesManager from './states-manager.js'
@@ -188,7 +186,7 @@ async function sendUpdatePermissionsMessage() {
 }
 
 async function messageTab(tabId,contentScript,message) {
-	if (buildScriptChromePatch) await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
+	await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
 	await browser.tabs.executeScript(tabId,{file:`content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)
 }

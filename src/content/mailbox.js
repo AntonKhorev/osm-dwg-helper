@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperMailboxListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperMailboxListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='getTopMessageId') {
 		return Promise.resolve(
 			scrapeTopMessageId()

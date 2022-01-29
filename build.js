@@ -1,12 +1,10 @@
 import fs from 'fs-extra'
 import * as path from 'path'
 import convertSvgToPng from 'convert-svg-to-png'
+import { rollup } from 'rollup'
+import virtual from '@rollup/plugin-virtual'
+import camelcase from 'camelcase'
 import * as icon from './src/icon.js'
-
-// load manifest
-const manifest=JSON.parse(
-	await fs.readFile(path.join('src','manifest.json'))
-)
 
 // copy files
 await fs.remove('dist')
@@ -21,12 +19,27 @@ for (const htmlFilename of ['background.html','sidebar.html','popup.html','optio
 	await fs.writeFile(filename,patchedContents)
 }
 
-// add flag to execute polyfill
-{
-	const filename=path.join('dist','background.js')
-	const contents=String(await fs.readFile(filename))
-	const patchedContents=contents.replace(/(?<=const\s+buildScriptChromePatch\s*=\s*)false/,'true')
-	await fs.writeFile(filename,patchedContents)
+// bundle content scripts
+for (const contentScriptDirEntry of await fs.readdir(path.join('src','content'),{withFileTypes:true})) {
+	if (contentScriptDirEntry.isDirectory()) continue
+	const filename=contentScriptDirEntry.name
+	const listenerInstalledFlag=camelcase(`osm-dwg-helper-${filename}-listener-installed`)
+	const contentScript=
+		`import messageListener from './src/content/${filename}'\n`+
+		`if (!window.${listenerInstalledFlag}) {\n`+
+		`	browser.runtime.onMessage.addListener(messageListener)\n`+
+		`	window.${listenerInstalledFlag}=true\n`+
+		`}\n`
+	const bundle=await rollup({
+		input: "contentScript",
+		plugins: [
+			virtual({contentScript})
+		]
+	})
+	bundle.write({
+		file: path.join('dist','content',filename)
+	})
+	bundle.close()
 }
 
 // convert extension icon to png
@@ -36,7 +49,6 @@ for (const htmlFilename of ['background.html','sidebar.html','popup.html','optio
 	const filename=path.join('dist','icon.svg')
 	await convertSvgToPng.convertFile(filename,{width:64,height:64})
 	await fs.remove(filename)
-	manifest.icons['64']='icon.png'
 }
 
 // generate toolbar/sidebar icon svgs
@@ -61,15 +73,5 @@ for (const htmlFilename of ['background.html','sidebar.html','popup.html','optio
 		`		return 'icons/default.svg'\n`+
 		`	}\n`+
 		`}\n`
-	)
-	manifest.browser_action.default_icon='icons/default.svg'
-	manifest.sidebar_action.default_icon='icons/default.svg'
-}
-
-// update manifest
-{
-	await fs.writeFile(
-		path.join('dist','manifest.json'),
-		JSON.stringify(manifest,null,'\t')
 	)
 }

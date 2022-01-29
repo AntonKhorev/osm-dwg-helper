@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0
+
+- Running the extension directly from the source without building is no longer available
+
 ## 0.4.0
 
 - Add unread reports to a ticket

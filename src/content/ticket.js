@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperTicketListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperTicketListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='getIssueId') {
 		return Promise.resolve(
 			scrapeIssueId()

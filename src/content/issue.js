@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperIssueListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperIssueListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='getIssueDataAndInjectItemPanes') { // do both things at once to avoid extra messages
 		const issueData=scrapeIssueData()
 		injectReportedItemPanes(issueData,message.osmcha)

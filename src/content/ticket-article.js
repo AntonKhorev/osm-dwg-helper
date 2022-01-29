@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperTicketArticleListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperTicketArticleListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='addArticleSubjectAndBody') {
 		const $form=document.getElementById('Compose')
 		if ($form) {

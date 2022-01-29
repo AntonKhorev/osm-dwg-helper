@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperMessageListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperMessageListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action=='getMessageData') {
 		return Promise.resolve(
 			scrapeMessageData()

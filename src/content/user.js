@@ -1,9 +1,4 @@
-if (!window.osmDwgHelperUserListenerInstalled) {
-	browser.runtime.onMessage.addListener(messageListener)
-	window.osmDwgHelperUserListenerInstalled=true
-}
-
-function messageListener(message) {
+export default function messageListener(message) {
 	if (message.action!='getUserId') return false
 	const userId=scrapeUserId()
 	return Promise.resolve(userId)
