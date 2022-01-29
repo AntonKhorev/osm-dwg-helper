@@ -12,7 +12,7 @@ await fs.copy('src','dist')
 await fs.copy('node_modules/webextension-polyfill/dist/browser-polyfill.js','dist/browser-polyfill.js')
 
 // add browser object polyfill
-for (const htmlFilename of ['background.html','sidebar.html','popup.html','options.html']) {
+for (const htmlFilename of ['background.html','panel.html','options.html']) {
 	const filename=path.join('dist',htmlFilename)
 	const contents=String(await fs.readFile(filename))
 	const patchedContents=contents.replace(/(?=<script)/,'<script type=module src=browser-polyfill.js></script>\n')
@@ -40,6 +40,16 @@ for (const contentScriptDirEntry of await fs.readdir(path.join('src','content'),
 		file: path.join('dist','content',filename)
 	})
 	bundle.close()
+}
+
+// generate sidebar and popup html
+{
+	const filename=path.join('dist','panel.html')
+	const contents=String(await fs.readFile(filename))
+	await fs.writeFile(path.join('dist','popup.html'),contents)
+	const patchedContents=contents.replace(/<!--\s+(.*permissions-warning.*)\s+-->/,'$1')
+	await fs.writeFile(path.join('dist','sidebar.html'),patchedContents)
+	await fs.remove(filename)
 }
 
 // convert extension icon to png
