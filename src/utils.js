@@ -16,6 +16,11 @@ export function isOsmNoteUrl(osmRoot,url) {
 	return !!match
 }
 
+export function isOsmBlockUrl(osmRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'user_blocks/[0-9]+$'))
+	return !!match
+}
+
 export function isOtrsTicketUrl(otrsRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
 	return !!match

@@ -7,13 +7,14 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=['message','issue','user','ticket']
+export const types=['message','issue','user','block','ticket']
 
 export function svg(type) {
 	let content=tabs()
 	if (type=='message') content+=envelope()
 	if (type=='issue') content+=flag()
-	if (type=='user') content+=avatar()
+	if (type=='user' || type=='block') content+=avatar()
+	if (type=='block') content+=cross()
 	if (type=='ticket') content+=ticket()
 	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
 }
@@ -45,6 +46,14 @@ function avatar() {
 		`<circle cx='0' cy='-4' r='5' />`+
 		`<path d='M -8,11 A 8 8 0 0 1 8,11 Z' />`+
 		`</g>`
+	)
+}
+
+function cross() {
+	const size=10
+	return (
+		`<line x1='-${size}' y1='-${size}' x2='${size}' y2='${size}' stroke='#F00' stroke-width='6' />`+
+		`<line x1='-${size}' y1='${size}' x2='${size}' y2='-${size}' stroke='#F00' stroke-width='6' />`
 	)
 }
 

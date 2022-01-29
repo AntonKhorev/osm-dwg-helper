@@ -2,6 +2,7 @@ import {
 	getOsmMessageIdFromUrl,
 	getOsmIssueIdFromUrl,
 	isOsmUserUrl,
+	isOsmBlockUrl,
 	getOtrsTicketId
 } from './utils.js'
 
@@ -153,6 +154,11 @@ async function getTabState(settings,permissions,tab,messageTab) {
 					}
 				}
 			}
+		}
+	}
+	if (settings.osm) {
+		if (isOsmBlockUrl(settings.osm,tab.url)) {
+			tabState.type='block'
 		}
 	}
 	if (settings.otrs) {
