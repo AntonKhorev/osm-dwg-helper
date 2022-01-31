@@ -98,7 +98,7 @@ The extension can be set up work with other [Rails Port](https://github.com/open
 If you want to try Centuran fork online demo:
 
 1. to avoid accidentally submitting real issue data, set up the Rails Port sandbox or other dummy instance as described in the previous section
-2. go to [https://demo.otrsce.com/] or [https://new.demo.otrsce.com/]
+2. go to [demo.otrsce.com](https://demo.otrsce.com/) or [new.demo.otrsce.com](https://new.demo.otrsce.com/)
 3. click *Open Agent Interface*
 4. change the extension option *OTRS root URL* to either `https://demo.otrsce.com/` or `https://new.demo.otrsce.com/`
 
