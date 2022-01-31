@@ -12,14 +12,15 @@ export function addIssueDataToTicket(document,ticketData) {
 }
 
 function populateTicketForm(document,$form,ticketData) {
-	feedValues(document,$form.FromCustomer,ticketData.FromCustomers)
-	selectFirstOption($form.Dest)
+	const Event=document.defaultView.Event
+	feedValues(document,$form.elements.FromCustomer,ticketData.FromCustomers)
+	selectFirstOption($form.elements.Dest)
 	if (ticketData.Subject!=null) {
-		$form.Subject.value=ticketData.Subject
-		$form.Subject.dispatchEvent(new Event('change'))
+		$form.elements.Subject.value=ticketData.Subject
+		$form.elements.Subject.dispatchEvent(new Event('change'))
 	}
 	if (ticketData.Body!=null) {
-		$form.Body.value=ticketData.Body // this is enough if CKEditor is not yet loaded
+		$form.elements.Body.value=ticketData.Body // this is enough if CKEditor is not yet loaded
 		// if CKEditor is loaded, need to update its state too
 		// could have used CKEditor 4 API: https://ckeditor.com/docs/ckeditor4/latest/api/index.html
 			// const ckeditorInstance=window.wrappedJSObject.CKEDITOR.instances.RichText
@@ -34,6 +35,7 @@ function populateTicketForm(document,$form,ticketData) {
 }
 
 function feedValues(document,$input,values) {
+	const Event=document.defaultView.Event
 	const $status=document.createElement('span')
 	$status.innerHTML='(feeding)'
 	$input.after($status)
@@ -55,7 +57,7 @@ function feedValues(document,$input,values) {
 }
 
 function selectFirstOption($select) {
-	for ($option of $select) {
+	for (const $option of $select) {
 		if ($option.value.match(/^[0-9]/)) {
 			$select.value=$option.value
 			break
