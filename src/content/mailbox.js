@@ -1,13 +1,4 @@
-export default function messageListener(message) {
-	if (message.action=='getTopMessageId') {
-		return Promise.resolve(
-			scrapeTopMessageId()
-		)
-	}
-	return false
-}
-
-function scrapeTopMessageId() {
+export function getTopMessageId(document) {
 	const $content=document.getElementById('content')
 	if (!$content) return
 	const $table=$content.querySelector('table')

@@ -1,0 +1,27 @@
+{
+	"block":{
+		"getBlockData":[]
+	},
+	"create-ticket":{
+		"addIssueDataToTicket":["ticketData"]
+	},
+	"issue":{
+		"getIssueDataAndInjectItemPanes":["osmcha"],
+		"addComment":["comment"]
+	},
+	"mailbox":{
+		"getTopMessageId":[]
+	},
+	"message":{
+		"getMessageData":[]
+	},
+	"ticket":{
+		"getIssueId":[]
+	},
+	"ticket-article":{
+		"addArticleSubjectAndBody":["subject","body"]
+	},
+	"user":{
+		"getUserId":[]
+	}
+}

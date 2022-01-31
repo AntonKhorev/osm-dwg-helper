@@ -1,16 +1,10 @@
-export default function messageListener(message) {
-	if (message.action=='getIssueDataAndInjectItemPanes') { // do both things at once to avoid extra messages
-		const issueData=scrapeIssueData()
-		injectReportedItemPanes(issueData,message.osmcha)
-		return Promise.resolve(issueData)
-	} else if (message.action=='addComment') {
-		addComment(message.comment)
-		return Promise.resolve()
-	}
-	return false
+export function getIssueDataAndInjectItemPanes(document,osmcha) { // do both things at once to avoid extra messages
+	const issueData=scrapeIssueData(document)
+	injectReportedItemPanes(document,issueData,osmcha)
+	return issueData
 }
 
-function scrapeIssueData() {
+function scrapeIssueData(document) {
 	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/master/app/views/issues
 	const $content=document.getElementById('content')
 	if (!$content) return {}
@@ -65,73 +59,71 @@ function scrapeIssueData() {
 		issueData.reports.push(report)
 	}
 	return issueData
-}
-
-function markChangesetLinks($reportText) {
-	let input=$reportText.innerText
-	$reportText.innerHTML=''
-	let match
-	while (match=input.match(/(^|.*?\s)(\S*\/changeset\/(\d+))(.*)$/)) {
-		const [,before,changesetText,changesetId,after]=match
-		if (before) $reportText.append(before)
-		const $a=document.createElement('a')
-		$a.innerText=changesetText
-		$a.classList.add('osm-dwg-helper-changeset-anchor')
-		$a.dataset.changesetId=changesetId
-		try {
-			const validUrl=new URL(changesetText)
-			$a.href=changesetText
-		} catch {}
-		$a.addEventListener('click',markedChangesetLinkClickHandler)
-		$reportText.append($a)
-		input=after
+	function markChangesetLinks($reportText) {
+		let input=$reportText.innerText
+		$reportText.innerHTML=''
+		let match
+		while (match=input.match(/(^|.*?\s)(\S*\/changeset\/(\d+))(.*)$/)) {
+			const [,before,changesetText,changesetId,after]=match
+			if (before) $reportText.append(before)
+			const $a=document.createElement('a')
+			$a.innerText=changesetText
+			$a.classList.add('osm-dwg-helper-changeset-anchor')
+			$a.dataset.changesetId=changesetId
+			try {
+				const validUrl=new URL(changesetText)
+				$a.href=changesetText
+			} catch {}
+			$a.addEventListener('click',markedChangesetLinkClickHandler)
+			$reportText.append($a)
+			input=after
+		}
+		if (input) $reportText.append(input)
 	}
-	if (input) $reportText.append(input)
+	function markedChangesetLinkClickHandler(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
+		const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
+		if (!$osmchaPane) return
+		ev.preventDefault()
+		const changesetId=this.dataset.changesetId
+		const osmcha=$osmchaPane.dataset.osmcha
+		const osmchaFilter=$osmchaPane.dataset.osmchaFilter
+		const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}/?filters=${encodeURIComponent(osmchaFilter)}`
+		const $oldOsmchaFrame=$osmchaPane.querySelector('iframe')
+		const $osmchaFrame=document.createElement('iframe')
+		$osmchaFrame.src=osmchaUrl
+		$oldOsmchaFrame.replaceWith($osmchaFrame) // have to replace the iframe, otherwise scr change may get rejected by CSP
+		$osmchaPane.open=true
+		$osmchaPane.scrollIntoView()
+	}
 }
 
-function markedChangesetLinkClickHandler(ev) {
-	const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
-	if (!$osmchaPane) return
-	ev.preventDefault()
-	const changesetId=this.dataset.changesetId
-	const osmcha=$osmchaPane.dataset.osmcha
-	const osmchaFilter=$osmchaPane.dataset.osmchaFilter
-	const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}/?filters=${encodeURIComponent(osmchaFilter)}`
-	const $oldOsmchaFrame=$osmchaPane.querySelector('iframe')
-	const $osmchaFrame=document.createElement('iframe')
-	$osmchaFrame.src=osmchaUrl
-	$oldOsmchaFrame.replaceWith($osmchaFrame) // have to replace the iframe, otherwise scr change may get rejected by CSP
-	$osmchaPane.open=true
-	$osmchaPane.scrollIntoView()
-}
-
-function injectReportedItemPanes(issueData,osmcha) {
+function injectReportedItemPanes(document,issueData,osmcha) {
 	const item=issueData.reportedItem
 	if (item?.type!='note' && item?.type!='user') {
-		removePane('osm-dwg-helper-reported-item-pane')
-		removePane('osm-dwg-helper-reported-item-pane-osmcha')
+		removePane(document,'osm-dwg-helper-reported-item-pane')
+		removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
 		return
 	}
-	injectStyle('osm-dwg-helper-style')
+	injectStyle(document,'osm-dwg-helper-style')
 	if (item?.type=='note') {
-		injectPane('osm-dwg-helper-reported-item-pane',1,item.url,{},`Note #${item.id}`)
-		removePane('osm-dwg-helper-reported-item-pane-osmcha')
+		injectPane(document,'osm-dwg-helper-reported-item-pane',1,item.url,{},`Note #${item.id}`)
+		removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
 	} else if (item?.type=='user') {
-		injectPane('osm-dwg-helper-reported-item-pane',2,item.url,{},`User ${item.name}`)
+		injectPane(document,'osm-dwg-helper-reported-item-pane',2,item.url,{},`User ${item.name}`)
 		if (osmcha) {
 			const osmchaFilter=getOsmchaFilterByUserName(item.name)
 			const osmchaUrl=`${osmcha}?filters=${encodeURIComponent(osmchaFilter)}`
-			injectPane(
+			injectPane(document,
 				'osm-dwg-helper-reported-item-pane-osmcha',0,osmchaUrl,{osmcha,osmchaFilter},
 				`OSMCha for user ${item.name}`,`The contents won't load unless web request permission is granted in the options or the browser is configured in some way to ignore x-frame-options headers`
 			)
 		} else {
-			removePane('osm-dwg-helper-reported-item-pane-osmcha')
+			removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
 		}
 	}
 }
 
-function injectStyle(id) {
+function injectStyle(document,id) {
 	const paneColor='#7ebc6f'
 	const paneHoverColor='#dcedd7'
 	const paneBorderWidth=2
@@ -190,13 +182,13 @@ function injectStyle(id) {
 	$head.append($style)
 }
 
-function removePane(id) {
+function removePane(document,id) {
 	const $existingPane=document.getElementById(id)
 	if (!$existingPane) return
 	$existingPane.remove()
 }
 
-function injectPane(id,frameProcessingLevel,url,data,title,info) {
+function injectPane(document,id,frameProcessingLevel,url,data,title,info) {
 	const $existingPane=document.getElementById(id)
 	if ($existingPane) return
 	const $contentBody=document.querySelector('.content-body')
@@ -285,7 +277,7 @@ function splitByReportCategory(text) {
 	return [text,'','']
 }
 
-function addComment(comment) {
+export function addComment(document,comment) {
 	const $commentTextarea=document.getElementById('issue_comment_body')
 	if (!$commentTextarea) return
 	if ($commentTextarea.value=='') {

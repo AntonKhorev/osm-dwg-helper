@@ -1,10 +1,4 @@
-export default function messageListener(message) {
-	if (message.action!='getUserId') return false
-	const userId=scrapeUserId()
-	return Promise.resolve(userId)
-}
-
-function scrapeUserId() {
+export function getUserId(document) {
 	const $userInfo=document.querySelector('.content-heading')
 	if (!$userInfo) return
 	// need to find this link: https://www.openstreetmap.org/reports/new?reportable_id=${id}&reportable_type=User

@@ -1,41 +1,18 @@
-export default function messageListener(message) {
-	if (message.action=='addIssueDataToTicket') {
-		const $form=document.getElementById('NewPhoneTicket')
-		if ($form) {
-			//setTimeout(()=>{ // for testing CKEditor loading race conditions
-			populateTicketForm($form,message.ticketData)
-			//},1000)
-			return Promise.resolve()
-		}
-		const $loginBox=document.getElementById('LoginBox')
-		if ($loginBox) {
-			informOnLoginScreen($loginBox)
-			return Promise.reject("on login page")
-		}
-		return Promise.reject("met unknown webpage content")
-	/*
-	} else if (message.action=='getTicket') {
-		// don't need this b/c ticket id is reported in url
-		const $notice=document.querySelector('.MessageBox.Notice')
-		if (!$notice) return Promise.reject("no ticket creation notice box")
-		if ($notice.innerText.includes('created!'))
-		if (!$notice) return Promise.reject("no ticket creation expected text")
-		const $a=$notice.querySelector('a')
-		if (!$a) return Promise.reject("no ticket link")
-		const match=$a.href.match(/\/index\.pl\?Action=AgentTicketZoom;TicketID=([0-9]+)/)
-		if (!match) return Promise.reject("no ticket link with expected url")
-		const [,ticketId]=match
-		return Promise.resolve({
-			id:ticketId,
-			url:$a.href
-		})
-	*/
+import otrsFallback from './otrs.js'
+
+export function addIssueDataToTicket(document,ticketData) {
+	const $form=document.getElementById('NewPhoneTicket')
+	if ($form) {
+		//setTimeout(()=>{ // for testing CKEditor loading race conditions
+		populateTicketForm(document,$form,ticketData)
+		//},1000)
+		return
 	}
-	return false
+	otrsFallback(document,`Will open a new phone ticket form after a successful login.`)
 }
 
-function populateTicketForm($form,ticketData) {
-	feedValues($form.FromCustomer,ticketData.FromCustomers)
+function populateTicketForm(document,$form,ticketData) {
+	feedValues(document,$form.FromCustomer,ticketData.FromCustomers)
 	selectFirstOption($form.Dest)
 	if (ticketData.Subject!=null) {
 		$form.Subject.value=ticketData.Subject
@@ -56,17 +33,7 @@ function populateTicketForm($form,ticketData) {
 	}
 }
 
-function informOnLoginScreen($loginBox) {
-	const id='osmDwgHelperLoginInformBox'
-	if (document.getElementById(id)) return
-	const $informBox=document.createElement('div')
-	$informBox.id=id
-	$informBox.classList.add('ErrorBox')
-	$informBox.innerHTML="<span>Will open a new phone ticket form after a successful login.</span>"
-	$loginBox.prepend($informBox)
-}
-
-function feedValues($input,values) {
+function feedValues(document,$input,values) {
 	const $status=document.createElement('span')
 	$status.innerHTML='(feeding)'
 	$input.after($status)

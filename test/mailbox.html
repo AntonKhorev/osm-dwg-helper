@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<body class="messages messages-inbox">
+<div id="content" class="">
+<div class="content-heading">
+<div class="content-inner pb-0">
+<h1>My Messages</h1>
+<ul class="nav nav-tabs">
+<li class="nav-item">
+<a class="nav-link active">My Inbox</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" href="/messages/outbox">My Outbox</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="content-body">
+<div class="content-inner">
+<h4><p id="inbox-count">
+You have 0 new messages and 2 old messages
+</p>
+</h4>
+<table class="table table-sm">
+<thead>
+<tr>
+<th>From</th>
+<th>Subject</th>
+<th>Date</th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr id="inbox-44" class="inbox-row">
+<td class="inbox-sender"><a href="/user/Alice">Alice</a></td>
+<td class="inbox-subject"><a href="/messages/44">Hello</a></td>
+<td class="inbox-sent"> 6 December 2021 at 12:34</td>
+<td class="inbox-mark-unread"><form class="button_to" method="post" action="/messages/44/mark?mark=unread" data-remote="true"><input class="btn btn-sm btn-primary" type="submit" value="Mark as unread" /></form></td>
+<td class="inbox-mark-read"><form class="button_to" method="post" action="/messages/44/mark?mark=read" data-remote="true"><input class="btn btn-sm btn-primary" type="submit" value="Mark as read" /></form></td>
+<td class="inbox-destroy"><form class="button_to" method="post" action="/messages/44?referer=%2Fmessages%2Finbox" data-remote="true"><input type="hidden" name="_method" value="delete" /></form></td>
+</tr>
+<tr id="inbox-43" class="inbox-row">
+<td class="inbox-sender"><a href="/user/Bob">Bob</a></td>
+<td class="inbox-subject"><a href="/messages/43">Goodbye</a></td>
+<td class="inbox-sent"> 6 December 2021 at 12:32</td>
+<td class="inbox-mark-unread"><form class="button_to" method="post" action="/messages/43/mark?mark=unread" data-remote="true"><input class="btn btn-sm btn-primary" type="submit" value="Mark as unread" /></form></td>
+<td class="inbox-mark-read"><form class="button_to" method="post" action="/messages/43/mark?mark=read" data-remote="true"><input class="btn btn-sm btn-primary" type="submit" value="Mark as read" /></form></td>
+<td class="inbox-destroy"><form class="button_to" method="post" action="/messages/43?referer=%2Fmessages%2Finbox" data-remote="true"><input type="hidden" name="_method" value="delete" /></form></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

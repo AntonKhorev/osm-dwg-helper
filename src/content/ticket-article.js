@@ -1,18 +1,12 @@
-export default function messageListener(message) {
-	if (message.action=='addArticleSubjectAndBody') {
-		const $form=document.getElementById('Compose')
-		if ($form) {
-			populateArticleForm($form,message.subject,message.body)
-			return Promise.resolve()
-		}
-		const $loginBox=document.getElementById('LoginBox')
-		if ($loginBox) {
-			informOnLoginScreen($loginBox)
-			return Promise.reject("on login page")
-		}
-		return Promise.reject("met unknown webpage content")
+import otrsFallback from './otrs.js'
+
+export function addArticleSubjectAndBody(document,subject,body) {
+	const $form=document.getElementById('Compose')
+	if ($form) {
+		populateArticleForm($form,message.subject,message.body)
+		return Promise.resolve()
 	}
-	return false
+	otrsFallback(document,`Will add an article to a ticket after a successful login.`)
 }
 
 function populateArticleForm($form,subject,body) {
@@ -20,14 +14,5 @@ function populateArticleForm($form,subject,body) {
 	$form.Subject.dispatchEvent(new Event('change'))
 	$form.Body.value=body
 	// ckeditor should load after this field is updated
-}
-
-function informOnLoginScreen($loginBox) {
-	const id='osmDwgHelperLoginInformBox'
-	if (document.getElementById(id)) return
-	const $informBox=document.createElement('div')
-	$informBox.id=id
-	$informBox.classList.add('ErrorBox')
-	$informBox.innerHTML="<span>Will open a new phone ticket form after a successful login.</span>"
-	$loginBox.prepend($informBox)
+	// TODO but create ticket form required a fallback for early load - maybe need it here too?
 }

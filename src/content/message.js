@@ -1,13 +1,4 @@
-export default function messageListener(message) {
-	if (message.action=='getMessageData') {
-		return Promise.resolve(
-			scrapeMessageData()
-		)
-	}
-	return false
-}
-
-function scrapeMessageData() {
+export function getMessageData(document) {
 	const messageData={}
 	const $content=document.getElementById('content')
 	if (!$content) return messageData
@@ -15,7 +6,7 @@ function scrapeMessageData() {
 	if (!$contentBody) return messageData
 	const $userLink=$contentBody.querySelector('.info-line a')
 	if ($userLink) {
-		messageData.user=$userLink.innerText
+		messageData.user=$userLink.textContent
 	}
 	const $messageBody=$contentBody.querySelector('.richtext')
 	if ($messageBody) {
