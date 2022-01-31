@@ -278,6 +278,7 @@ function splitByReportCategory(text) {
 }
 
 export function addComment(document,comment) {
+	const Event=document.defaultView.Event
 	const $commentTextarea=document.getElementById('issue_comment_body')
 	if (!$commentTextarea) return
 	if ($commentTextarea.value=='') {
