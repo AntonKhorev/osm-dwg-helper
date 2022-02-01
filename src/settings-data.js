@@ -22,6 +22,7 @@ export default [
 	['article_subject_block',`Block of user "\${user.name}"`,"Subject template for user block"],
 	['article_subject_block_zero',`0-hour block of user "\${user.name}"`,"Subject template for 0-hour user block"],
 	['article_body_block',`<p><a href='\${block.url}'>Block #\${block.id}</a> of user <a href='\${user.url}'>\${user.name}</a></p>`,"Body template for user block",{note:"HTML"}],
+	['article_input_action',`DynamicField_DWGAction`,"Name of 'DWG action' free field input",{note:"has to be a multiple select with one of the options containing a 'block' substring"}],
 	"Addition of OSM messages to OTRS tickets",
 	['article_message_to_subject',`PM to \${user.name}`,"Ticket subject template for outbound message"], // TODO article_message_to_subject -> article_subject_message_to
 	['article_message_from_subject',`PM from \${user.name}`,"Ticket subject template for inbound message"],

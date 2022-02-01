@@ -60,6 +60,10 @@ Sometimes, after creating a ticket, you discover another issue about the same th
 
 In order to add reports to an existing ticket, use *Add unread reports from issue* in the extension panel. Using it is similar to adding an already posted OSM message. The panel entry appears when you switch from an issue tab to a ticket tab when the issue contains unread ("new") reports. The reports, like messages, can be added as either a ticket note or a pending item, with subject and body similar to the ones you get by creating a ticket. After the reports are added, the issue gets commented with a link to the ticket, again similar to what happens when creating a ticket. You'll have to resolve the issue to turn unread reports into read ones that won't be picked up by this extension feature.
 
+### Add blocks to tickets
+
+If you've issued a block, you can add it to a ticket in a manner similar to adding messages/reports. Open the block tab, then switch to the ticket tab, and *Add block record* should appear in *Other Tab Actions*. Clicking one of the links below it opens a new ticket article with a link to the block. It also adds *block issued* to *DWG Actions* free field. Since this is a DWG-specific field not present in default OTRS configurations, the name of its input can be configured in the options.
+
 ### Quick messages from issues
 
 Sometimes you don't want to create a ticket for an issue. You may want just to send a message to the reporting user and resolve te issue. To quickly do this from the issue page, click on the username under *Quick message reporting user* in the extension panel. An OSM new message form will be opened with a pregenerated subject.

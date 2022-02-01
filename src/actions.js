@@ -212,13 +212,16 @@ class AddArticleToTicket extends Action {
 	async act(settings,tab,tabState,messageTab) {
 		const [subject,body]=this.getSubjectAndBody(settings)
 		try {
-			await messageTab(tab.id,'ticket-article',{
-				action:'addArticleSubjectAndBody',
-				subject,body
-			})
+			await messageTab(tab.id,'ticket-article',this.getTabMessage(settings,subject,body))
 			return this.actAfterMessaging(settings,tab)
 		} catch {
 			return [tab.id,this]
+		}
+	}
+	getTabMessage(settings,subject,body) {
+		return {
+			action:'addArticleSubjectAndBody',
+			subject,body
 		}
 	}
 	actAfterMessaging(settings,tab) {
@@ -290,6 +293,13 @@ export class AddBlockToTicket extends AddArticleToTicket {
 			templateEngine.evaluate(subjectTemplate,context),
 			templateEngine.evaluate(bodyTemplate,context),
 		]
+	}
+	getTabMessage(settings,subject,body) {
+		return {
+			action:'addArticleSubjectAndBodyWithBlockAction',
+			subject,body,
+			actionInputName:settings.article_input_action
+		}
 	}
 }
 

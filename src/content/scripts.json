@@ -19,7 +19,8 @@
 		"getIssueId":[]
 	},
 	"ticket-article":{
-		"addArticleSubjectAndBody":["subject","body"]
+		"addArticleSubjectAndBody":["subject","body"],
+		"addArticleSubjectAndBodyWithBlockAction":["subject","body","actionInputName"]
 	},
 	"user":{
 		"getUserId":[]
