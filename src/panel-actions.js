@@ -203,7 +203,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const ticketData=tabState.ticketData
 				const addSubAction=addSubmenu(`Add user ${blockData.user} block record to ticket`)
 				addSubAction(makeBlockLink('note'))
-				addSubAction(makeBlockLink('pending'))
+				const $explanation=document.createElement('span')
+				$explanation.textContent=`won't fully work`
+				$explanation.title=`Normally, DWG Action field is updated to have "block issued" action added. This field is not present in the "pending" form and thus can't be changed in this manner. The "pending" menu entry is removed to avoid unexpectedly leaving out "block issued" actions.`
+				addSubAction(`"as pending" `,$explanation)
 				function makeBlockLink(addAs) {
 					return makeAddToOtrsLink(addAs,ticketData.id,{
 						action:'initiateCurrentTabAction',
