@@ -196,7 +196,13 @@ class AddArticleToTicket extends Action {
 		this.addAs=addAs
 	}
 	getOngoingActionMenuEntry() {
-		return [[`add `],[this.addAs,'em'],[`-article to `],[`ticket #${this.ticketId}`,'em']]
+		const what=this.getOngoingActionMenuEntryWhatPart()
+		const insert=[...what]
+		if (what.length>0) insert.push(` as `)
+		return [[`add `],...insert,[this.addAs,'em'],[`-article to `],[`ticket #${this.ticketId}`,'em']]
+	}
+	getOngoingActionMenuEntryWhatPart() {
+		return []
 	}
 	getActionUrl(settings) {
 		let otrsAction='AgentTicketNote'
@@ -226,11 +232,8 @@ export class AddUnreadReportsToTicket extends AddArticleToTicket {
 		this.issueData=issueData
 		this.otherTabId=otherTabId
 	}
-	getOngoingActionMenuEntry() {
-		return [
-			[`add unread reports from `],[`issue #${this.issueData.id}`,'em'],[` as `],
-			...super.getOngoingActionMenuEntry().slice(1)
-		]
+	getOngoingActionMenuEntryWhatPart() {
+		return [[`add unread reports from `],[`issue #${this.issueData.id}`,'em']]
 	}
 	getSubjectAndBody(settings) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData)
@@ -246,11 +249,8 @@ export class AddMessageToTicket extends AddArticleToTicket {
 		super(ticketId,addAs)
 		this.messageData=messageData
 	}
-	getOngoingActionMenuEntry() {
-		return [
-			[`add message ${this.messageDirection} `],[this.messageData.user,'em'],[` as `],
-			...super.getOngoingActionMenuEntry().slice(1)
-		]
+	getOngoingActionMenuEntryWhatPart() {
+		return [[`add message ${this.messageDirection} `],[this.messageData.user,'em']]
 	}
 	getSubjectAndBody(settings) {
 		const subjectTemplate=settings[`article_message_${this.messageDirection}_subject`]
@@ -264,6 +264,32 @@ export class AddMessageToTicket extends AddArticleToTicket {
 	}
 	get messageDirection() {
 		return this.messageData.isInbound?'from':'to'
+	}
+}
+
+export class AddBlockToTicket extends AddArticleToTicket {
+	constructor(ticketId,addAs,blockData) {
+		super(ticketId,addAs)
+		this.blockData=blockData
+	}
+	getOngoingActionMenuEntryWhatPart() {
+		return [[`add block record of `],[this.blockData.user,'em']]
+	}
+	getSubjectAndBody(settings) {
+		const subjectTemplate=settings[`article_subject_block${this.blockData.isZeroHour?'_zero':''}`]
+		const bodyTemplate=settings.article_body_block
+		const userName=this.blockData.user
+		const context={
+			user:{
+				name:userName,
+				url:this.blockData.osmRoot+'user/'+encodeURIComponent(userName)
+			},
+			block:this.blockData
+		}
+		return [
+			templateEngine.evaluate(subjectTemplate,context),
+			templateEngine.evaluate(bodyTemplate,context),
+		]
 	}
 }
 

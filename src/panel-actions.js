@@ -197,6 +197,22 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				}
 			}
 		}
+		if (permissions.otrs) {
+			if (tabState.type=='ticket' && otherTabState.type=='block') {
+				const blockData=otherTabState.blockData
+				const ticketData=tabState.ticketData
+				const addSubAction=addSubmenu(`Add user ${blockData.user} block record to ticket`)
+				addSubAction(makeBlockLink('note'))
+				addSubAction(makeBlockLink('pending'))
+				function makeBlockLink(addAs) {
+					return makeAddToOtrsLink(addAs,ticketData.id,{
+						action:'initiateCurrentTabAction',
+						tabAction:['AddBlockToTicket',ticketData.id,addAs,blockData],
+						tabId
+					})
+				}
+			}
+		}
 		function makeAddToOtrsLink(addAs,ticketId,message) {
 			let otrsAction='AgentTicketNote'
 			if (addAs=='pending') otrsAction='AgentTicketPending'

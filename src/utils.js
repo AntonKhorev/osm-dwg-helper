@@ -6,6 +6,10 @@ export function getOsmIssueIdFromUrl(osmRoot,url) {
 	return getIdFromUrl(osmRoot+'issues/',url)
 }
 
+export function getOsmBlockIdFromUrl(osmRoot,url) {
+	return getIdFromUrl(osmRoot+'user_blocks/',url)
+}
+
 export function isOsmUserUrl(osmRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'user/[^/]+$'))
 	return !!match

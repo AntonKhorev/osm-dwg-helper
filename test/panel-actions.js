@@ -224,4 +224,44 @@ describe("panel-actions-new",()=>{
 		const $item=findSubItem($otherMenu,'Add unread reports','note')
 		assert.equal($item,undefined)
 	})
+	it("writes add block command on ticket page",()=>{
+		const [document,,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const [,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
+		const permissions=settings
+		const tabId=1
+		const blockData={
+			osmRoot:'https://myosm.example.com/',
+			id:'789',
+			url:'https://myosm.example.com/user_blocks/789',
+			user:'BadUser',
+			isZeroHour:false,
+		}
+		const ticketData={
+			id:'43215',
+			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=43215`
+		}
+		const tabState={
+			type:'ticket',
+			ticketData
+		}
+		const otherTabId=2
+		const otherTabState={
+			type:'block',
+			blockData
+		}
+		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+		const $item=assertSubItem($otherMenu,'block record','note')
+		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=43215`)
+		$item.click()
+		assert.deepEqual(callbackLog,[
+			['sendMessage',{
+				action:'initiateCurrentTabAction',
+				tabAction:['AddBlockToTicket',ticketData.id,'note',blockData],
+				tabId
+			}],
+			['closeWindow'],
+		])
+	})
 })

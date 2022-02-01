@@ -18,8 +18,12 @@ export default [
 	['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note",{note:"HTML"}],
 	['issue_comment_ticket_created',`OTRS ticket created: \${ticket.url}`,"Issue comment about new ticket"],
 	['issue_comment_ticket_reports_added',`New reports added to OTRS ticket: \${ticket.url}`,"Issue comment about reports added to an existing ticket"],
+	"Addition of OSM blocks to OTRS tickets",
+	['article_subject_block',`Block of user "\${user.name}"`,"Subject template for user block"],
+	['article_subject_block_zero',`0-hour block of user "\${user.name}"`,"Subject template for 0-hour user block"],
+	['article_body_block',`<p><a href='\${block.url}'>Block #\${block.id}</a> of user <a href='\${user.url}'>\${user.name}</a></p>`,"Body template for user block",{note:"HTML"}],
 	"Addition of OSM messages to OTRS tickets",
-	['article_message_to_subject',`PM to \${user.name}`,"Ticket subject template for outbound message"],
+	['article_message_to_subject',`PM to \${user.name}`,"Ticket subject template for outbound message"], // TODO article_message_to_subject -> article_subject_message_to
 	['article_message_from_subject',`PM from \${user.name}`,"Ticket subject template for inbound message"],
 	"Quick messages from OSM issues",
 	['issue_message_subject',`reported issue`,"Subject template for generic reported item"],

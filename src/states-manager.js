@@ -2,7 +2,7 @@ import {
 	getOsmMessageIdFromUrl,
 	getOsmIssueIdFromUrl,
 	isOsmUserUrl,
-	isOsmBlockUrl,
+	getOsmBlockIdFromUrl,
 	getOtrsTicketId
 } from './utils.js'
 
@@ -157,13 +157,19 @@ async function getTabState(settings,permissions,tab,messageTab) {
 		}
 	}
 	if (settings.osm) {
-		if (isOsmBlockUrl(settings.osm,tab.url)) {
+		const blockId=getOsmBlockIdFromUrl(settings.osm,tab.url)
+		if (blockId!=null) {
 			tabState.type='block'
-			tabState.blockData={}
+			tabState.blockData={
+				osmRoot:settings.osm, // TODO get rid of osmRoot, currently used to construct osm links from reported-by usernames
+				id:blockId,
+				url:tab.url
+			}
 			if (permissions.osm) {
-				tabState.blockData=await messageTab(tab.id,'block',{
+				const contentBlockData=await messageTab(tab.id,'block',{
 					action:'getBlockData'
 				})
+				if (contentBlockData) Object.assign(tabState.blockData,contentBlockData)
 			}
 		}
 	}
