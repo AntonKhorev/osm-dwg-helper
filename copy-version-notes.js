@@ -42,7 +42,9 @@ await clipboard.write(contents)
  * @returns {string} HTML string
  */
 function processMarkdown(s) {
-	return s.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,(_,text,href)=>`<a href='${escapeHtml(href)}'>${escapeHtml(text)}</a>`)
+	s=s.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,(_,text,href)=>`<a href='${escapeHtml(href)}'>${text}</a>`)
+	s=s.replace(/\*([^*]*)\*/g,(_,text)=>`<em>${text}</em>`)
+	return s
 }
 
 async function getFileLines(filename) {

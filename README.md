@@ -22,7 +22,7 @@ Overall the goals were:
 - speed up some common actions that a DWG member might want to do by replacing copy-pasting various things with clicking
 - avoid additional logins present in other similar tools
 - don't submit actions right away so they can be reviewed and altered if necessary
-- try not to alter the webpage contents too much, keep most of the controls inside the extension panel (currently available as a sidebar)
+- try not to alter the webpage contents too much, keep most of the controls inside the extension panel (currently available as a sidebar) - this may change as further development required altering issue pages, but most of alterations should be marked with the extension icon
 
 ### Create tickets from issues
 
@@ -52,7 +52,7 @@ In order to add a message that is not necessarily the last one in your inbox/out
 1. Navigate to an OTRS ticket page.
 2. Open a new browser tab and navigate to the necessary message on the OSM website, or just switch to the message tab if it's already open.
 3. Switch back to the tab with an OTRS ticket.
-4. *Add message from/to username to ticket* links should appear in the extension panel. Click one of those links.
+4. *Add message from/to username to ticket* links should appear in the *Other Tab Actions* menu of the extension panel. Click one of those links.
 
 ### Add unread reports to tickets
 
@@ -69,6 +69,11 @@ Sometimes you don't want to create a ticket for an issue. You may want just to s
 - Go to the issue page corresponding to an OTRS ticket title from a ticket page.
 - Search OTRS for reported items in issues.
 - Translate issue reports.
+
+### Issue webpage extensions
+
+- A pane is added for opening the reported item directly inside the issue webpage. This should make it faster to deal with reported notes that don't require creating a ticket.
+- A pane is added for [OSMCha](https://wiki.openstreetmap.org/wiki/OSMCha) page of the reported user. The default two-week time limit is disabled, allowing to see all of the user's changesets. Issue reports are scanned for changeset links. These links open their changeset inside the OSMCha pane. Middle-click opens them in a new tab. The OSMCha pane insertion requires working against cross-site frame permissions and may not work on some browsers.
 
 ## Use outside of DWG
 

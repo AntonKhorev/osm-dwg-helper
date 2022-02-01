@@ -3,6 +3,7 @@
 ## 0.5.0
 
 - Running the extension directly from the source without building is no longer available
+- Moved some actions to *Other Tab Actions* menu
 
 ## 0.4.0
 
