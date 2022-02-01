@@ -10,4 +10,10 @@ describe("block content script",()=>{
 		assert.equal(blockData.user,'BadUser')
 		assert.equal(blockData.isZeroHour,true)
 	})
+	it("scrapes the webpage with backwards locale",async()=>{
+		const {document}=(await JSDOM.fromFile('test/block-hu.html')).window
+		const blockData=contentScript.getBlockData(document)
+		assert.equal(blockData.user,'BadUser')
+		assert.equal(blockData.isZeroHour,true)
+	})
 })
