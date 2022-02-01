@@ -19,6 +19,9 @@ body {
 	padding: .5rem;
 	min-width: 15rem;
 }
+h2 span[title] {
+	text-decoration: underline dashed;
+}
 #extension-options {
 	position: absolute;
 	display: block;

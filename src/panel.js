@@ -1,4 +1,4 @@
-import makeNewActionsMenuWriter from './panel-actions-new.js'
+import makeActionsMenuWriters from './panel-actions.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
@@ -7,7 +7,7 @@ const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
 browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePermissions') {
 		return scheduleUpdatePermissions(message.missingOrigins)
-	} else if (message.action=='updateActionsNew') {
+	} else if (message.action=='updateActionsNew') { // TODO it's "new and other" actions now - actually should rename "new" to "same tab"/"new tab"
 		return scheduleUpdateActionsNew(
 			message.settings,message.permissions,
 			message.tabIds,message.otherTabId,
@@ -95,7 +95,7 @@ async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tab
 	]
 }
 
-const writeNewActionsMenu=makeNewActionsMenuWriter(
+const [writeNewActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(
 	document,
 	()=>window.close(),
 	(createProperties)=>browser.tabs.create(createProperties),
@@ -103,9 +103,12 @@ const writeNewActionsMenu=makeNewActionsMenuWriter(
 )
 
 function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTabState) {
-	const $actions=document.getElementById('actions-new')
-	$actions.innerHTML=""
-	writeNewActionsMenu($actions,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+	const $newActionsMenu=document.getElementById('actions-new')
+	$newActionsMenu.innerHTML=""
+	writeNewActionsMenu($newActionsMenu,settings,permissions,tabId,tabState)
+	const $otherActionsMenu=document.getElementById('actions-other')
+	$otherActionsMenu.innerHTML=""
+	writeOtherActionsMenu($otherActionsMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
 }
 
 function updateActionsOngoing(tabActionEntries) {
