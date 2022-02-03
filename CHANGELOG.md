@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.5.1
+
 ## 0.5.0
 
 - Running the extension directly from the source without building is no longer available

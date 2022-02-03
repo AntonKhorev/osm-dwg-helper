@@ -59,27 +59,27 @@ function resetEventHandler() {
 	if ($reset.dataset.value!=null) {
 		const storedValue=$input.value
 		$input.value=$reset.dataset.value
-		if (storedValue!=$input.placeholder) {
+		if (storedValue!=$input.dataset.defaultValue) {
 			$reset.dataset.value=storedValue
 		} else {
 			delete $reset.dataset.value
 		}
 		$input.dispatchEvent(new Event('input'))
-	} else if ($input.value!=$input.placeholder) {
+	} else if ($input.value!=$input.dataset.defaultValue) {
 		const storedValue=$input.value
-		$input.value=$input.placeholder
+		$input.value=$input.dataset.defaultValue
 		$reset.dataset.value=storedValue
 		$input.dispatchEvent(new Event('input'))
 	}
 }
 function updateResetButton($reset,$input) {
-	if ($input.value!=$input.placeholder && $reset.dataset.value!=null) {
+	if ($input.value!=$input.dataset.defaultValue && $reset.dataset.value!=null) {
 		delete $reset.dataset.value
 	}
 	if ($reset.dataset.value!=null) {
 		$reset.innerText='restore previous value: '+$reset.dataset.value
-	} else if ($input.value!=$input.placeholder) {
-		$reset.innerText='reset to default value: '+$input.placeholder
+	} else if ($input.value!=$input.dataset.defaultValue) {
+		$reset.innerText='reset to default value: '+$input.dataset.defaultValue
 	} else {
 		$reset.innerText='has default value'
 	}
@@ -183,7 +183,7 @@ async function updateSettingsUI() {
 				$input.type='text'
 			}
 			$input.value=settings[key]
-			$input.placeholder=defaultValue
+			$input.dataset.defaultValue=defaultValue
 			//$input.setAttribute('list','list-'+key)
 			$input.addEventListener('input',inputEventHandler)
 			$optionContainer.append($input)
