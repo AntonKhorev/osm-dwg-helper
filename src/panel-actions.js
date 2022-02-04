@@ -1,10 +1,10 @@
 import * as templateEngine from './template-engine.js'
 
 /**
- * @returns [new actions, other tab actions] updater functions
+ * @returns [global, this tab, this+other tab] actions menu updater functions
  */
 export default (document,closeWindow,createTab,sendMessage)=>{
-	return [($menu,settings,permissions,tabId,tabState)=>{
+	return [($menu,settings,permissions,tabId)=>{ // global actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
 		if (settings.osm) {
 			addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
@@ -12,6 +12,8 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.otrs) {
 			addAction(makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS")) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
 		}
+	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
+		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
 		if (permissions.otrs) {
 			const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 			const addSubAction=addSubmenu(`Create ticket`)
@@ -155,7 +157,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				addAction(makeLink(googleTranslateUrl,'translate issue text'))
 			}
 		}
-	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{
+	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
 		if (permissions.otrs && permissions.osm) {
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {

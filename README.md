@@ -62,7 +62,7 @@ In order to add reports to an existing ticket, use *Add unread reports from issu
 
 ### Add blocks to tickets
 
-If you've issued a block, you can add it to a ticket in a manner similar to adding messages/reports. Open the block tab, then switch to the ticket tab, and *Add block record* should appear in *Other Tab Actions*. Clicking one of the links below it opens a new ticket article with a link to the block. It also adds *block issued* to *DWG Actions* free field. Since this is a DWG-specific field not present in default OTRS configurations, the name of its input can be configured in the options.
+If you've issued a block, you can add it to a ticket in a manner similar to adding messages/reports. Open the block tab, then switch to the ticket tab, and *Add block record* should appear in *This+other tab actions* menu. Clicking one of the links below it opens a new ticket article with a link to the block. It also adds *block issued* to *DWG Actions* free field. Since this is a DWG-specific field not present in default OTRS configurations, the name of its input can be configured in the options.
 
 ### Quick messages from issues
 

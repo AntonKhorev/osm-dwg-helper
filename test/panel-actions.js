@@ -5,11 +5,14 @@ import makeActionsMenuWriters from '../src/panel-actions.js'
 
 const createDocumentAndMenuPlaceholders=()=>{
 	const {document}=(new JSDOM()).window
-	const $newMenu=document.createElement('ul')
-	document.body.append($newMenu)
-	const $otherMenu=document.createElement('ul')
-	document.body.append($otherMenu)
-	return [document,$newMenu,$otherMenu]
+	const result=[document]
+	for (const name of ['global','this','other']) {
+		const $menu=document.createElement('ul')
+		$menu.id='actions-'+name
+		document.body.append($menu)
+		result.push($menu)
+	}
+	return result
 }
 
 const createCallbacksWithLog=()=>{
@@ -60,30 +63,31 @@ const assertSubItem=($menu,text,subText)=>{
 
 describe("panel-actions-new",()=>{
 	it("writes nothing without settings/permissions",()=>{
-		const [document,$newMenu,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [document,$globalMenu,$thisMenu,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [writeNewActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [writeGlobalActionsMenu,writeThisActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={}
 		const permissions={}
 		const tabId=1
 		const tabState={}
 		const otherTabId=2
 		const otherTabState={}
-		writeNewActionsMenu($newMenu,settings,permissions,tabId,tabState)
+		writeGlobalActionsMenu($globalMenu,settings,permissions,tabId)
+		writeThisActionsMenu($thisMenu,settings,permissions,tabId,tabState)
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		assert.equal($newMenu.childElementCount,0)
+		assert.equal($globalMenu.childElementCount,0)
+		assert.equal($thisMenu.childElementCount,0)
 		assert.equal($otherMenu.childElementCount,0)
 	})
 	it("writes open issues link if has osm settings",()=>{
-		const [document,$newMenu]=createDocumentAndMenuPlaceholders()
+		const [document,$globalMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [writeNewActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [writeGlobalActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/'}
 		const permissions={}
 		const tabId=1
-		const tabState={}
-		writeNewActionsMenu($newMenu,settings,permissions,tabId,tabState)
-		const $item=assertItem($newMenu,'open OSM issues')
+		writeGlobalActionsMenu($globalMenu,settings,permissions,tabId)
+		const $item=assertItem($globalMenu,'open OSM issues')
 		assert.equal($item.href,`https://myosm.example.com/issues?status=open`)
 		$item.click()
 		assert.deepEqual(callbackLog,[
@@ -95,9 +99,9 @@ describe("panel-actions-new",()=>{
 		])
 	})
 	it("writes create ticket command on issue page if has both osm and otrs settings+permissions",()=>{
-		const [document,$newMenu]=createDocumentAndMenuPlaceholders()
+		const [document,,$thisMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [writeNewActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [,writeThisActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
 		const permissions=settings
 		const tabId=1
@@ -117,8 +121,8 @@ describe("panel-actions-new",()=>{
 			type:'issue',
 			issueData
 		}
-		writeNewActionsMenu($newMenu,settings,permissions,tabId,tabState)
-		const $item=assertSubItem($newMenu,'Create ticket','issue #321')
+		writeThisActionsMenu($thisMenu,settings,permissions,tabId,tabState)
+		const $item=assertSubItem($thisMenu,'Create ticket','issue #321')
 		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketPhone`)
 		$item.click()
 		assert.deepEqual(callbackLog,[
@@ -130,9 +134,9 @@ describe("panel-actions-new",()=>{
 		])
 	})
 	it("writes add reports command on ticket page if there are unread reports in other tab and has both osm and otrs settings+permissions",()=>{
-		const [document,,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
 		const permissions=settings
 		const tabId=1
@@ -182,9 +186,9 @@ describe("panel-actions-new",()=>{
 		])
 	})
 	it("doesn't write add reports command on ticket page if there are no unread reports in other tab",()=>{
-		const [document,,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
 		const permissions=settings
 		const tabId=1
@@ -225,9 +229,9 @@ describe("panel-actions-new",()=>{
 		assert.equal($item,undefined)
 	})
 	it("writes add block command on ticket page",()=>{
-		const [document,,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
-		const [,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
 		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
 		const permissions=settings
 		const tabId=1

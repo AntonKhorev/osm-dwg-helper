@@ -7,7 +7,7 @@ const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
 browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePermissions') {
 		return scheduleUpdatePermissions(message.missingOrigins)
-	} else if (message.action=='updateActionsNew') { // TODO it's "new and other" actions now - actually should rename "new" to "same tab"/"new tab"
+	} else if (message.action=='updateActionsNew') {
 		return scheduleUpdateActionsNew(
 			message.settings,message.permissions,
 			message.tabIds,message.otherTabId,
@@ -95,7 +95,7 @@ async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tab
 	]
 }
 
-const [writeNewActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(
+const actionsMenuWriters=makeActionsMenuWriters(
 	document,
 	()=>window.close(),
 	(createProperties)=>browser.tabs.create(createProperties),
@@ -103,12 +103,12 @@ const [writeNewActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(
 )
 
 function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTabState) {
-	const $newActionsMenu=document.getElementById('actions-new')
-	$newActionsMenu.innerHTML=""
-	writeNewActionsMenu($newActionsMenu,settings,permissions,tabId,tabState)
-	const $otherActionsMenu=document.getElementById('actions-other')
-	$otherActionsMenu.innerHTML=""
-	writeOtherActionsMenu($otherActionsMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+	for (const [i,name] of ['global','this','other'].entries()) {
+		const writer=actionsMenuWriters[i]
+		const $menu=document.getElementById('actions-'+name)
+		$menu.innerHTML=""
+		writer($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+	}
 }
 
 function updateActionsOngoing(tabActionEntries) {
