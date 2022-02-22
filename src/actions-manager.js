@@ -51,15 +51,27 @@ export default class ActionsManager {
 	 * @param action {Action}
 	 */
 	async addCurrentTabAction(settings,action,tabId) {
-		this.tabActions.set(tabId,action)
+		await this.addImmediateCurrentTabAction(settings,action,tabId)
 		browser.tabs.update(tabId,{
 			url:action.getActionUrl(settings)
 		})
 	}
 	/**
+	 * @param action {Action}
+	 */
+	async addImmediateCurrentTabAction(settings,action,tabId) {
+		// { TODO add more than one action
+		if (this.tabActions.get(tabId)) {
+			console.log('action manager will replace tab action',tabId,action)
+		}
+		// }
+		this.tabActions.set(tabId,action)
+	}
+	/**
 	 * @returns {Promise<boolean>} true if tab actions changed
 	 */
 	async act(settings,tab,tabState,messageTab) {
+		// TODO act on more than one action
 		const action=this.tabActions.get(tab.id)
 		if (!action) return false
 		if (action.needToRejectUrl(settings,tab.url)) return false

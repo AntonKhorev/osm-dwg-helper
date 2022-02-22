@@ -99,6 +99,22 @@ export class CreateIssueTicket extends OffshootAction {
 	}
 }
 
+export class AddToCreateIssueTicket extends CreateIssueTicket { // TODO not actually an offshoot, "openerTab" should be "otherTab"
+	constructor(openerTabId,issueData,additionalUserData) {
+		super(openerTabId,issueData,additionalUserData)
+	}
+	// TODO copypaste of CreateIssueTicket
+	async act(settings,tab,tabState,messageTab) {
+		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
+		try {
+			await messageTab(tab.id,'create-ticket',{action:'addMoreIssueDataToTicket',ticketData})
+		} catch {
+			return [tab.id,this]
+		}
+		return [tab.id,new CommentIssueWithTicketUrlForCreatedTicket(this.openerTabId)]
+	}
+}
+
 class CommentIssueWithTicketUrl extends OffshootAction {
 	constructor(openerTabId) {
 		super(openerTabId)

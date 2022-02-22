@@ -7,7 +7,7 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=['message','issue','user','block','ticket']
+export const types=['message','issue','user','block','ticket','ticket-add']
 
 export function svg(type) {
 	let content=tabs()
@@ -15,7 +15,8 @@ export function svg(type) {
 	if (type=='issue') content+=flag()
 	if (type=='user' || type=='block') content+=avatar()
 	if (type=='block') content+=cross()
-	if (type=='ticket') content+=ticket()
+	if (type=='ticket' || type=='ticket-add') content+=ticket()
+	if (type=='ticket-add') content+=add()
 	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
 }
 
@@ -67,4 +68,13 @@ function ticket() {
 		//return `V ${m}5 A 2 2 0 0 0 ${m}7,${m}9 V ${m}11 H ${m}3 A 3 3 0 0 0 ${p}3,${m}11 H ${p}7 V ${m}9 A 2 2 0 0 0 ${p}7,${m}5 V 0`
 		return `V ${m}3 A 2 2 0 0 0 ${m}7,${m}7 V ${m}11 H ${m}3 A 3 3 0 0 0 ${p}3,${m}11 H ${p}7 V ${m}7 A 2 2 0 0 0 ${p}7,${m}3 V 0`
 	}
+}
+
+function add() {
+	const size=5
+	const x=-8
+	return (
+		`<line x1='${x-size}' y1='0' x2='${x+size}' y2='0' stroke='#44F' stroke-width='4' />`+
+		`<line x1='${x}' y1='-${size}' x2='${x}' y2='${size}' stroke='#44F' stroke-width='4' />`
+	)
 }

@@ -11,6 +11,17 @@ export function addIssueDataToTicket(document,ticketData) {
 	otrsFallback(document,`Will open a new phone ticket form after a successful login.`)
 }
 
+export function addMoreIssueDataToTicket(document,ticketData) {
+	const $form=document.getElementById('NewPhoneTicket')
+	if ($form) {
+		//setTimeout(()=>{ // for testing CKEditor loading race conditions
+		populateMoreTicketForm(document,$form,ticketData)
+		//},1000)
+		return
+	}
+	otrsFallback(document,`Will add data to a new phone ticket form after a successful login.`)
+}
+
 function populateTicketForm(document,$form,ticketData) {
 	const Event=document.defaultView.Event
 	feedValues(document,$form.elements.FromCustomer,ticketData.FromCustomers)
@@ -30,6 +41,26 @@ function populateTicketForm(document,$form,ticketData) {
 		const $richTextEditorIframe=document.querySelector('#RichTextField iframe')
 		if ($richTextEditorIframe) {
 			$richTextEditorIframe.contentDocument.body.innerHTML=ticketData.Body
+		}
+	}
+}
+
+function populateMoreTicketForm(document,$form,ticketData) {
+	const Event=document.defaultView.Event
+	// TODO skip existing customers - need to alter feedValues()
+	// feedValues(document,$form.elements.FromCustomer,ticketData.FromCustomers)
+	// selectFirstOption($form.elements.Dest) // should already be selected
+	// TODO add to subject
+	// if (ticketData.Subject!=null) {
+	// 	$form.elements.Subject.value=ticketData.Subject
+	// 	$form.elements.Subject.dispatchEvent(new Event('change'))
+	// }
+	if (ticketData.Body!=null) {
+		$form.elements.Body.value+=ticketData.Body // this is enough if CKEditor is not yet loaded
+		// modify the iframe inside CKEditor - see populateTicketForm() for reasons
+		const $richTextEditorIframe=document.querySelector('#RichTextField iframe')
+		if ($richTextEditorIframe) {
+			$richTextEditorIframe.contentDocument.body.innerHTML+=ticketData.Body
 		}
 	}
 }

@@ -3,7 +3,8 @@
 		"getBlockData":[]
 	},
 	"create-ticket":{
-		"addIssueDataToTicket":["ticketData"]
+		"addIssueDataToTicket":["ticketData"],
+		"addMoreIssueDataToTicket":["ticketData"]
 	},
 	"issue":{
 		"getIssueDataAndInjectItemPanes":["osmcha"],

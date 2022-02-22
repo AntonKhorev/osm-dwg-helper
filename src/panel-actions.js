@@ -160,6 +160,29 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
 		if (permissions.otrs && permissions.osm) {
+			if (tabState.type=='ticket-add' && otherTabState.type=='issue') {
+				// const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
+				const createTicketUrl=`#`
+				const issueData=otherTabState.issueData
+				let text=`issue #${issueData.id}`
+				if (issueData.reportedItem) {
+					text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
+				}
+				// TODO equivalent of this
+				// if (issueData.reportedItem?.type=='user') {
+					// addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
+					// 	action:'initiateNewTabAction',
+					// 	tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
+					// })))
+				// }
+				const addSubAction=addSubmenu(`Add to new ticket form`)
+				addSubAction(makeLink(createTicketUrl,text,()=>sendMessage({
+					action:'initiateImmediateCurrentTabAction',
+					tabAction:['AddToCreateIssueTicket',otherTabId,issueData],
+					tabId,
+					otherTabId
+				})))
+			}
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {
 				const issueData=otherTabState.issueData
 				const ticketData=tabState.ticketData

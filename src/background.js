@@ -29,12 +29,15 @@ browser.runtime.onMessage.addListener(message=>{
 	} else if (message.action=='registerNewOptionsPage') {
 		reactToActionsUpdate() // need to send updateActionsOngoing message
 		return Promise.resolve()
-	} else if (message.action=='initiateCurrentTabAction') {
-		const tabAction=makeAction(...message.tabAction)
-		return initiateCurrentTabAction(tabAction,message.tabId)
 	} else if (message.action=='initiateNewTabAction') {
 		const tabAction=makeAction(...message.tabAction)
 		return initiateNewTabAction(tabAction)
+	} else if (message.action=='initiateCurrentTabAction') {
+		const tabAction=makeAction(...message.tabAction)
+		return initiateCurrentTabAction(tabAction,message.tabId)
+	} else if (message.action=='initiateImmediateCurrentTabAction') {
+		const tabAction=makeAction(...message.tabAction)
+		return initiateImmediateCurrentTabAction(tabAction,message.tabId,message.otherTabId)
 	} else if (message.action=='cancelTabAction') {
 		if (actionsManager.deleteTab(message.tabId)) {
 			reactToActionsUpdate()
@@ -124,16 +127,27 @@ function makeAction(actionClassName,...args) {
 	return new actionClass(...args)
 }
 
+async function initiateNewTabAction(action) {
+	const settings=await settingsManager.read()
+	actionsManager.addNewTabAction(settings,action)
+	reactToActionsUpdate()
+}
+
 async function initiateCurrentTabAction(action,tabId) {
 	const settings=await settingsManager.read()
 	actionsManager.addCurrentTabAction(settings,action,tabId)
 	reactToActionsUpdate()
 }
 
-async function initiateNewTabAction(action) {
+async function initiateImmediateCurrentTabAction(action,tabId,otherTabId) {
 	const settings=await settingsManager.read()
-	actionsManager.addNewTabAction(settings,action)
+	actionsManager.addImmediateCurrentTabAction(settings,action,tabId)
 	reactToActionsUpdate()
+	// TODO trigger tab update event
+	// TODO check if it works - if it does move to actionsManager
+	// browser.tabs.update(tabId,{}) // NOPE!
+	await browser.tabs.update(otherTabId,{active:true})
+	await browser.tabs.update(tabId,{active:true})
 }
 
 function reactToActionsUpdate() {
