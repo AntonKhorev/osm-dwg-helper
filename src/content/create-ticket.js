@@ -49,11 +49,14 @@ function populateMoreTicketForm(document,$form,ticketData) {
 	const Event=document.defaultView.Event
 	feedCustomers(document,$form,ticketData.FromCustomers)
 	// selectFirstOption($form.elements.Dest) // should already be selected
-	// TODO add to subject
-	// if (ticketData.Subject!=null) {
-	// 	$form.elements.Subject.value=ticketData.Subject
-	// 	$form.elements.Subject.dispatchEvent(new Event('change'))
-	// }
+	if (ticketData.Subject!=null) {
+		if ($form.elements.Subject.value=='') {
+			$form.elements.Subject.value=ticketData.Subject
+		} else {
+			$form.elements.Subject.value+='; '+ticketData.Subject
+		}
+		$form.elements.Subject.dispatchEvent(new Event('change'))
+	}
 	if (ticketData.Body!=null) {
 		$form.elements.Body.value+=ticketData.Body // this is enough if CKEditor is not yet loaded
 		// modify the iframe inside CKEditor - see populateTicketForm() for reasons
