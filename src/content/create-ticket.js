@@ -24,7 +24,7 @@ export function addMoreIssueDataToTicket(document,ticketData) {
 
 function populateTicketForm(document,$form,ticketData) {
 	const Event=document.defaultView.Event
-	feedValues(document,$form.elements.FromCustomer,ticketData.FromCustomers)
+	feedCustomers(document,$form,ticketData.FromCustomers)
 	selectFirstOption($form.elements.Dest)
 	if (ticketData.Subject!=null) {
 		$form.elements.Subject.value=ticketData.Subject
@@ -47,8 +47,7 @@ function populateTicketForm(document,$form,ticketData) {
 
 function populateMoreTicketForm(document,$form,ticketData) {
 	const Event=document.defaultView.Event
-	// TODO skip existing customers - need to alter feedValues()
-	// feedValues(document,$form.elements.FromCustomer,ticketData.FromCustomers)
+	feedCustomers(document,$form,ticketData.FromCustomers)
 	// selectFirstOption($form.elements.Dest) // should already be selected
 	// TODO add to subject
 	// if (ticketData.Subject!=null) {
@@ -65,8 +64,9 @@ function populateMoreTicketForm(document,$form,ticketData) {
 	}
 }
 
-function feedValues(document,$input,values) {
+function feedCustomers(document,$form,values) {
 	const Event=document.defaultView.Event
+	const $input=$form.elements.FromCustomer
 	const $status=document.createElement('span')
 	$status.innerHTML='(feeding)'
 	$input.after($status)
@@ -76,15 +76,25 @@ function feedValues(document,$input,values) {
 			$status.remove()
 			return
 		}
+		const targetValue=values[i]
 		if ($input.value=='') {
-			$input.value=values[i]
-			$input.dispatchEvent(new Event('change'))
+			if (!alreadyHasValue(targetValue)) {
+				$input.value=targetValue
+				$input.dispatchEvent(new Event('change'))
+			}
 			i++
 		}
 		setTimeout(()=>{
 			attemptToFeedValue(i)
 		},50)
-	}	
+	}
+	function alreadyHasValue(targetValue) {
+		const $receivedInputs=$form.querySelectorAll('input.CustomerTicketText')
+		for (const $receivedInput of $receivedInputs) {
+			if ($receivedInput.value==targetValue) return true
+		}
+		return false
+	}
 }
 
 function selectFirstOption($select) {

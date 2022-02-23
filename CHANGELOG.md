@@ -2,6 +2,8 @@
 
 ## 0.5.1
 
+- Add issue to create new ticket form for multi-issue tickets
+
 ## 0.5.0
 
 - Running the extension directly from the source without building is no longer available
