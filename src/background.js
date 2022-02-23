@@ -1,5 +1,5 @@
 import settingsData from './settings-data.js'
-import SettingsManager from './settings-manager.js'
+import {SettingsManager,SettingsAndPermissionsReader} from './settings-manager.js'
 import StatesManager from './states-manager.js'
 import ActionsManager from './actions-manager.js'
 import * as Actions from './actions.js'
@@ -9,6 +9,7 @@ import installOrUninstallHeadersReceivedListener from './webrequest.js'
 const statesManager=new StatesManager()
 const actionsManager=new ActionsManager(browser.tabs)
 const settingsManager=new SettingsManager(settingsData)
+const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
 
 // can't use window.* here and browser.runtime.getBackgroundPage() in panel/options pages because:
 // https://stackoverflow.com/questions/52618377/firefox-web-extension-cant-access-dead-object-error
@@ -49,7 +50,7 @@ browser.runtime.onMessage.addListener(message=>{
 
 //browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
 browser.tabs.onActivated.addListener(async({tabId})=>{
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const tab=await browser.tabs.get(tabId)
 	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
 		settings,permissions,tab,
@@ -66,7 +67,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	// may skip update it if tab is not (active || previous || has scheduled action)
 	// may also act only on active tabs, then can skip if tab is not (active || previous)
 	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,messageTab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
@@ -88,7 +89,7 @@ init()
 async function init() {
 	const activeTabs=await browser.tabs.query({active:true})
 	const activeFocusedTabs=await browser.tabs.query({active:true,lastFocusedWindow:true})
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const hasWebRequestPermission=await browser.permissions.contains({permissions:['webRequest','webRequestBlocking']})
 	installOrUninstallHeadersReceivedListener(settings,permissions,hasWebRequestPermission)
 	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab)
@@ -102,7 +103,7 @@ async function init() {
 async function handleStateChangingSettingsChange() {
 	statesManager.clearTabs()
 	const activeTabs=await browser.tabs.query({active:true})
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const hasWebRequestPermission=await browser.permissions.contains({permissions:['webRequest','webRequestBlocking']})
 	installOrUninstallHeadersReceivedListener(settings,permissions,hasWebRequestPermission)
 	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
@@ -115,7 +116,7 @@ async function handleStateChangingSettingsChange() {
 
 async function registerNewPanel(tab) {
 	sendUpdatePermissionsMessage() // TODO limit the update to this tab
-	const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
@@ -183,7 +184,7 @@ async function sendUpdateActionsMessage(
 	tabIds,otherTabId,tabStates
 ) {
 	if (tabIds.length==0) return
-	//const [settings,permissions]=await settingsManager.readSettingsAndPermissions()
+	//const [settings,permissions]=await settingsAndPermissionsReader.read()
 	browser.runtime.sendMessage({
 		action:'updateActionsNew',
 		settings,permissions,
@@ -192,7 +193,7 @@ async function sendUpdateActionsMessage(
 }
 
 async function sendUpdatePermissionsMessage() {
-	const [,,missingOrigins,existingOrigins]=await settingsManager.readSettingsAndPermissions()
+	const [,,missingOrigins,existingOrigins]=await settingsAndPermissionsReader.read()
 	browser.runtime.sendMessage({
 		action:'updatePermissions',
 		missingOrigins,existingOrigins

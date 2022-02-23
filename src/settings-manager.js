@@ -1,4 +1,4 @@
-export default class {
+export class SettingsManager {
 	/**
 	 * Settings manager, doesn't have internal state, can be instantiated from multiple windows
 	 * @param specs {Array} string for a header or an option spec
@@ -26,26 +26,6 @@ export default class {
 		}
 		return kvs
 	}
-	async readSettingsAndPermissions() {
-		const settings=await this.read()
-		const permissions={}
-		const missingOrigins=[]
-		for (const [key,,,attrs] of this.getSpecsWithoutHeaders()) {
-			if (!settings[key]) continue
-			if (!attrs?.origin) continue
-			const origin=settings[key]+'*'
-			const containsOrigin=await browser.permissions.contains({
-				origins:[origin],
-			})
-			if (containsOrigin) {
-				permissions[key]=settings[key]
-			} else {
-				missingOrigins.push(origin)
-			}
-		}
-		const allPermissions=await browser.permissions.getAll()
-		return [settings,permissions,missingOrigins,allPermissions.origins]
-	}
 	async write(kvs) {
 		await browser.storage.local.set(kvs)
 		const needToUpdate=(attr)=>{
@@ -59,5 +39,32 @@ export default class {
 			state:  needToUpdate('state'),
 			origin: needToUpdate('origin')
 		}
+	}
+}
+
+export class SettingsAndPermissionsReader {
+	constructor(settingsManager,browserPermissions) {
+		this.settingsManager=settingsManager
+		this.browserPermissions=browserPermissions
+	}
+	async read() {
+		const settings=await this.settingsManager.read()
+		const permissions={}
+		const missingOrigins=[]
+		for (const [key,,,attrs] of this.settingsManager.getSpecsWithoutHeaders()) {
+			if (!settings[key]) continue
+			if (!attrs?.origin) continue
+			const origin=settings[key]+'*'
+			const containsOrigin=await this.browserPermissions.contains({
+				origins:[origin],
+			})
+			if (containsOrigin) {
+				permissions[key]=settings[key]
+			} else {
+				missingOrigins.push(origin)
+			}
+		}
+		const allPermissions=await this.browserPermissions.getAll()
+		return [settings,permissions,missingOrigins,allPermissions.origins]
 	}
 }

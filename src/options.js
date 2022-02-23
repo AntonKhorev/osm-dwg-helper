@@ -1,8 +1,9 @@
 import settingsData from './settings-data.js'
-import SettingsManager from './settings-manager.js'
+import {SettingsManager,SettingsAndPermissionsReader} from './settings-manager.js'
 import makePermissionsButtonPairHandler from './permissions-buttons.js'
 
 const settingsManager=new SettingsManager(settingsData)
+const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
 
 async function settingsWriteWrapper(settings) {
 	if (Object.keys(settings).length==0) return
@@ -144,7 +145,7 @@ async function makeCurrentSettingsText() {
 }
 
 async function updateSettingsUI() {
-	const [settings,,missingOrigins,existingOrigins]=await settingsManager.readSettingsAndPermissions()
+	const [settings,,missingOrigins,existingOrigins]=await settingsAndPermissionsReader.read()
 	updateOriginPermissionsUI(missingOrigins,existingOrigins)
 	const $settings=document.getElementById('settings')
 	$settings.innerHTML=""

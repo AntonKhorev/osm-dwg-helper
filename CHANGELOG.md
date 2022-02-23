@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.5.2
+
 ## 0.5.1
 
 - Add issue to create new ticket form for multi-issue tickets
