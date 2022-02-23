@@ -7,7 +7,7 @@ import icon from './icon.js'
 import installOrUninstallHeadersReceivedListener from './webrequest.js'
 
 const statesManager=new StatesManager()
-const actionsManager=new ActionsManager()
+const actionsManager=new ActionsManager(browser.tabs)
 const settingsManager=new SettingsManager(settingsData)
 
 // can't use window.* here and browser.runtime.getBackgroundPage() in panel/options pages because:

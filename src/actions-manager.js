@@ -4,9 +4,13 @@
  */
 
 export default class ActionsManager {
-	constructor() {
+	/**
+	 * @param browserTabs - needs to have these calls: .create(), .update(), .remove()
+	 */
+	constructor(browserTabs) {
 		/** @type{Map<number,Action>} */
 		this.tabActions=new Map()
+		this.browserTabs=browserTabs
 	}
 	/**
 	 * Check if has registered tab with action; if no then don't need to run {@link ActionsManager.act act()}
@@ -30,10 +34,17 @@ export default class ActionsManager {
 		this.tabActions.delete(tabId)
 		return hadTab
 	}
+	_addAction(tabId,action) {
+		const actions=this.tabActions.get(tabId)??[]
+		actions.push(action)
+		this.tabActions.set(tabId,actions)
+	}
 	listTabActionEntries() {
 		const tabActionEntries=[]
-		for (const [tabId,action] of this.tabActions) {
-			tabActionEntries.push([tabId,action.getOngoingActionMenuEntry()])
+		for (const [tabId,actions] of this.tabActions) {
+			for (const action of actions) {
+				tabActionEntries.push([tabId,action.getOngoingActionMenuEntry()])
+			}
 		}
 		return tabActionEntries
 	}
@@ -41,18 +52,18 @@ export default class ActionsManager {
 	 * @param action {OffshootAction}
 	 */
 	async addNewTabAction(settings,action) {
-		const newTab=await browser.tabs.create({
+		const newTab=await this.browserTabs.create({
 			openerTabId:action.openerTabId,
 			url:action.getActionUrl(settings)
 		})
-		this.tabActions.set(newTab.id,action)
+		this._addAction(newTab.id,action)
 	}
 	/**
 	 * @param action {Action}
 	 */
 	async addCurrentTabAction(settings,action,tabId) {
-		await this.addImmediateCurrentTabAction(settings,action,tabId)
-		browser.tabs.update(tabId,{
+		this._addAction(tabId,action)
+		this.browserTabs.update(tabId,{
 			url:action.getActionUrl(settings)
 		})
 	}
@@ -60,42 +71,43 @@ export default class ActionsManager {
 	 * @param action {Action}
 	 */
 	async addImmediateCurrentTabAction(settings,action,tabId) {
-		// { TODO add more than one action
-		if (this.tabActions.get(tabId)) {
-			console.log('action manager will replace tab action',tabId,action)
-		}
-		// }
-		this.tabActions.set(tabId,action)
+		this._addAction(tabId,action)
 	}
 	/**
 	 * @returns {Promise<boolean>} true if tab actions changed
 	 */
 	async act(settings,tab,tabState,messageTab) {
-		// TODO act on more than one action
-		const action=this.tabActions.get(tab.id)
-		if (!action) return false
-		if (action.needToRejectUrl(settings,tab.url)) return false
+		const actions=this.tabActions.get(tab.id)
+		if (!actions) return false
+		let isUpdated=false
 		this.tabActions.delete(tab.id)
-		const tabActionsUpdate=await action.act(settings,tab,tabState,messageTab)
-		if (tabActionsUpdate) {
-			const [newTabId,newAction]=tabActionsUpdate
-			this.tabActions.set(newTabId,newAction)
-			if (newTabId==tab.id && newAction==action) {
-				return false
+		for (const action of actions) {
+			if (action.needToRejectUrl(settings,tab.url)) {
+				this._addAction(tab.id,action)
+				continue
 			}
-			const update={}
-			if (newTabId!=tab.id) {
-				browser.tabs.remove(tab.id)
-				update.active=true
+			const tabActionsUpdate=await action.act(settings,tab,tabState,messageTab)
+			if (tabActionsUpdate) {
+				const [newTabId,newAction]=tabActionsUpdate
+				this._addAction(newTabId,newAction)
+				if (newTabId==tab.id && newAction==action) {
+					continue
+				}
+				const update={}
+				if (newTabId!=tab.id) {
+					this.browserTabs.remove(tab.id)
+					update.active=true
+				}
+				if (newAction) {
+					const url=newAction.getActionUrl(settings)
+					if (url!=null) update.url=url
+				}
+				if (Object.keys(update).length>0) {
+					this.browserTabs.update(newTabId,update)
+				}
 			}
-			if (newAction) {
-				const url=newAction.getActionUrl(settings)
-				if (url!=null) update.url=url
-			}
-			if (Object.keys(update).length>0) {
-				browser.tabs.update(newTabId,update)
-			}
+			isUpdated=true
 		}
-		return true
+		return isUpdated
 	}
 }
