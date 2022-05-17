@@ -6,7 +6,7 @@ import * as Actions from './actions.js'
 import icon from './icon.js'
 import installOrUninstallHeadersReceivedListener from './webrequest.js'
 
-const statesManager=new StatesManager(injectCssIntoTab)
+const statesManager=new StatesManager(messageTab,injectCssIntoTab)
 const actionsManager=new ActionsManager(browser.tabs)
 const settingsManager=new SettingsManager(settingsData)
 const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
@@ -52,10 +52,7 @@ browser.runtime.onMessage.addListener(message=>{
 browser.tabs.onActivated.addListener(async({tabId})=>{
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const tab=await browser.tabs.get(tabId)
-	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(
-		settings,permissions,tab,
-		messageTab
-	)
+	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 })
@@ -68,7 +65,7 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	// may also act only on active tabs, then can skip if tab is not (active || previous)
 	// on the other hand these optimizations won't matter much b/c updated tabs are mostly active
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
-	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,messageTab)
+	const messageData=await statesManager.updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	const tabState=statesManager.getTabState(tabId)
@@ -92,7 +89,7 @@ async function init() {
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const hasWebRequestPermission=await browser.permissions.contains({permissions:['webRequest','webRequestBlocking']})
 	installOrUninstallHeadersReceivedListener(settings,permissions,hasWebRequestPermission)
-	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab)
+	const messageData=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
 	}
@@ -106,7 +103,7 @@ async function handleStateChangingSettingsChange() {
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
 	const hasWebRequestPermission=await browser.permissions.contains({permissions:['webRequest','webRequestBlocking']})
 	installOrUninstallHeadersReceivedListener(settings,permissions,hasWebRequestPermission)
-	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
+	const messageData=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs)
 	for (const tab of activeTabs) {
 		setIconOnTab(tab)
 	}
@@ -117,7 +114,7 @@ async function handleStateChangingSettingsChange() {
 async function registerNewPanel(tab) {
 	sendUpdatePermissionsMessage() // TODO limit the update to this tab
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
-	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab)
+	const messageData=await statesManager.updateTabStateBecauseNewPanelOpened(settings,permissions,tab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	reactToActionsUpdate()

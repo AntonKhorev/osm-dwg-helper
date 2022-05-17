@@ -9,7 +9,11 @@ import {
 
 // tab objects expected to have fields: id, url, active
 export default class StatesManager {
-	constructor(injectCssIntoTab=()=>{}) {
+	/**
+	 * @param messageTab {(tabId,contentScript,message)=>Promise}
+	 */
+	constructor(messageTab,injectCssIntoTab=()=>{}) {
+		this.messageTab=messageTab
 		this.injectCssIntoTab=injectCssIntoTab
 		this.tabStates=new Map()
 		this.previousTab=undefined
@@ -28,59 +32,59 @@ export default class StatesManager {
 	}
 	// need to be aware of race conditions in async functions
 	// because of browser onActivated and onUpdated ~simultaneous events
-	async updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs,messageTab) {
+	async updateTabStatesOnStartup(settings,permissions,activeTabs,activeFocusedTabs) {
 		this.activatedTab=activeFocusedTabs[0]
-		return this.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab)
+		return this.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,this.messageTab)
 	}
-	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,messageTab) {
+	async updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs) {
 		const messagedTabIds=[]
 		let needToUpdatePreviousTab=this.previousTab!=null
 		for (const tab of activeTabs) {
 			if (tab.id==this.previousTab?.id) {
 				needToUpdatePreviousTab=false
 			}
-			await this.pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds)
+			await this.pushIfChangedAndActive(settings,permissions,tab,messagedTabIds)
 		}
 		if (needToUpdatePreviousTab) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab,this.injectCssIntoTab)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,this.messageTab,this.injectCssIntoTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,messageTab) {
+	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab) {
 		this.previousTab=this.activatedTab
 		this.activatedTab=tab
 		if (this.previousTab!=null && !this.tabStates.get(this.previousTab.id)) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab,this.injectCssIntoTab)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,this.messageTab,this.injectCssIntoTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		if (!this.tabStates.get(tab.id)) {
-			const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
+			const tabState=await getTabState(settings,permissions,tab,this.messageTab,this.injectCssIntoTab)
 			this.tabStates.set(tab.id,tabState)
 		}
 		return this.getMessageArgs([tab.id]) // active + result of tab switch
 	}
-	async updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab,messageTab) {
+	async updateTabStateBecauseBrowserTabUpdated(settings,permissions,tab) {
 		const messagedTabIds=[]
-		await this.pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds)
+		await this.pushIfChangedAndActive(settings,permissions,tab,messagedTabIds)
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab) {
-		const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
+	async updateTabStateBecauseNewPanelOpened(settings,permissions,tab) {
+		const tabState=await getTabState(settings,permissions,tab,this.messageTab,this.injectCssIntoTab)
 		this.tabStates.set(tab.id,tabState)
 		return this.getMessageArgs([tab.id])
 	}
 	/**
 	 * @private
 	 */
-	async pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds) {
+	async pushIfChangedAndActive(settings,permissions,tab,messagedTabIds) {
 		let oldTabState=this.tabStates.get(tab.id)
 		let tabStateChanged=false
 		if (oldTabState==null) {
 			tabStateChanged=true
 			this.tabStates.set(tab.id,oldTabState={})
 		}
-		const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
+		const tabState=await getTabState(settings,permissions,tab,this.messageTab,this.injectCssIntoTab)
 		if (!isTabStateEqual(oldTabState,tabState)) {
 			tabStateChanged=true
 		}

@@ -5,21 +5,20 @@ import StatesManager from '../src/states-manager.js'
 
 describe("StatesManager",()=>{
 	it("evaluates tab states of unknown type over clean state then reevaluates them",async()=>{
-		const statesManager=new StatesManager()
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
 		const activeTabs=[
 			{id:23, url:`http://example.com/23.html`, active:true},
 			{id:42, url:`http://example.com/42.html`, active:true},
 		]
 		{
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[23,42])
 			assert.equal(otherTabId,undefined)
 		}
 		{
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged({},{},activeTabs)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[])
 			assert.equal(otherTabId,undefined)
@@ -33,9 +32,9 @@ describe("StatesManager",()=>{
 		const activeTabs=[
 			{id:23, url:`https://myosm.org/messages/321`, active:true},
 		]
-		const statesManager=new StatesManager()
 		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,tabMessenger)
+		const statesManager=new StatesManager(tabMessenger)
+		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs)
 		testAfterTabMessenger()
 		assert.deepEqual(tabIds,[23])
 		assert.equal(otherTabId,undefined)
@@ -54,7 +53,6 @@ describe("StatesManager",()=>{
 		const activeTabs=[
 			{id:23, url:`https://myosm.org/messages/321`, active:true},
 		]
-		const statesManager=new StatesManager()
 		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest([(tabId,script,message)=>{
 			assert.equal(tabId,23)
 			assert.equal(script,'message')
@@ -62,7 +60,8 @@ describe("StatesManager",()=>{
 		}],[
 			{extraStuff:'Extra stuff!!'}
 		])
-		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs,tabMessenger)
+		const statesManager=new StatesManager(tabMessenger)
+		const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseSettingsChanged(settings,permissions,activeTabs)
 		testAfterTabMessenger()
 		assert.deepEqual(tabIds,[23])
 		assert.equal(otherTabId,undefined)
@@ -76,19 +75,18 @@ describe("StatesManager",()=>{
 			osm: `https://myosm.org/`,
 		}
 		const permissions={}
-		const statesManager=new StatesManager()
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
 		{
 			const tab={id:12, url:`http://example.com/`, active:true}
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[12])
 			assert.equal(otherTabId,undefined)
 		}
 		{
 			const tab={id:23, url:`https://myosm.org/messages/321`, active:true}
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[23])
 			assert.equal(otherTabId,12)
@@ -100,21 +98,20 @@ describe("StatesManager",()=>{
 			osm: `https://myosm.org/`,
 		}
 		const permissions={}
-		const statesManager=new StatesManager()
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
 		{
 			const activeTabs=[
 				{id:12, url:`http://example.com/`, active:true}
 			]
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeTabs,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesOnStartup(settings,permissions,activeTabs,activeTabs)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[12])
 			assert.equal(otherTabId,undefined)
 		}
 		{
 			const tab={id:23, url:`https://myosm.org/messages/321`, active:true}
-			const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
-			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,tabMessenger)
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
 			testAfterTabMessenger()
 			assert.deepEqual(tabIds,[23])
 			assert.equal(otherTabId,12)
