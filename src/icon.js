@@ -7,7 +7,10 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=['message','issue','user','block','ticket','ticket-add']
+export const types=[
+	'message','issue','user','block','ticket','ticket-add', // page types
+	'closed','open' // ui branding
+]
 
 export function svg(type) {
 	let content=tabs()
@@ -17,7 +20,9 @@ export function svg(type) {
 	if (type=='block') content+=cross()
 	if (type=='ticket' || type=='ticket-add') content+=ticket()
 	if (type=='ticket-add') content+=add()
-	return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
+	if (type=='closed') content+=closedMarker()
+	if (type=='open') content+=openMarker()
+	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
 }
 
 function tabs() {
@@ -77,4 +82,12 @@ function add() {
 		`<line x1='${x-size}' y1='0' x2='${x+size}' y2='0' stroke='#44F' stroke-width='4' />`+
 		`<line x1='${x}' y1='-${size}' x2='${x}' y2='${size}' stroke='#44F' stroke-width='4' />`
 	)
+}
+
+function closedMarker() {
+	return `<polygon points='-7,-7 11,0 -7,7' stroke='#F44' fill='#FCC' />`
+}
+
+function openMarker() {
+	return `<polygon points='-7,-7 7,-7 0,11' stroke='#F44' fill='#FCC' />`
 }

@@ -1,0 +1,47 @@
+.osm-dwg-helper-pane {
+	--pane-color: #7ebc6f;
+	--pane-hover-color: #dcedd7;
+	--pane-border-width: 2px;
+	background: var(--pane-color);
+	user-select: none;
+}
+.osm-dwg-helper-pane > summary {
+	list-style: none;
+}
+.osm-dwg-helper-pane > summary > span {
+	display: block;
+	max-width: 960px;
+	padding: var(--pane-border-width) 20px;
+	margin: auto;
+	background: no-repeat left url(../icons/closed.svg);
+}
+.osm-dwg-helper-pane[open] > summary > span {
+	background-image: url(../icons/open.svg);
+}
+.osm-dwg-helper-pane > div {
+	overflow: auto;
+	resize: vertical;
+	background: #eee;
+	border: solid var(--pane-color);
+	border-width: 0 var(--pane-border-width) var(--pane-border-width);
+	height: 50vh;
+}
+.osm-dwg-helper-pane > div > iframe {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+.osm-dwg-helper-pane:hover {
+	background: var(--pane-hover-color);
+}
+.osm-dwg-helper-pane:hover > div {
+	border-color: var(--pane-hover-color);
+}
+.osm-dwg-helper-changeset-anchor {
+	text-decoration: underline dashed;
+}
+.osm-dwg-helper-changeset-anchor:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}

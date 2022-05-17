@@ -104,7 +104,6 @@ function injectReportedItemPanes(document,issueData,osmcha) {
 		removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
 		return
 	}
-	injectStyle(document,'osm-dwg-helper-style')
 	if (item?.type=='note') {
 		injectPane(document,'osm-dwg-helper-reported-item-pane',1,item.url,{},`Note #${item.id}`)
 		removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
@@ -121,65 +120,6 @@ function injectReportedItemPanes(document,issueData,osmcha) {
 			removePane(document,'osm-dwg-helper-reported-item-pane-osmcha')
 		}
 	}
-}
-
-function injectStyle(document,id) {
-	const paneColor='#7ebc6f'
-	const paneHoverColor='#dcedd7'
-	const paneBorderWidth=2
-	const $existingStyle=document.getElementById(id)
-	if ($existingStyle) return
-	const $head=document.querySelector('head')
-	if (!$head) return
-	const $style=document.createElement('style')
-	$style.id=id
-	$style.innerHTML=`
-		.osm-dwg-helper-pane {
-			background: ${paneColor};
-			user-select: none;
-		}
-		.osm-dwg-helper-pane > summary {
-			list-style: none;
-		}
-		.osm-dwg-helper-pane > summary > span {
-			display: block;
-			max-width: 960px;
-			padding: ${paneBorderWidth}px 20px;
-			margin: auto;
-			background: no-repeat left url(${makeIcon('closed')});
-		}
-		.osm-dwg-helper-pane[open] > summary > span {
-			background-image: url(${makeIcon('open')});
-		}
-		.osm-dwg-helper-pane > div {
-			overflow: auto;
-			resize: vertical;
-			background: #eee;
-			border: solid ${paneColor};
-			border-width: 0 ${paneBorderWidth}px ${paneBorderWidth}px;
-			height: 50vh;
-		}
-		.osm-dwg-helper-pane > div > iframe {
-			display: block;
-			width: 100%;
-			height: 100%;
-			border: none;
-		}
-		.osm-dwg-helper-pane:hover {
-			background: ${paneHoverColor};
-		}
-		.osm-dwg-helper-pane:hover > div {
-			border-color: ${paneHoverColor};
-		}
-		.osm-dwg-helper-changeset-anchor {
-			text-decoration: underline dashed;
-		}
-		.osm-dwg-helper-changeset-anchor:hover {
-			cursor: pointer;
-			text-decoration: underline;
-		}
-	`
-	$head.append($style)
 }
 
 function removePane(document,id) {
@@ -303,32 +243,4 @@ function escapeOsmchaFilterValue(value) {
 		const cEscapedValue=String(singleValue).replace(/\\/g,'\\\\').replace(/"/g,'\\"')
 		return `{"label":"${cEscapedValue}","value":"${cEscapedValue}"}`
 	}).join(',')+']'
-}
-
-// contains copypaste from icon.js
-function makeIcon(type) {
-	const data=makeSvg(type)
-	return "data:image/svg+xml;charset=utf-8;base64,"+btoa(data)
-}
-
-function makeSvg(type) {
-	let content=drawTabs()
-	if (type=='closed') content+=drawClosedMarker()
-	if (type=='open') content+=drawOpenMarker()
-	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
-}
-
-function drawTabs() {
-	return (
-		`<polygon points='-15,15 -15,-11 -11,-11 -11,-15 7,-15 7,-11 11,-11' fill='rgb(90%,90%,90%)' stroke='rgb(20%,20%,40%)' />`+
-		`<polygon points='15,-15 15,11 11,11 11,15 -7,15 -7,11 -11,11' fill='rgb(40%,40%,40%)' stroke='rgb(10%,10%,20%)' />`
-	)
-}
-
-function drawClosedMarker() {
-	return `<polygon points='-7,-7 11,0 -7,7' stroke='#F44' fill='#FCC' />`
-}
-
-function drawOpenMarker() {
-	return `<polygon points='-7,-7 7,-7 0,11' stroke='#F44' fill='#FCC' />`
 }

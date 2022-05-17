@@ -9,7 +9,8 @@ import {
 
 // tab objects expected to have fields: id, url, active
 export default class StatesManager {
-	constructor() {
+	constructor(injectCssIntoTab=()=>{}) {
+		this.injectCssIntoTab=injectCssIntoTab
 		this.tabStates=new Map()
 		this.previousTab=undefined
 		this.activatedTab=undefined // to set value for this.previousTab when another tab activated
@@ -41,7 +42,7 @@ export default class StatesManager {
 			await this.pushIfChangedAndActive(settings,permissions,tab,messageTab,messagedTabIds)
 		}
 		if (needToUpdatePreviousTab) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab,this.injectCssIntoTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		return this.getMessageArgs(messagedTabIds)
@@ -50,11 +51,11 @@ export default class StatesManager {
 		this.previousTab=this.activatedTab
 		this.activatedTab=tab
 		if (this.previousTab!=null && !this.tabStates.get(this.previousTab.id)) {
-			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab)
+			const previousTabState=await getTabState(settings,permissions,this.previousTab,messageTab,this.injectCssIntoTab)
 			this.tabStates.set(this.previousTab.id,previousTabState)
 		}
 		if (!this.tabStates.get(tab.id)) {
-			const tabState=await getTabState(settings,permissions,tab,messageTab)
+			const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
 			this.tabStates.set(tab.id,tabState)
 		}
 		return this.getMessageArgs([tab.id]) // active + result of tab switch
@@ -65,7 +66,7 @@ export default class StatesManager {
 		return this.getMessageArgs(messagedTabIds)
 	}
 	async updateTabStateBecauseNewPanelOpened(settings,permissions,tab,messageTab) {
-		const tabState=await getTabState(settings,permissions,tab,messageTab)
+		const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
 		this.tabStates.set(tab.id,tabState)
 		return this.getMessageArgs([tab.id])
 	}
@@ -79,7 +80,7 @@ export default class StatesManager {
 			tabStateChanged=true
 			this.tabStates.set(tab.id,oldTabState={})
 		}
-		const tabState=await getTabState(settings,permissions,tab,messageTab)
+		const tabState=await getTabState(settings,permissions,tab,messageTab,this.injectCssIntoTab)
 		if (!isTabStateEqual(oldTabState,tabState)) {
 			tabStateChanged=true
 		}
@@ -104,7 +105,7 @@ export default class StatesManager {
 	}
 }
 
-async function getTabState(settings,permissions,tab,messageTab) {
+async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab) {
 	const tabState={}
 	if (settings.osm) {
 		const messageId=getOsmMessageIdFromUrl(settings.osm,tab.url)
@@ -124,6 +125,7 @@ async function getTabState(settings,permissions,tab,messageTab) {
 	if (settings.osm) {
 		const issueId=getOsmIssueIdFromUrl(settings.osm,tab.url)
 		if (issueId!=null) {
+			injectCssIntoTab(tab.id,'issue')
 			tabState.type='issue'
 			tabState.issueData={
 				osmRoot:settings.osm, // TODO get rid of osmRoot, currently used to construct osm links from reported-by usernames

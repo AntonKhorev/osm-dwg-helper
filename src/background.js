@@ -6,7 +6,7 @@ import * as Actions from './actions.js'
 import icon from './icon.js'
 import installOrUninstallHeadersReceivedListener from './webrequest.js'
 
-const statesManager=new StatesManager()
+const statesManager=new StatesManager(injectCssIntoTab)
 const actionsManager=new ActionsManager(browser.tabs)
 const settingsManager=new SettingsManager(settingsData)
 const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
@@ -201,7 +201,11 @@ async function sendUpdatePermissionsMessage() {
 }
 
 async function messageTab(tabId,contentScript,message) {
-	await browser.tabs.executeScript(tabId,{file:'browser-polyfill.js'})
-	await browser.tabs.executeScript(tabId,{file:`content/${contentScript}.js`})
+	await browser.tabs.executeScript(tabId,{file:'/browser-polyfill.js'})
+	await browser.tabs.executeScript(tabId,{file:`/content/${contentScript}.js`})
 	return await browser.tabs.sendMessage(tabId,message)
+}
+
+function injectCssIntoTab(tabId,contentScript) {
+	browser.tabs.insertCSS(tabId,{file:`/content/${contentScript}.css`})
 }

@@ -43,6 +43,7 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 	})
 	bundle.close()
 }
+await fs.copy('src/content/issue.css','dist/content/issue.css')
 
 // generate sidebar and popup html
 {
