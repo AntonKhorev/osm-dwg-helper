@@ -7,10 +7,9 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=[
-	'message','issue','user','block','ticket','ticket-add', // page types
-	'closed','open' // ui branding
-]
+export const types=['message','issue','user','block','ticket','ticket-add']
+
+export const uiBrandings=['closed','open']
 
 export function svg(type) {
 	let content=tabs()

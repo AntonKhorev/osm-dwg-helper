@@ -13,10 +13,10 @@
 	max-width: 960px;
 	padding: var(--pane-border-width) 20px;
 	margin: auto;
-	background: no-repeat left url(../icons/closed.svg);
+	background: no-repeat left url(/icons/closed.svg);
 }
 .osm-dwg-helper-pane[open] > summary > span {
-	background-image: url(../icons/open.svg);
+	background-image: url(/icons/open.svg);
 }
 .osm-dwg-helper-pane > div {
 	overflow: auto;

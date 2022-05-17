@@ -4,7 +4,7 @@ import convertSvgToPng from 'convert-svg-to-png'
 import { rollup } from 'rollup'
 import virtual from '@rollup/plugin-virtual'
 import camelcase from 'camelcase'
-import * as icon from './src/icon.js'
+import iconData, * as icon from './src/icon.js'
 
 // copy files
 await fs.remove('dist')
@@ -43,7 +43,19 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 	})
 	bundle.close()
 }
-await fs.copy('src/content/issue.css','dist/content/issue.css')
+{
+	const inputFilename='src/content/issue.css'
+	const outputFilename='dist/content/issue.css'
+	let contents=String(await fs.readFile(inputFilename))
+	for (const uiBranding of icon.uiBrandings) {
+		const data=iconData(uiBranding)
+		contents=contents.replace(
+			new RegExp(`url\\(/icons/${uiBranding}\\.svg\\)`,'g'),
+			`url(${data})`
+		)
+	}
+	await fs.writeFile(outputFilename,contents)
+}
 
 // generate sidebar and popup html
 {
