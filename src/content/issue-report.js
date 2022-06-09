@@ -9,41 +9,23 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 	for (const $p of $report.children) {
 		if ($p.tagName!='P') continue
 		if (iParagraph==0) {
-			for (const pChild of $p.childNodes) {
-				if (pChild.nodeType==Node.TEXT_NODE) {
-					const [textBefore,textCategory,textAfter]=splitByReportCategory(pChild.nodeValue)
-					if (textBefore.length>0) {
-						report.lead.push(['plain',textBefore])
-					}
-					if (textCategory.length>0) {
-						report.category=textCategory
-						report.lead.push(['category',textCategory])
-					}
-					if (textAfter.length>0) {
-						report.lead.push(['plain',textAfter])
-					}
-				} else if (pChild.nodeType==Node.ELEMENT_NODE) {
-					// TODO check if it's <a>, process as plaintext otherwise
-					report.by=pChild.innerText
-					report.lead.push(['user',report.by])
-				}
-			}
+			Object.assign(report,parseLead($p))
 		} else {
-			report.text.push($p.innerText)
+			report.text.push($p.textContent)
 			markChangesetLinks($p)
 		}
 		iParagraph++
 	}
 	return report
 	function markChangesetLinks($reportText) {
-		let input=$reportText.innerText
+		let input=$reportText.textContent
 		$reportText.innerHTML=''
 		let match
 		while (match=input.match(/(^|.*?\s)(\S*\/changeset\/(\d+))(.*)$/)) {
 			const [,before,changesetText,changesetId,after]=match
 			if (before) $reportText.append(before)
 			const $a=document.createElement('a')
-			$a.innerText=changesetText
+			$a.textContent=changesetText
 			$a.classList.add('osm-dwg-helper-changeset-anchor')
 			$a.dataset.changesetId=changesetId
 			try {
@@ -58,6 +40,42 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 		}
 		if (input) $reportText.append(input)
 	}
+}
+
+function parseLead($p) {
+	const report={
+		lead: []
+	}
+	for (const pChild of $p.childNodes) {
+		if (pChild.nodeType==/*Node.TEXT_NODE*/3) {
+			const [textBefore,textCategory,textAfter]=splitByReportCategory(pChild.nodeValue)
+			if (textBefore.length>0) {
+				report.lead.push(['plain',textBefore])
+			}
+			if (textCategory.length>0) {
+				report.category=textCategory
+				report.lead.push(['category',textCategory])
+			}
+			if (textAfter.length>0) {
+				report.lead.push(['plain',textAfter])
+			}
+		} else if (pChild.nodeType==/*Node.ELEMENT_NODE*/1) {
+			// TODO check if it's <a>, process as plaintext otherwise
+			report.by=pChild.textContent
+			report.lead.push(['user',report.by])
+		}
+	}
+	if (report.lead.length>0) {
+		{
+			const [type,text]=report.lead[0]
+			if (type=='plain') report.lead[0]=[type,text.trimStart()]
+		}
+		{
+			const [type,text]=report.lead[report.lead.length-1]
+			if (type=='plain') report.lead[report.lead.length-1]=[type,text.trimEnd()]
+		}
+	}
+	return report
 }
 
 function splitByReportCategory(text) {
