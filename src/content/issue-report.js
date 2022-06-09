@@ -16,6 +16,12 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 		}
 		iParagraph++
 	}
+	if (report.text.length>0 && report.text[0].trim()=='') {
+		report.text.shift()
+	}
+	if (report.text.length>0 && report.text[report.text.length-1].trim()=='') {
+		report.text.pop()
+	}
 	return report
 	function markChangesetLinks($reportText) {
 		let input=$reportText.textContent
