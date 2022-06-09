@@ -5,16 +5,22 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 		lead:[],
 		text:[],
 	}
-	let iParagraph=0
-	for (const $p of $report.children) {
-		if ($p.tagName!='P') continue
-		if (iParagraph==0) {
-			Object.assign(report,parseLead($p))
-		} else {
-			report.text.push($p.textContent)
-			markChangesetLinks($p)
+	let firstParagraph=true
+	for (const $child of $report.children) {
+		if ($child.tagName=='P') {
+			if (firstParagraph) {
+				firstParagraph=false
+				Object.assign(report,parseLead($child))
+			} else {
+				report.text.push($child.textContent)
+				markChangesetLinks($child)
+			}
+		} else if ($child.tagName=='DIV') {
+			for (const $p of $child.querySelectorAll('p')) {
+				report.text.push($p.textContent)
+				markChangesetLinks($p)
+			}
 		}
-		iParagraph++
 	}
 	if (report.text.length>0 && report.text[0].trim()=='') {
 		report.text.shift()

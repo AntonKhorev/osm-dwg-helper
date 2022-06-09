@@ -1,6 +1,9 @@
 # Change Log
 
-## 0.5.2
+## 0.6.0
+
+- Partial fix for richtext issue reports
+- Partial fix for a possible osm website fix of richtext issue reports (wrap richtext with *div* instead of *p*)
 
 ## 0.5.1
 
