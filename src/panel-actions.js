@@ -152,7 +152,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		}
 		{
 			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
-				const text=tabState.issueData.reports.map(report=>report.text.join('\n')).join('\n\n---\n\n')
+				const text=tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n') // TODO remove tags?
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 				addAction(makeLink(googleTranslateUrl,'translate issue text'))
 			}
