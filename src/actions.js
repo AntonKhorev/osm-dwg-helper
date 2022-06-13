@@ -375,9 +375,7 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 				}
 				ticketData.Body+=`</p>\n`
 			}
-			for (const paragraph of report.text) {
-				ticketData.Body+=`<p>${escapeHtml(paragraph)}</p>\n`
-			}
+			ticketData.Body+=report.text
 		}
 	}
 	return ticketData

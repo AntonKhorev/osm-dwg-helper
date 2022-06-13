@@ -2,6 +2,8 @@
 
 ## 0.6.1
 
+- Copy issue reports as html instead of as a sequence of plaintext paragraphs
+
 ## 0.6.0
 
 - Partial fix for richtext issue reports
