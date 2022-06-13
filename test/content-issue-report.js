@@ -32,6 +32,25 @@ describe("issue report module",()=>{
 		const result=processReport(document,$report)
 		assertReportText(result,`<p>one</p><p>two</p><p>three</p>`)
 	})
+	it("processes broken richtext multi-paragraph reports with empty paragraphs",()=>{
+		const [document,$report]=prepareDocumentAndReport(
+			`<p class="richtext text-break"></p>`+
+			`<p>one</p>`+
+			`<p>two</p>`+
+			`<p></p>`+
+			`<p></p>`+
+			`<p>three</p>`+
+			`<p></p>`
+		)
+		const result=processReport(document,$report)
+		assertReportText(result,
+			`<p>one</p>`+
+			`<p>two</p>`+
+			`<p></p>`+
+			`<p></p>`+
+			`<p>three</p>`
+		)
+	})
 	it("processes richtext single-paragraph reports",()=>{
 		const [document,$report]=prepareDocumentAndReport(
 			`<div class="richtext text-break">`+

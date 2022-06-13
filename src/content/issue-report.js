@@ -15,10 +15,10 @@ export default function processReport(document,$report) {
 			} else {
 				markChangesetLinks($child)
 				const currentTextParagraphIsEmpty=$child.innerHTML==''
+				if (lastTextParagraphWasEmpty && report.text!='') {
+					report.text+=`<p></p>`
+				}
 				if (!currentTextParagraphIsEmpty) {
-					if (lastTextParagraphWasEmpty && report.text!='') {
-						report.text+=`<p></p>`
-					}
 					report.text+=$child.outerHTML
 				}
 				lastTextParagraphWasEmpty=currentTextParagraphIsEmpty
@@ -28,12 +28,6 @@ export default function processReport(document,$report) {
 			report.text+=$child.innerHTML
 		}
 	}
-	// if (report.text.length>0 && report.text[0].trim()=='') {
-	// 	report.text.shift()
-	// }
-	// if (report.text.length>0 && report.text[report.text.length-1].trim()=='') {
-	// 	report.text.pop()
-	// }
 	return report
 	function markChangesetLinks($reportText) {
 		for (const $a of $reportText.querySelectorAll('a[href]')) {
