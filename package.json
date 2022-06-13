@@ -1,6 +1,6 @@
 {
   "name": "osm-dwg-helper",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Browser extension to handle reported issues on OpenStreetMap website",
   "type": "module",
   "scripts": {
