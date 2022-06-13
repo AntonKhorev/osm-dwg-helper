@@ -1,13 +1,20 @@
-export default function processReport(document,$report) {
+export default function processReport(document,$report,selected=false) {
 	// report render code: https://github.com/openstreetmap/openstreetmap-website/blob/master/app/views/issues/_reports.html.erb
+	const [$reportAvatarColumn,$reportMainColumn]=$report.children
+	if (!$reportAvatarColumn.querySelector('.osm-dwg-helper-report-checkbox')) {
+		const $checkbox=document.createElement('input')
+		$checkbox.type='checkbox'
+		$checkbox.checked=selected
+		$checkbox.classList.add('osm-dwg-helper-report-checkbox')
+		$reportAvatarColumn.append(document.createElement('br'),$checkbox)
+	}
 	const report={
-		wasRead:$report.parentElement.parentElement.classList.contains('text-muted'),
 		lead:[],
 		text:'',
 	}
 	let firstParagraph=true
 	let lastTextParagraphWasEmpty=false
-	for (const $child of $report.children) {
+	for (const $child of $reportMainColumn.children) {
 		if ($child.tagName=='P') {
 			if (firstParagraph) {
 				firstParagraph=false

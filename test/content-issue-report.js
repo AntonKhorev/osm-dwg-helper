@@ -97,7 +97,7 @@ describe("issue report module",()=>{
 function prepareDocumentAndReport(report) {
 	const issuePage=issuePageTemplate.replace('{{report}}',report)
 	const {document}=new JSDOM(issuePage).window
-	const $report=document.querySelector('#content .row .row .col')
+	const $report=document.querySelector('#content .row .row')
 	return [document,$report]
 }
 
@@ -110,7 +110,6 @@ function assertReportText(result,text) {
 		['plain', ' on 18 May 2021 at 11:54']
 	]
 	assert.deepEqual(result,{
-		wasRead: false,
 		lead,
 		text,
 		category: 'spam',

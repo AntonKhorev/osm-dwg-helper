@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.6.2
+
 ## 0.6.1
 
 - Copy issue reports as html instead of as a sequence of plaintext paragraphs

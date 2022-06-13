@@ -22,16 +22,28 @@ function scrapeIssueData(document) {
 				if (reportedItem) issueData.reportedItem=reportedItem
 			}
 		}
-	}
-	for (const $report of $content.querySelectorAll('.row .row .col')) {
-		const report=processReport(document,$report)
-		if (!$report.dataset.osmDwgHelperClickListenerInstalled) {
-			$report.dataset.osmDwgHelperClickListenerInstalled=true
-			$report.addEventListener('click',processedReportClickListener)
+	}{
+		const $contentBodyInner=$content.querySelector('.content-body .content-inner')
+		if ($contentBodyInner) {
+			const [$readReports,$newReports,$comments]=getReportsAndComments($contentBodyInner)
+			processReportsOrComments($readReports,true,true)
+			processReportsOrComments($newReports,true,false)
+			processReportsOrComments($comments,false)
 		}
-		issueData.reports.push(report)
 	}
 	return issueData
+	function processReportsOrComments($reports,areReports,wereRead) {
+		if (!$reports) return
+		for (const $report of $reports.querySelectorAll('.row')) {
+			const report=processReport(document,$report,areReports&&!wereRead)
+			if (areReports) report.wasRead=wereRead
+			if (!$report.dataset.osmDwgHelperClickListenerInstalled) {
+				$report.dataset.osmDwgHelperClickListenerInstalled=true
+				$report.addEventListener('click',processedReportClickListener)
+			}
+			if (areReports) issueData.reports.push(report)
+		}
+	}
 	function processedReportClickListener(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
 		const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
 		if (!$osmchaPane) return
@@ -50,6 +62,21 @@ function scrapeIssueData(document) {
 		$osmchaPane.open=true
 		$osmchaPane.scrollIntoView()
 	}
+}
+
+function getReportsAndComments($contentBodyInner) {
+	const [$reportsAndOtherIssues,,$comments]=$contentBodyInner.children
+	const [$allReports]=$reportsAndOtherIssues.children
+	let $readReports,$newReports
+	for (const $reports of $allReports.children) {
+		if ($reports.tagName!='DIV') continue
+		if ($reports.classList.contains('text-muted')) {
+			$readReports=$reports
+		} else {
+			$newReports=$reports
+		}
+	}
+	return [$readReports,$newReports,$comments]
 }
 
 function injectReportedItemPanes(document,issueData,osmcha) {
