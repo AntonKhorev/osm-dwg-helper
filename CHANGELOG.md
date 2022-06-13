@@ -1,9 +1,11 @@
 # Change Log
 
+## 0.6.1
+
 ## 0.6.0
 
 - Partial fix for richtext issue reports
-- Partial fix for a possible osm website fix of richtext issue reports (wrap richtext with *div* instead of *p*)
+- Partial fix for [the osm website fix of richtext issue reports](https://github.com/openstreetmap/openstreetmap-website/pull/3566) (wrap richtext with *div* instead of *p*)
 
 ## 0.5.1
 

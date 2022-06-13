@@ -9,7 +9,7 @@ const issuePageTemplate=String(await fs.readFile('test/issue.html'))
 describe("issue report module",()=>{
 	it("processes old plaintext reports",()=>{
 		const [document,$report]=prepareDocumentAndReport(`<p>old style plaintext</p>`)
-		const result=processReport(document,$report,()=>{})
+		const result=processReport(document,$report)
 		assertReportText(result,'old style plaintext')
 	})
 	it("processes broken richtext single-paragraph reports",()=>{
@@ -18,7 +18,7 @@ describe("issue report module",()=>{
 			`<p>broken richtext</p>`+
 			`<p></p>`
 		)
-		const result=processReport(document,$report,()=>{})
+		const result=processReport(document,$report)
 		assertReportText(result,'broken richtext')
 	})
 	it("processes broken richtext multi-paragraph reports",()=>{
@@ -29,7 +29,7 @@ describe("issue report module",()=>{
 			`<p>three</p>`+
 			`<p></p>`
 		)
-		const result=processReport(document,$report,()=>{})
+		const result=processReport(document,$report)
 		assertReportText(result,'one','two','three')
 	})
 	it("processes richtext single-paragraph reports",()=>{
@@ -38,7 +38,7 @@ describe("issue report module",()=>{
 			`<p>broken richtext</p>`+
 			`</div>`
 		)
-		const result=processReport(document,$report,()=>{})
+		const result=processReport(document,$report)
 		assertReportText(result,'broken richtext')
 	})
 	it("processes richtext multi-paragraph reports",()=>{
@@ -49,7 +49,7 @@ describe("issue report module",()=>{
 			`<p>three</p>`+
 			`</div>`
 		)
-		const result=processReport(document,$report,()=>{})
+		const result=processReport(document,$report)
 		assertReportText(result,'one','two','three')
 	})
 	

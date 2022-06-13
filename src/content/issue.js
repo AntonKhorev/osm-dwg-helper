@@ -24,15 +24,22 @@ function scrapeIssueData(document) {
 		}
 	}
 	for (const $report of $content.querySelectorAll('.row .row .col')) {
-		const report=processReport(document,$report,markedChangesetLinkClickHandler)
+		const report=processReport(document,$report)
+		if (!$report.dataset.osmDwgHelperClickListenerInstalled) {
+			$report.dataset.osmDwgHelperClickListenerInstalled=true
+			$report.addEventListener('click',processedReportClickListener)
+		}
 		issueData.reports.push(report)
 	}
 	return issueData
-	function markedChangesetLinkClickHandler(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
+	function processedReportClickListener(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
 		const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
 		if (!$osmchaPane) return
+		const $a=ev.target.closest('a')
+		if (!$a) return
+		const changesetId=$a.dataset.changesetId
+		if (changesetId==null) return
 		ev.preventDefault()
-		const changesetId=this.dataset.changesetId
 		const osmcha=$osmchaPane.dataset.osmcha
 		const osmchaFilter=$osmchaPane.dataset.osmchaFilter
 		const osmchaUrl=`${osmcha}changesets/${encodeURIComponent(changesetId)}/?filters=${encodeURIComponent(osmchaFilter)}`

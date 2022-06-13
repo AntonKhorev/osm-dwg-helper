@@ -1,4 +1,4 @@
-export default function processReport(document,$report,markedChangesetLinkClickHandler) {
+export default function processReport(document,$report) {
 	// report render code: https://github.com/openstreetmap/openstreetmap-website/blob/master/app/views/issues/_reports.html.erb
 	const report={
 		wasRead:$report.parentElement.parentElement.classList.contains('text-muted'),
@@ -30,6 +30,18 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 	}
 	return report
 	function markChangesetLinks($reportText) {
+		for (const $a of $reportText.querySelectorAll('a[href]')) {
+			let match
+			if (match=$a.href.match(/\/changeset\/(\d+)/)) {
+				const [,changesetId]=match
+				$a.dataset.changesetId=changesetId
+				$a.classList.add('osm-dwg-helper-changeset-anchor')
+			}
+		}
+	}
+	/*
+	// old version that was inserting links in plaintext
+	function markChangesetLinks($reportText) {
 		let input=$reportText.textContent
 		$reportText.innerHTML=''
 		let match
@@ -52,6 +64,7 @@ export default function processReport(document,$report,markedChangesetLinkClickH
 		}
 		if (input) $reportText.append(input)
 	}
+	*/
 }
 
 function parseLead($p) {
