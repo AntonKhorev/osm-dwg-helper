@@ -3,31 +3,37 @@ export default function processReport(document,$report) {
 	const report={
 		wasRead:$report.parentElement.parentElement.classList.contains('text-muted'),
 		lead:[],
-		text:[],
+		text:'',
 	}
 	let firstParagraph=true
+	let lastTextParagraphWasEmpty=false
 	for (const $child of $report.children) {
 		if ($child.tagName=='P') {
 			if (firstParagraph) {
 				firstParagraph=false
 				Object.assign(report,parseLead($child))
 			} else {
-				report.text.push($child.textContent)
 				markChangesetLinks($child)
+				const currentTextParagraphIsEmpty=$child.innerHTML==''
+				if (!currentTextParagraphIsEmpty) {
+					if (lastTextParagraphWasEmpty && report.text!='') {
+						report.text+=`<p></p>`
+					}
+					report.text+=$child.outerHTML
+				}
+				lastTextParagraphWasEmpty=currentTextParagraphIsEmpty
 			}
 		} else if ($child.tagName=='DIV') {
-			for (const $p of $child.querySelectorAll('p')) {
-				report.text.push($p.textContent)
-				markChangesetLinks($p)
-			}
+			markChangesetLinks($child)
+			report.text+=$child.innerHTML
 		}
 	}
-	if (report.text.length>0 && report.text[0].trim()=='') {
-		report.text.shift()
-	}
-	if (report.text.length>0 && report.text[report.text.length-1].trim()=='') {
-		report.text.pop()
-	}
+	// if (report.text.length>0 && report.text[0].trim()=='') {
+	// 	report.text.shift()
+	// }
+	// if (report.text.length>0 && report.text[report.text.length-1].trim()=='') {
+	// 	report.text.pop()
+	// }
 	return report
 	function markChangesetLinks($reportText) {
 		for (const $a of $reportText.querySelectorAll('a[href]')) {
