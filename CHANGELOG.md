@@ -2,6 +2,8 @@
 
 ## 0.6.2
 
+- Reports and comments on issue pages have checkboxes that can be used to select what to include in a new ticket
+
 ## 0.6.1
 
 - Copy issue reports as html instead of as a sequence of plaintext paragraphs

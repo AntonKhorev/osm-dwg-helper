@@ -26,20 +26,22 @@ Overall the goals were:
 
 ### Create tickets from issues
 
-The standard procedure for converting an *OSM issue* into an *OTRS ticket* involves opening a *Create New Phone Ticket* form in OTRS and populating its fields with information from the OSM issue webpage. You can do this manually by copy-pasting which is tedious. There's [dwg_issue2ticket.user.js](https://github.com/woodpeck/osm-dwg-userscripts#dwg_issue2ticketuserjs) script from [osm-dwg-userscripts] to automate the creation of tickets from issues, but you may not like how it works and you may not bother getting it fully working.
+The standard procedure for converting an *OSM issue* into an *OTRS ticket* involves opening a *Create New Phone Ticket* form in OTRS and populating its fields with information from the OSM issue webpage. You can do this manually by copy-pasting which is tedious, that's why this extension was created to automate creating tickets from issues.
 
-This browser extension lets you do the same thing with some differences. Similar to [osm-dwg-userscripts], you start by opening the issue webpage (`https://www.openstreetmap.org/issues/`**`id`**). Then you click the *Create ticket* link in the extension panel. Unlike [osm-dwg-userscripts], where the ticket is created right away, this should open a *Create New Phone Ticket* form, giving you the opportunity to change ticket details. The form is going to have all of the required fields set. These fields are:
+You start by opening the issue webpage (`https://www.openstreetmap.org/issues/`**`id`**). Then you click the *Create ticket* link in the extension panel. This should open a *Create New Phone Ticket* form, giving you the opportunity to change ticket details. Before clicking the link you may select the reports and comments to be included in the ticket. By default, all new reports and no comments are selected.
 
-- *Customer user* containing usernames of users who reported the issue formatted as email addresses. If the issue was reported by several users, multiple customer user values will be set. Unlike [osm-dwg-userscripts], the actual email address is not hardcoded to non-working `@thisdoesnotwork.users.openstreetmap.org`, `@dwgmail.info` is used instead by default.
-- *To queue* set to a first valid queue. In case of the current DWG setup this is going to be a generic *Data Working Group* queue. [osm-dwg-userscripts] also sets this queue, but here you have the opportunity to change it - which is what you want because changing the queue of an existing ticket does other things like unlocking.
+The new ticket form is going to have all of the required fields set. These fields are:
+
+- *Customer user* containing usernames of users who reported the issue formatted as email addresses. If the issue was reported by several users and more than one report was selected, multiple customer user values will be set. Customers have an email address specified in the *Customer template* extension setting, which is set to `@dwgmail.info` by default.
+- *To queue* set to a first valid queue. In case of the current DWG setup this is going to be a generic *Data Working Group* queue. You may want to change the quere right away to something more specific. Changing the queue later, when the ticket is already created, may do other possibly unwanted things like unlocking.
 - *Subject* containing the issue id and the reported item.
-- *Text* with issue reports, like the one shown on the issue webpage. For a similar function [osm-dwg-userscripts] does some job removing control elements from the issue webpage, but aside from that it makes a partial copy of this page's html. Unlike that, this extension parses the page to some extent and recreates the text in order to really get rid of unnecessary elements. See [CONTRIBUTING.md](./CONTRIBUTING.md#content-scripts) for limitations of this approach and the one of [osm-dwg-userscripts].
+- *Text* with selected issue reports and comments.
 
 When the reported item is a user, there's an additional option to create a ticket - *+ scan user id*. If you choose this option, the extension is going to open the user profile before proceeding to the OTRS new ticket form. While on the user profile page, the id of the user is detected to be later added to the ticket. This might be helpful in case the user changes their name which can happen anytime.
 
-Another thing you may encounter before the *Create New Phone Ticket* form is the OTRS login form. This happens if you haven't yet logged in OTRS with your browser, that is, if you haven't successfully opened any page on the OTRS website, or if your login timed out. Just enter your OTRS username and password as usual and, after a successful login, you'll see the ticket form. Usernames and passwords are not read and stored by this extension, all the credentials management is done by the OTRS code. This is again unlike [osm-dwg-userscripts], where during the first run you will be prompted by the script for your login details, which will be stored in the script's settings.
+Another thing you may encounter before the *Create New Phone Ticket* form is the OTRS login form. This happens if you haven't yet logged in OTRS with your browser, that is, if you haven't successfully opened any page on the OTRS website, or if your login timed out. Just enter your OTRS username and password as usual and, after a successful login, you'll see the ticket form. Usernames and passwords are not read and stored by this extension, all the credentials management is done by the OTRS code.
 
-Last thing that happens is that the issue gets commented with a link to the newly created ticket. In case of [osm-dwg-userscripts], according to its readme, you need the *CORS Everywhere* addon for this to happen. This extension doesn't need any other addon to be installed.
+Last thing that happens is that the issue gets commented with a link to the newly created ticket.
 
 ### Add messages to tickets
 
@@ -114,5 +116,10 @@ If you want to try Centuran fork online demo:
 ### Mail-to-issue forwarder
 
 Part of the code that processes the mail sent from OTRS is available [here](https://github.com/AntonKhorev/osm-dwg-mail-reader). You likely want to put the receiving email address in the *Customer template* extension option.
+
+## Alternatives
+
+The main functionality of this extension is creating tickets from issues. Aside from creating tickets manually, there's [dwg_issue2ticket.user.js](https://github.com/woodpeck/osm-dwg-userscripts#dwg_issue2ticketuserjs) script from [osm-dwg-userscripts] to automate this task. Instead of opening the new ticket form and populating its fields, the script uses OTRS API calls to create a ticket. This requires the API call to be configured. The script also has to manage the OTRS logins/passwords independently from the usual OTRS browser login form. Automatically creating issue comments is only going to work if the *CORS Everywhere* addon is installed.
+
 
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
