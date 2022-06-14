@@ -343,18 +343,22 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 		ticketData.Subject=templateEngine.evaluate(settings.ticket_subject,values)
 		ticketData.Body+=templateEngine.evaluateHtml(settings.ticket_body_item,values)
 	}
-	ticketData.FromCustomers=[]
-	if (issueData.reports) {
+	ticketData.FromCustomers=processReportsOrComments(issueData.reports)
+	processReportsOrComments(issueData.comments)
+	return ticketData
+	function processReportsOrComments(reports) {
+		if (!reports) return []
 		const addedCustomers={}
-		for (const report of issueData.reports) {
-			if (report.wasRead) continue
+		const addedCustomersList=[]
+		for (const report of reports) {
+			if (!report.selected) continue
 			const user={} // TODO save user url in content script
 			if (report.by!=null) {
 				user.name=report.by
 				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
 				if (!addedCustomers[user.name]) {
 					addedCustomers[user.name]=true
-					ticketData.FromCustomers.push(templateEngine.evaluate(settings.ticket_customer,{user}))
+					addedCustomersList.push(templateEngine.evaluate(settings.ticket_customer,{user}))
 				}
 			}
 			if (report.lead.length==0 && report.text.length==0) continue
@@ -377,6 +381,6 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 			}
 			ticketData.Body+=report.text
 		}
+		return addedCustomersList
 	}
-	return ticketData
 }

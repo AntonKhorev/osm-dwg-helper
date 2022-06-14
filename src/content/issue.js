@@ -11,7 +11,8 @@ function scrapeIssueData(document,reportStateUpdate) {
 	const $content=document.getElementById('content')
 	if (!$content) return {}
 	const issueData={
-		reports:[]
+		reports:[],
+		comments:[],
 	}
 	{
 		const $reportedParagraph=$content.querySelector('p')
@@ -42,7 +43,11 @@ function scrapeIssueData(document,reportStateUpdate) {
 				$report.addEventListener('click',reportLinkClickListener)
 				$report.addEventListener('input',reportCheckboxInputListener)
 			}
-			if (areReports) issueData.reports.push(report)
+			if (areReports) {
+				issueData.reports.push(report)
+			} else {
+				issueData.comments.push(report)
+			}
 		}
 	}
 	function reportLinkClickListener(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
