@@ -166,9 +166,13 @@ describe("panel-actions-new",()=>{
 			id:'54321',
 			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
 		}
+		const ticketIssueData={
+			id:'321'
+		}
 		const tabState={
 			type:'ticket',
-			ticketData
+			ticketData,
+			issueData:ticketIssueData
 		}
 		const otherTabId=2
 		const otherTabState={
@@ -227,9 +231,13 @@ describe("panel-actions-new",()=>{
 			id:'54321',
 			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
 		}
+		const ticketIssueData={
+			id:'321'
+		}
 		const tabState={
 			type:'ticket',
-			ticketData
+			ticketData,
+			issueData:ticketIssueData
 		}
 		const otherTabId=2
 		const otherTabState={
@@ -281,9 +289,13 @@ describe("panel-actions-new",()=>{
 			id:'54321',
 			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
 		}
+		const ticketIssueData={
+			id:'321'
+		}
 		const tabState={
 			type:'ticket',
-			ticketData
+			ticketData,
+			issueData:ticketIssueData
 		}
 		const otherTabId=2
 		const otherTabState={

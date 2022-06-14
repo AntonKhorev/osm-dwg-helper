@@ -186,13 +186,14 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {
 				const issueData=otherTabState.issueData
 				const ticketData=tabState.ticketData
+				const ticketIssueData=tabState.issueData
 				const selectedReports=listSelectedReportsOrComments(issueData.reports)
 				const selectedComments=listSelectedReportsOrComments(issueData.comments)
 				if (selectedReports.length>0 || selectedComments.length>0) {
-					const menuTitleParts=[]
-					if (selectedReports.length>0) menuTitleParts.push(getMenuTitlePart('report',selectedReports))
-					if (selectedComments.length>0) menuTitleParts.push(getMenuTitlePart('comment',selectedComments))
-					const menuTitle=`Add ${menuTitleParts.join(' and ')} from issue #${issueData.id} to ticket`
+					const menuTitleRocParts=[]
+					if (selectedReports.length>0) menuTitleRocParts.push(getMenuTitleRocPart('report',selectedReports))
+					if (selectedComments.length>0) menuTitleRocParts.push(getMenuTitleRocPart('comment',selectedComments))
+					const menuTitle=`Add ${menuTitleRocParts.join(' and ')} ${getMenuTitleIssuePart()}`
 					const addSubAction=addSubmenu(menuTitle)
 					addSubAction(makeIssueLink('note'))
 					addSubAction(makeIssueLink('pending'))
@@ -201,7 +202,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					if (rocs==null) return []
 					return rocs.filter(roc=>roc.selected)
 				}
-				function getMenuTitlePart(name,rocs) {
+				function getMenuTitleRocPart(name,rocs) {
 					const users={}
 					const userList=[]
 					for (const roc of rocs) {
@@ -210,6 +211,17 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						userList.push(roc.by)
 					}
 					return `${rocs.length} selected ${name+(rocs.length>1?'s':'')} (by ${userList.join(', ')})`
+				}
+				function getMenuTitleIssuePart() {
+					let s=`from issue #${issueData.id} to ticket`
+					if (ticketIssueData.id!=null) {
+						if (issueData.id==ticketIssueData.id) {
+							s+=` of the same issue ✓`
+						} else {
+							s+=` of a DIFFERENT issue #${ticketIssueData.id} ❌`
+						}
+					}
+					return s
 				}
 				function makeIssueLink(addAs) {
 					return makeAddToOtrsLink(addAs,ticketData.id,{
