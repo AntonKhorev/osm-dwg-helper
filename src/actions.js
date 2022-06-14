@@ -252,7 +252,7 @@ export class AddSelectedReportsAndCommentsToTicket extends AddArticleToTicket {
 		this.otherTabId=otherTabId
 	}
 	getOngoingActionMenuEntryWhatPart() {
-		return [[`add unread reports from `],[`issue #${this.issueData.id}`,'em']]
+		return [[`add selected reports/comments from `],[`issue #${this.issueData.id}`,'em']]
 	}
 	getSubjectAndBody(settings) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData)
