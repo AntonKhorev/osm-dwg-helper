@@ -56,11 +56,11 @@ In order to add a message that is not necessarily the last one in your inbox/out
 3. Switch back to the tab with an OTRS ticket.
 4. *Add message from/to username to ticket* links should appear in the *Other Tab Actions* menu of the extension panel. Click one of those links.
 
-### Add unread reports to tickets
+### Add selected reports/comments to tickets
 
 Sometimes, after creating a ticket, you discover another issue about the same thing or that new reports got added to the original issue. For example, this happens when two users report each other. At first you may come across only one of those reports and create a ticket for it. Later you may discover another report and decide that it belongs to the already existing ticket. Thus you can't use the *Create ticket* command but you probably still don't want to copy-paste stuff from issue pages.
 
-In order to add reports to an existing ticket, use *Add unread reports from issue* in the extension panel. Using it is similar to adding an already posted OSM message. The panel entry appears when you switch from an issue tab to a ticket tab when the issue contains unread ("new") reports. The reports, like messages, can be added as either a ticket note or a pending item, with subject and body similar to the ones you get by creating a ticket. After the reports are added, the issue gets commented with a link to the ticket, again similar to what happens when creating a ticket. You'll have to resolve the issue to turn unread reports into read ones that won't be picked up by this extension feature.
+In order to add reports to an existing ticket, use *Add selected reports/comments from issue* in the extension panel. Using it is similar to adding an already posted OSM message. The panel entry appears when you switch from an issue tab to a ticket tab when the issue contains selected reports or comments. By default unread ("new") reports are selected, but you can change the selection with checkboxes similarly to when creating a new ticket. The reports, like messages, can be added as either a ticket note or a pending item, with subject and body similar to the ones you get by creating a ticket. After the reports are added, the issue gets commented with a link to the ticket, again similar to what happens when creating a ticket. You'll have to resolve the issue to turn unread reports into read ones that won't be selected by default and picked up by this extension feature.
 
 ### Add blocks to tickets
 

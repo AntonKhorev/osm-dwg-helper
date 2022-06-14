@@ -212,10 +212,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					return `${rocs.length} selected ${name+(rocs.length>1?'s':'')} (by ${userList.join(', ')})`
 				}
 				function makeIssueLink(addAs) {
-					// TODO change/update action
 					return makeAddToOtrsLink(addAs,ticketData.id,{
 						action:'initiateCurrentTabAction',
-						tabAction:['AddUnreadReportsToTicket',ticketData.id,addAs,issueData,otherTabId],
+						tabAction:['AddSelectedReportsAndCommentsToTicket',ticketData.id,addAs,issueData,otherTabId],
 						tabId
 					})
 				}

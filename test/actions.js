@@ -132,7 +132,7 @@ describe("Actions.CreateIssueTicket",()=>{
 	})
 })
 
-describe("Actions.AddUnreadReportsToTicket",()=>{
+describe("Actions.AddSelectedReportsAndCommentsToTicket",()=>{
 	it("adds from note issue",async()=>{
 		const settings={
 			otrs:'OTRS/',
@@ -149,12 +149,29 @@ describe("Actions.AddUnreadReportsToTicket",()=>{
 				ref:'#789',
 				url:'OSM/note/789',
 				id:789
-			}
+			},
+			reports:[
+				{
+					by:'WatchfulUser',
+					wasRead:false,
+					lead:[['plain','reported by '],['user','WatchfulUser']],
+					text:`<p>he did things</p>`,
+					selected:false,
+				}
+			],
+			comments:[
+				{
+					by:'BoredModerator',
+					lead:[['plain','comment from '],['user','BoredModerator']],
+					text:`<p>who cares</p>`,
+					selected:true,
+				}
+			],
 		}
 		const openerTabId=24
 		const ticketId=777
-		await testSequence(new Actions.AddUnreadReportsToTicket(ticketId,'note',issueData,otherTabId),[
-		async(action)=>{ // AddUnreadReportsToTicket
+		await testSequence(new Actions.AddSelectedReportsAndCommentsToTicket(ticketId,'note',issueData,otherTabId),[
+		async(action)=>{ // AddSelectedReportsAndCommentsToTicket
 			const url=`OTRS/otrs/index.pl?Action=AgentTicketNote;TicketID=${ticketId}`
 			assert.equal(action.getActionUrl(settings),url)
 			assert.equal(action.needToRejectUrl(settings,url),false)
@@ -166,6 +183,8 @@ describe("Actions.AddUnreadReportsToTicket",()=>{
 					assert.equal(script,'ticket-article')
 					assert.equal(message?.action,'addArticleSubjectAndBody')
 					assert.equal(message?.subject,"Issue #2024 - Note #789")
+					assert(!message?.body.includes('WatchfulUser'))
+					assert(message?.body.includes('BoredModerator'))
 				}]
 			)
 			assert.equal(tabId2,openerTabId)

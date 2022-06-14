@@ -245,7 +245,7 @@ class AddArticleToTicket extends Action {
 	}
 }
 
-export class AddUnreadReportsToTicket extends AddArticleToTicket {
+export class AddSelectedReportsAndCommentsToTicket extends AddArticleToTicket {
 	constructor(ticketId,addAs,issueData,otherTabId) {
 		super(ticketId,addAs)
 		this.issueData=issueData

@@ -182,7 +182,7 @@ describe("panel-actions-new",()=>{
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateCurrentTabAction',
-				tabAction:['AddUnreadReportsToTicket',ticketData.id,'note',issueData,otherTabId],
+				tabAction:['AddSelectedReportsAndCommentsToTicket',ticketData.id,'note',issueData,otherTabId],
 				tabId
 			}],
 			['closeWindow'],
@@ -243,7 +243,7 @@ describe("panel-actions-new",()=>{
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateCurrentTabAction',
-				tabAction:['AddUnreadReportsToTicket',ticketData.id,'note',issueData,otherTabId],
+				tabAction:['AddSelectedReportsAndCommentsToTicket',ticketData.id,'note',issueData,otherTabId],
 				tabId
 			}],
 			['closeWindow'],
