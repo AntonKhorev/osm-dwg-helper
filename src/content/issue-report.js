@@ -6,7 +6,11 @@ export default function processReport(document,$report,selected=false) {
 		$checkbox.type='checkbox'
 		$checkbox.checked=selected
 		$checkbox.classList.add('osm-dwg-helper-report-checkbox')
-		$reportAvatarColumn.append(document.createElement('br'),$checkbox)
+		const $label=document.createElement('label')
+		$label.title=`Include this item in ticket body when creating a new ticket`
+		$label.classList.add('osm-dwg-helper-report-checkbox-label')
+		$label.append($checkbox)
+		$reportAvatarColumn.append($label)
 	}
 	const report={
 		lead:[],
