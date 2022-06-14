@@ -74,6 +74,9 @@ export default class StatesManager {
 		this.tabStates.set(tab.id,tabState)
 		return this.getMessageArgs([tab.id])
 	}
+	async updateTabStateBecauseBrowserTabRequested(settings,permissions,tab) {
+		return this.updateTabStateBecauseNewPanelOpened(settings,permissions,tab)
+	}
 	/**
 	 * @private
 	 */

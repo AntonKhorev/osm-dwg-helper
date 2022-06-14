@@ -45,8 +45,7 @@ browser.runtime.onMessage.addListener(message=>{
 		}
 		return Promise.resolve()
 	} else if (message.action=='tabStateWasChanged') {
-		console.log('received from tab:',message) ///
-		return Promise.resolve()
+		return handleStateChangingTabCallback(message.tabId)
 	}
 	return false
 })
@@ -98,6 +97,14 @@ async function init() {
 	}
 	sendUpdateActionsMessage(settings,permissions,...messageData)
 	// no ongoing actions yet
+}
+
+async function handleStateChangingTabCallback(tabId) {
+	const tab=await browser.tabs.get(tabId)
+	const [settings,permissions]=await settingsAndPermissionsReader.read()
+	const messageData=await statesManager.updateTabStateBecauseBrowserTabRequested(settings,permissions,tab)
+	setIconOnTab(tab)
+	sendUpdateActionsMessage(settings,permissions,...messageData)
 }
 
 async function handleStateChangingSettingsChange() {
