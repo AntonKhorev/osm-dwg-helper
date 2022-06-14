@@ -7,7 +7,7 @@ export default function processReport(document,$report,selected=false) {
 		$checkbox.checked=selected
 		$checkbox.classList.add('osm-dwg-helper-report-checkbox')
 		const $label=document.createElement('label')
-		$label.title=`Include this item in ticket body when creating a new ticket`
+		$label.title=`Add this item to ticket when using "create ticket" and "add to ticket" commands`
 		$label.classList.add('osm-dwg-helper-report-checkbox-label')
 		$label.append($checkbox)
 		$reportAvatarColumn.append($label)

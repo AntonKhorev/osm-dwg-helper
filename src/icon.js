@@ -9,7 +9,7 @@ export default function(type) {
 
 export const types=['message','issue','user','block','ticket','ticket-add']
 
-export const uiBrandings=['closed','open']
+export const uiBrandings=['closed','open','ticket']
 
 export function svg(type) {
 	let content=tabs()

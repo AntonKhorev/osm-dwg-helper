@@ -47,7 +47,9 @@
 }
 .osm-dwg-helper-report-checkbox-label {
 	display: block;
-	padding: 4px 4px 4px 20px;
-	background: no-repeat top 50% left 4px url(/icons/closed.svg) #CCC;
+	border: solid 1px #CCC;
+	border-top: none;
+	padding: 3px 3px 3px 19px;
+	background: no-repeat top 50% left 3px url(/icons/ticket.svg) #DDD;
 	text-align: center;
 }
