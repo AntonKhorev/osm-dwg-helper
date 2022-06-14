@@ -44,6 +44,9 @@ browser.runtime.onMessage.addListener(message=>{
 			reactToActionsUpdate()
 		}
 		return Promise.resolve()
+	} else if (message.action=='tabStateWasChanged') {
+		console.log('received from tab:',message) ///
+		return Promise.resolve()
 	}
 	return false
 })
@@ -200,7 +203,7 @@ async function sendUpdatePermissionsMessage() {
 async function messageTab(tabId,contentScript,message) {
 	await browser.tabs.executeScript(tabId,{file:'/browser-polyfill.js'})
 	await browser.tabs.executeScript(tabId,{file:`/content/${contentScript}.js`})
-	return await browser.tabs.sendMessage(tabId,message)
+	return await browser.tabs.sendMessage(tabId,{tabId,...message})
 }
 
 function injectCssIntoTab(tabId,contentScript) {

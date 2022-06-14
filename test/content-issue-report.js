@@ -112,6 +112,7 @@ function assertReportText(result,text) {
 	assert.deepEqual(result,{
 		lead,
 		text,
+		selected: false,
 		category: 'spam',
 		by: 'testuser'
 	})

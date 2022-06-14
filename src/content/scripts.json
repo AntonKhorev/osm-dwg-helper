@@ -7,7 +7,7 @@
 		"addMoreIssueDataToTicket":["ticketData"]
 	},
 	"issue":{
-		"getIssueDataAndInjectItemPanes":["osmcha"],
+		"getIssueDataAndInjectItemPanes":["reportStateUpdate","osmcha"],
 		"addComment":["comment"]
 	},
 	"mailbox":{

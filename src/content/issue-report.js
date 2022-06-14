@@ -11,6 +11,7 @@ export default function processReport(document,$report,selected=false) {
 	const report={
 		lead:[],
 		text:'',
+		selected:$reportAvatarColumn.querySelector('.osm-dwg-helper-report-checkbox').checked
 	}
 	let firstParagraph=true
 	let lastTextParagraphWasEmpty=false

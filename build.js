@@ -114,7 +114,13 @@ function generateContentScript(scriptName,scriptCalls) {
 	]
 	lines.push(`function messageListener(message) {`)
 	for (const [callName,callArgs] of Object.entries(scriptCalls)) {
-		const callArgsString=['document',...callArgs.map(arg=>`message.${arg}`)].join(',')
+		const callArgsString=['document',...callArgs.map((arg)=>{
+			if (arg=='reportStateUpdate') {
+				return `()=>browser.runtime.sendMessage({action:'tabStateWasChanged',tabId:message.tabId})`
+			} else {
+				return `message.${arg}`
+			}
+		})].join(',')
 		const call=`contentScript.${callName}(${callArgsString})`
 		// lines.push(`	if (message.action=='${callName}') return new Promise(resolve=>{ ${call} })`)
 		lines.push(`	if (message.action=='${callName}') return (async()=>${call})()`)

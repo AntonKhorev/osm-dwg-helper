@@ -1,12 +1,12 @@
 import processReport from './issue-report.js'
 
-export function getIssueDataAndInjectItemPanes(document,osmcha) { // do both things at once to avoid extra messages
-	const issueData=scrapeIssueData(document)
+export function getIssueDataAndInjectItemPanes(document,reportStateUpdate,osmcha) { // do both things at once to avoid extra messages
+	const issueData=scrapeIssueData(document,reportStateUpdate)
 	injectReportedItemPanes(document,issueData,osmcha)
 	return issueData
 }
 
-function scrapeIssueData(document) {
+function scrapeIssueData(document,reportStateUpdate) {
 	// issue render code: https://github.com/openstreetmap/openstreetmap-website/tree/master/app/views/issues
 	const $content=document.getElementById('content')
 	if (!$content) return {}
@@ -37,14 +37,15 @@ function scrapeIssueData(document) {
 		for (const $report of $reports.querySelectorAll('.row')) {
 			const report=processReport(document,$report,areReports&&!wereRead)
 			if (areReports) report.wasRead=wereRead
-			if (!$report.dataset.osmDwgHelperClickListenerInstalled) {
-				$report.dataset.osmDwgHelperClickListenerInstalled=true
-				$report.addEventListener('click',processedReportClickListener)
+			if (!$report.dataset.osmDwgHelperListenersInstalled) {
+				$report.dataset.osmDwgHelperListenersInstalled=true
+				$report.addEventListener('click',reportLinkClickListener)
+				$report.addEventListener('input',reportCheckboxInputListener)
 			}
 			if (areReports) issueData.reports.push(report)
 		}
 	}
-	function processedReportClickListener(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
+	function reportLinkClickListener(ev) { // TODO decouple from pane code - maybe install capture phase handler later, when panes are injected
 		const $osmchaPane=document.getElementById('osm-dwg-helper-reported-item-pane-osmcha')
 		if (!$osmchaPane) return
 		const $a=ev.target.closest('a')
@@ -61,6 +62,10 @@ function scrapeIssueData(document) {
 		$oldOsmchaFrame.replaceWith($osmchaFrame) // have to replace the iframe, otherwise scr change may get rejected by CSP
 		$osmchaPane.open=true
 		$osmchaPane.scrollIntoView()
+	}
+	function reportCheckboxInputListener(ev) {
+		if (!ev.target.classList.contains('osm-dwg-helper-report-checkbox')) return
+		reportStateUpdate()
 	}
 }
 
