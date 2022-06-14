@@ -27,8 +27,8 @@ function scrapeIssueData(document,reportStateUpdate) {
 		const $contentBodyInner=$content.querySelector('.content-body .content-inner')
 		if ($contentBodyInner) {
 			const [$readReports,$newReports,$comments]=getReportsAndComments($contentBodyInner)
-			processReportsOrComments($readReports,true,true)
 			processReportsOrComments($newReports,true,false)
+			processReportsOrComments($readReports,true,true)
 			processReportsOrComments($comments,false)
 		}
 	}
