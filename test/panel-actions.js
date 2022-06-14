@@ -115,7 +115,8 @@ describe("panel-actions-new",()=>{
 				name:'SomeOsmUser',
 				url:'https://myosm.example.com/user/SomeOsmUser'
 			},
-			reports:[]
+			reports:[],
+			comments:[],
 		}
 		const tabState={
 			type:'issue',
@@ -133,7 +134,7 @@ describe("panel-actions-new",()=>{
 			['closeWindow'],
 		])
 	})
-	it("writes add reports command on ticket page if there are unread reports in other tab and has both osm and otrs settings+permissions",()=>{
+	it("writes add reports command on ticket page if there are selected reports in other tab and has both osm and otrs settings+permissions",()=>{
 		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
 		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
@@ -155,9 +156,11 @@ describe("panel-actions-new",()=>{
 					by:'WatchfulUser',
 					wasRead:false,
 					lead:[['plain','reported by '],['user','WatchfulUser']],
-					text:['he did things'],
+					text:`<p>he did things</p>`,
+					selected:true,
 				}
-			]
+			],
+			comments:[],
 		}
 		const ticketData={
 			id:'54321',
@@ -173,7 +176,7 @@ describe("panel-actions-new",()=>{
 			issueData
 		}
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		const $item=assertSubItem($otherMenu,'Add unread reports','note')
+		const $item=assertSubItem($otherMenu,'Add 1 selected report','note')
 		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
 		$item.click()
 		assert.deepEqual(callbackLog,[
@@ -185,7 +188,7 @@ describe("panel-actions-new",()=>{
 			['closeWindow'],
 		])
 	})
-	it("doesn't write add reports command on ticket page if there are no unread reports in other tab",()=>{
+	it("writes add comments command on ticket page if there are selected comments in other tab and has both osm and otrs settings+permissions",()=>{
 		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
 		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
@@ -205,11 +208,20 @@ describe("panel-actions-new",()=>{
 			reports:[
 				{
 					by:'WatchfulUser',
-					wasRead:true,
+					wasRead:false,
 					lead:[['plain','reported by '],['user','WatchfulUser']],
-					text:['he did things'],
+					text:`<p>he did things</p>`,
+					selected:false,
 				}
-			]
+			],
+			comments:[
+				{
+					by:'BoredModerator',
+					lead:[['plain','comment from '],['user','BoredModerator']],
+					text:`<p>who cares</p>`,
+					selected:true,
+				}
+			],
 		}
 		const ticketData={
 			id:'54321',
@@ -225,7 +237,61 @@ describe("panel-actions-new",()=>{
 			issueData
 		}
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		const $item=findSubItem($otherMenu,'Add unread reports','note')
+		const $item=assertSubItem($otherMenu,'Add 1 selected comment','note')
+		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
+		$item.click()
+		assert.deepEqual(callbackLog,[
+			['sendMessage',{
+				action:'initiateCurrentTabAction',
+				tabAction:['AddUnreadReportsToTicket',ticketData.id,'note',issueData,otherTabId],
+				tabId
+			}],
+			['closeWindow'],
+		])
+	})
+	it("doesn't write add reports command on ticket page if there are no selected reports in other tab",()=>{
+		const [document,,,$otherMenu]=createDocumentAndMenuPlaceholders()
+		const [callbacks,callbackLog]=createCallbacksWithLog()
+		const [,,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
+		const settings={osm:'https://myosm.example.com/',otrs:'https://myotrs.example.com/'}
+		const permissions=settings
+		const tabId=1
+		const issueData={
+			osmRoot:'https://myosm.example.com/',
+			id:'321',
+			url:'https://myosm.example.com/issues/321',
+			reportedItem:{
+				type:'user',
+				ref:'SomeOsmUser',
+				name:'SomeOsmUser',
+				url:'https://myosm.example.com/user/SomeOsmUser'
+			},
+			reports:[
+				{
+					by:'WatchfulUser',
+					wasRead:false,
+					lead:[['plain','reported by '],['user','WatchfulUser']],
+					text:`<p>he did things</p>`,
+					selected:false,
+				}
+			],
+			comments:[],
+		}
+		const ticketData={
+			id:'54321',
+			url:`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketZoom;TicketID=54321`
+		}
+		const tabState={
+			type:'ticket',
+			ticketData
+		}
+		const otherTabId=2
+		const otherTabState={
+			type:'issue',
+			issueData
+		}
+		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
+		const $item=findSubItem($otherMenu,'selected reports','note')
 		assert.equal($item,undefined)
 	})
 	it("writes add block command on ticket page",()=>{

@@ -186,20 +186,33 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {
 				const issueData=otherTabState.issueData
 				const ticketData=tabState.ticketData
-				if (hasUnreadReports()) {
-					const addSubAction=addSubmenu(`Add unread reports from issue #${issueData.id} to ticket`)
+				const selectedReports=listSelectedReportsOrComments(issueData.reports)
+				const selectedComments=listSelectedReportsOrComments(issueData.comments)
+				if (selectedReports.length>0 || selectedComments.length>0) {
+					const menuTitleParts=[]
+					if (selectedReports.length>0) menuTitleParts.push(getMenuTitlePart('report',selectedReports))
+					if (selectedComments.length>0) menuTitleParts.push(getMenuTitlePart('comment',selectedComments))
+					const menuTitle=`Add ${menuTitleParts.join(' and ')} from issue #${issueData.id} to ticket`
+					const addSubAction=addSubmenu(menuTitle)
 					addSubAction(makeIssueLink('note'))
 					addSubAction(makeIssueLink('pending'))
 				}
-				function hasUnreadReports() {
-					if (issueData.id==null) return false
-					if (issueData.reports==null) return false
-					for (const report of issueData.reports) {
-						if (!report.wasRead) return true
+				function listSelectedReportsOrComments(rocs) {
+					if (rocs==null) return []
+					return rocs.filter(roc=>roc.selected)
+				}
+				function getMenuTitlePart(name,rocs) {
+					const users={}
+					const userList=[]
+					for (const roc of rocs) {
+						if (users[roc.by]) continue
+						users[roc.by]=true
+						userList.push(roc.by)
 					}
-					return false
+					return `${rocs.length} selected ${name+(rocs.length>1?'s':'')} (by ${userList.join(', ')})`
 				}
 				function makeIssueLink(addAs) {
+					// TODO change/update action
 					return makeAddToOtrsLink(addAs,ticketData.id,{
 						action:'initiateCurrentTabAction',
 						tabAction:['AddUnreadReportsToTicket',ticketData.id,addAs,issueData,otherTabId],

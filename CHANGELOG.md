@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.6.3
+
 ## 0.6.2
 
 - Reports and comments on issue pages have checkboxes that can be used to select what to include in a new ticket
