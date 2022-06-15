@@ -7,11 +7,15 @@ import {
 
 export class Action {
 	/**
-	 * @returns {Array<[text:string,type?:'em'|'button',message?:object]>} array of [text,type,message] items to be concatenated
+	 * @returns {Array<[text:string,type?:'em'|'button']>} array of [text,type] items to be concatenated
 	 */
 	getOngoingActionMenuEntry() {
 		return [[`unknown action`]]
 	}
+	/**
+	 * @returns {?Action} immediate action to perform if button is pressed
+	 */
+	getOngoingActionMenuButtonResponse() {}
 	/**
 	 * @returns {?string} undefined/null or url to direct the current tab to right after action creation
 	 */
@@ -52,14 +56,34 @@ class GoToUrl extends Action {
 	}
 }
 
-class RemindToAddCommentToIssue extends Action {
+class RemindToResolveIssue extends Action {
 	getOngoingActionMenuEntry() {
-		return [
-			[`Update issue page `],
-			[`submit comment`,'button',{action:'submitComment'}],
-			[` `],
-			[`resolve issue`,'button',{action:'resolveIssue'}],
-		]
+		return [[`update issue `],[`resolve issue`,'button']]
+	}
+	getOngoingActionMenuButtonResponse() {
+		return new ResolveIssue(true)
+	}
+}
+
+class ResolveIssue extends Action {
+	constructor(haveToSubmitComment) {
+		this.haveToSubmitComment=haveToSubmitComment
+	}
+	getOngoingActionMenuEntry() {
+		if (this.haveToSubmitComment) {
+			return [[`resolve issue starting by submitting comment`]]
+		} else {
+			return [[`resolve issue`]]
+		}
+	}
+	async act(settings,tab,tabState,messageTab) {
+		if (this.haveToSubmitComment) {
+			try {
+				const submittedComment=await messageTab(tab.id,'issue',{action:'submitComment'})
+				if (submittedComment) return [tab.id,new ResolveIssue(false)]
+			} catch {}
+		}
+		await messageTab(tab.id,'issue',{action:'resolveIssue'})
 	}
 }
 
@@ -150,7 +174,7 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 		if (ticketAction=='Phone') {
 			return [
 				tab.id,new GoToUrl(ticketUrl),
-				this.openerTabId,new RemindToAddCommentToIssue()
+				this.openerTabId,new RemindToResolveIssue()
 			]
 		}
 	}

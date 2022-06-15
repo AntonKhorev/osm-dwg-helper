@@ -57,7 +57,7 @@ describe("ActionsManager",()=>{
 			['create',{openerTabId:101,url:'url(1)'}]
 		])
 		assert.deepEqual(tabActionEntries,[
-			[1,'entry(1)']
+			[1,['entry(1)']]
 		])
 	})
 	it("adds two actions in new tabs then lists them",async()=>{
@@ -73,8 +73,8 @@ describe("ActionsManager",()=>{
 			['create',{openerTabId:102,url:'url(2)'}]
 		])
 		assert.deepEqual(tabActionEntries,[
-			[1,'entry(1)'],
-			[2,'entry(2)']
+			[1,['entry(1)']],
+			[2,['entry(2)']]
 		])
 	})
 	it("adds action in current tab then lists it",async()=>{
@@ -87,7 +87,7 @@ describe("ActionsManager",()=>{
 			['update',11,{url:'url(11)'}]
 		])
 		assert.deepEqual(tabActionEntries,[
-			[11,'entry(11)']
+			[11,['entry(11)']]
 		])
 	})
 	it("adds immediate action in current tab then lists it",async()=>{
@@ -98,7 +98,7 @@ describe("ActionsManager",()=>{
 		const tabActionEntries=actionsManager.listTabActionEntries()
 		assert.deepEqual(browserTabs.log,[])
 		assert.deepEqual(tabActionEntries,[
-			[11,'entry(11)']
+			[11,['entry(11)']]
 		])
 	})
 	it("adds two actions in current tab then lists it",async()=>{
@@ -113,8 +113,7 @@ describe("ActionsManager",()=>{
 			['update',23,{url:'url(1)'}]
 		])
 		assert.deepEqual(tabActionEntries,[
-			[23,'entry(1)'],
-			[23,'entry(2)']
+			[23,['entry(1)','entry(2)']]
 		])
 	})
 	it("act report no changes if no actions added",async()=>{

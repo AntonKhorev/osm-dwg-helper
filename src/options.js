@@ -243,7 +243,7 @@ async function updateWebRequestPermissionsUI() {
 function updateOngoingActionsWarning(tabActionEntries) {
 	const $warning=document.getElementById('warning')
 	$warning.innerHTML=''
-	const n=tabActionEntries.length
+	const n=tabActionEntries.reduce((n,[,singleTabActionEntries])=>n+singleTabActionEntries.length,0)
 	if (n==0) return
 	$warning.innerText=`Changing the settings will cancel ${n} ongoing action${n>1?'s':''}`
 }

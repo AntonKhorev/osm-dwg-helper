@@ -42,9 +42,7 @@ export default class ActionsManager {
 	listTabActionEntries() {
 		const tabActionEntries=[]
 		for (const [tabId,actions] of this.tabActions) {
-			for (const action of actions) {
-				tabActionEntries.push([tabId,action.getOngoingActionMenuEntry()])
-			}
+			tabActionEntries.push([tabId,actions.map(action=>action.getOngoingActionMenuEntry())])
 		}
 		return tabActionEntries
 	}

@@ -44,6 +44,9 @@ browser.runtime.onMessage.addListener(message=>{
 			reactToActionsUpdate()
 		}
 		return Promise.resolve()
+	} else if (message.action=='runTabMenuAction') {
+		console.log('runTabMenuAction',message) ///
+		return Promise.resolve()
 	} else if (message.action=='tabStateWasChanged') {
 		return handleStateChangingTabCallback(message.tabId)
 	}

@@ -211,9 +211,13 @@ export function addComment(document,comment) {
 }
 
 export function submitComment(document) {
+	const $commentTextarea=document.getElementById('issue_comment_body')
+	if (!$commentTextarea) return false
+	if ($commentTextarea.value=='') return false
 	const $commentForm=document.getElementById('new_issue_comment')
-	if (!$commentForm) return
+	if (!$commentForm) return false
 	$commentForm.submit()
+	return true
 }
 
 export function resolveIssue(document) {

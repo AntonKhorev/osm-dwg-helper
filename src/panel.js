@@ -114,35 +114,39 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	for (const [tabId,menuEntryElements] of tabActionEntries) {
-		const $li=document.createElement('li')
-		for (const [text,type,message] of menuEntryElements) {
-			if (type=='em') {
-				const $em=document.createElement('em')
-				$em.textContent=text
-				$li.append($em)
-			} if (type=='button') {
-				const $button=document.createElement('button')
-				$button.textContent=text
-				$button.addEventListener('click',()=>{
-					browser.tabs.sendMessage(tabId,message)
-				})
-				$li.append($button)
-			} else {
-				$li.append(text)
+	for (const [tabId,singleTabActionEntries] of tabActionEntries) {
+		let tabActionIndex=0
+		for (const menuEntryElements of singleTabActionEntries) {
+			const $li=document.createElement('li')
+			for (const [text,type] of menuEntryElements) {
+				if (type=='em') {
+					const $em=document.createElement('em')
+					$em.textContent=text
+					$li.append($em)
+				} if (type=='button') {
+					const $button=document.createElement('button')
+					$button.textContent=text
+					$button.addEventListener('click',()=>{
+						browser.runtime.sendMessage({action:'runTabMenuAction',tabId,tabActionIndex})
+					})
+					$li.append($button)
+				} else {
+					$li.append(text)
+				}
 			}
+			const $switchButton=document.createElement('button')
+			$switchButton.textContent='open tab'
+			$switchButton.addEventListener('click',()=>{
+				browser.tabs.update(tabId,{active:true})
+			})
+			const $cancelButton=document.createElement('button')
+			$cancelButton.textContent='cancel'
+			$cancelButton.addEventListener('click',()=>{
+				browser.runtime.sendMessage({action:'cancelTabAction',tabId})
+			})
+			$li.append(` `,$switchButton,` `,$cancelButton)
+			$actions.append($li)
 		}
-		const $switchButton=document.createElement('button')
-		$switchButton.textContent='open tab'
-		$switchButton.addEventListener('click',()=>{
-			browser.tabs.update(tabId,{active:true})
-		})
-		const $cancelButton=document.createElement('button')
-		$cancelButton.textContent='cancel'
-		$cancelButton.addEventListener('click',()=>{
-			browser.runtime.sendMessage({action:'cancelTabAction',tabId})
-		})
-		$li.append(` `,$switchButton,` `,$cancelButton)
-		$actions.append($li)
+		tabActionIndex++
 	}
 }
