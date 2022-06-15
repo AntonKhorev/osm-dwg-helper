@@ -61,6 +61,8 @@ browser.tabs.onActivated.addListener(async({tabId})=>{
 
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened
+	if (hasOnlyChange('isArticle')) return // this change happens on previous tab state and may cause race condition
+	if (hasOnlyChange('favIconUrl')) return // happens after page is loaded and processed
 
 	// possible optimizations:
 	// may skip update it if tab is not (active || previous || has scheduled action)
@@ -81,6 +83,13 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 		if (await actionsManager.act(settings,tab,tabState,messageTab)) {
 			reactToActionsUpdate()
 		}
+	}
+
+	function hasOnlyChange(targetProp) {
+		const props=Object.keys(changeInfo)
+		if (props.length!=1) return false
+		const [prop]=props
+		return prop==targetProp
 	}
 })
 
