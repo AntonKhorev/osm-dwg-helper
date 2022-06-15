@@ -133,7 +133,7 @@ function updateActionsOngoing(tabActionEntries) {
 			}
 		}
 		const $switchButton=document.createElement('button')
-		$switchButton.textContent='go to'
+		$switchButton.textContent='open tab'
 		$switchButton.addEventListener('click',()=>{
 			browser.tabs.update(tabId,{active:true})
 		})

@@ -216,6 +216,12 @@ export function submitComment(document) {
 	$commentForm.submit()
 }
 
+export function resolveIssue(document) {
+	const $resolveLink=document.querySelector('.secondary-actions a[href$="/resolve"]')
+	if (!$resolveLink) return
+	$resolveLink.click()
+}
+
 function getOsmchaFilterByUserId(uid) {
 	return `{"uids":${escapeOsmchaFilterValue(uid)},"date__gte":${escapeOsmchaFilterValue('')}}`
 }

@@ -54,7 +54,12 @@ class GoToUrl extends Action {
 
 class RemindToAddCommentToIssue extends Action {
 	getOngoingActionMenuEntry() {
-		return [[`Update issue page `],[`submit comment`,'button',{action:'submitComment'}]]
+		return [
+			[`Update issue page `],
+			[`submit comment`,'button',{action:'submitComment'}],
+			[` `],
+			[`resolve issue`,'button',{action:'resolveIssue'}],
+		]
 	}
 }
 

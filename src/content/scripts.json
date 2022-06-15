@@ -9,7 +9,8 @@
 	"issue":{
 		"getIssueDataAndInjectItemPanes":["reportStateUpdate","osmcha"],
 		"addComment":["comment"],
-		"submitComment":[]
+		"submitComment":[],
+		"resolveIssue":[]
 	},
 	"mailbox":{
 		"getTopMessageId":[]
