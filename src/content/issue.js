@@ -210,6 +210,12 @@ export function addComment(document,comment) {
 	$commentTextarea.dispatchEvent(new Event('change')) // otherwise preview doesn't work
 }
 
+export function submitComment(document) {
+	const $commentForm=document.getElementById('new_issue_comment')
+	if (!$commentForm) return
+	$commentForm.submit()
+}
+
 function getOsmchaFilterByUserId(uid) {
 	return `{"uids":${escapeOsmchaFilterValue(uid)},"date__gte":${escapeOsmchaFilterValue('')}}`
 }

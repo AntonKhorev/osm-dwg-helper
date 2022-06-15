@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.4
+
+- Fixes to *Add to new ticket form* related to browser tab update event behavior change and potential race conditions
+
 ## 0.6.3
 
 - *Add to ticket* respects checkboxes

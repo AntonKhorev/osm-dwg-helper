@@ -116,28 +116,33 @@ function updateActionsOngoing(tabActionEntries) {
 	$actions.innerHTML=""
 	for (const [tabId,menuEntryElements] of tabActionEntries) {
 		const $li=document.createElement('li')
-		for (const [text,type] of menuEntryElements) {
+		for (const [text,type,message] of menuEntryElements) {
 			if (type=='em') {
 				const $em=document.createElement('em')
-				$em.innerText=text
+				$em.textContent=text
 				$li.append($em)
+			} if (type=='button') {
+				const $button=document.createElement('button')
+				$button.textContent=text
+				$button.addEventListener('click',()=>{
+					browser.tabs.sendMessage(tabId,message)
+				})
+				$li.append($button)
 			} else {
 				$li.append(text)
 			}
 		}
-		$li.append(' ')
 		const $switchButton=document.createElement('button')
-		$switchButton.innerText='go to'
+		$switchButton.textContent='go to'
 		$switchButton.addEventListener('click',()=>{
 			browser.tabs.update(tabId,{active:true})
 		})
-		$li.append($switchButton)
 		const $cancelButton=document.createElement('button')
-		$cancelButton.innerText='cancel'
+		$cancelButton.textContent='cancel'
 		$cancelButton.addEventListener('click',()=>{
 			browser.runtime.sendMessage({action:'cancelTabAction',tabId})
 		})
-		$li.append($cancelButton)
+		$li.append(` `,$switchButton,` `,$cancelButton)
 		$actions.append($li)
 	}
 }

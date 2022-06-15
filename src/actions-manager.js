@@ -88,22 +88,27 @@ export default class ActionsManager {
 			}
 			const tabActionsUpdate=await action.act(settings,tab,tabState,messageTab)
 			if (tabActionsUpdate) {
-				const [newTabId,newAction]=tabActionsUpdate
-				this._addAction(newTabId,newAction)
-				if (newTabId==tab.id && newAction==action) {
-					continue
+				const [newTabId,newAction,forkNewTabId,forkNewAction]=tabActionsUpdate
+				if (newTabId) {
+					this._addAction(newTabId,newAction)
+					if (newTabId==tab.id && newAction==action) {
+						continue
+					}
+					const update={}
+					if (newTabId!=tab.id) {
+						this.browserTabs.remove(tab.id)
+						update.active=true
+					}
+					if (newAction) {
+						const url=newAction.getActionUrl(settings)
+						if (url!=null) update.url=url
+					}
+					if (Object.keys(update).length>0) {
+						this.browserTabs.update(newTabId,update)
+					}
 				}
-				const update={}
-				if (newTabId!=tab.id) {
-					this.browserTabs.remove(tab.id)
-					update.active=true
-				}
-				if (newAction) {
-					const url=newAction.getActionUrl(settings)
-					if (url!=null) update.url=url
-				}
-				if (Object.keys(update).length>0) {
-					this.browserTabs.update(newTabId,update)
+				if (forkNewTabId) {
+					this._addAction(forkNewTabId,forkNewAction)
 				}
 			}
 			isUpdated=true

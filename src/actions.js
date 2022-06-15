@@ -7,7 +7,7 @@ import {
 
 export class Action {
 	/**
-	 * @returns {Array<[text:string,type:?'em']>} array of [text,type] items to be concatenated
+	 * @returns {Array<[text:string,type?:'em'|'button',message?:object]>} array of [text,type,message] items to be concatenated
 	 */
 	getOngoingActionMenuEntry() {
 		return [[`unknown action`]]
@@ -49,6 +49,12 @@ class GoToUrl extends Action {
 	}
 	getActionUrl(settings) {
 		return this.url
+	}
+}
+
+class RemindToAddCommentToIssue extends Action {
+	getOngoingActionMenuEntry() {
+		return [[`Update issue page `],[`submit comment`,'button',{action:'submitComment'}]]
 	}
 }
 
@@ -137,7 +143,10 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 			comment:this.getComment(settings,ticketUrl)
 		})
 		if (ticketAction=='Phone') {
-			return [tab.id,new GoToUrl(ticketUrl)]
+			return [
+				tab.id,new GoToUrl(ticketUrl),
+				this.openerTabId,new RemindToAddCommentToIssue()
+			]
 		}
 	}
 	// abstract getOtrsTicketIdAndAction(settings,tab) {}
