@@ -103,6 +103,9 @@ export class AddToCreateIssueTicket extends CreateIssueTicket { // TODO not actu
 	constructor(openerTabId,issueData,additionalUserData) {
 		super(openerTabId,issueData,additionalUserData)
 	}
+	getOngoingActionMenuEntry() {
+		return [[`add `],[` issue #${this.issueData.id}`,'em'],[` to create ticket form`]]
+	}
 	// TODO copypaste of CreateIssueTicket
 	async act(settings,tab,tabState,messageTab) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)

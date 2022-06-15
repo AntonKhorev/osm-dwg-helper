@@ -73,8 +73,9 @@ browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	const tabState=statesManager.getTabState(tabId)
 	
 	if (actionsManager.hasTab(tabId) && (
-		changeInfo.status=='complete' || // just loaded
-		changeInfo.attention!=null && tab.status=='complete' // switched to already loaded
+		changeInfo.status=='complete' // just loaded
+		// ||
+		// changeInfo.attention!=null && tab.status=='complete' // switched to already loaded - this used to work - see initiateImmediateCurrentTabAction()
 	)) {
 		const settings=await settingsManager.read()
 		if (await actionsManager.act(settings,tab,tabState,messageTab)) {
@@ -151,11 +152,20 @@ async function initiateImmediateCurrentTabAction(action,tabId,otherTabId) {
 	const settings=await settingsManager.read()
 	actionsManager.addImmediateCurrentTabAction(settings,action,tabId)
 	reactToActionsUpdate()
-	// TODO trigger tab update event
-	// TODO check if it works - if it does move to actionsManager
-	// browser.tabs.update(tabId,{}) // NOPE!
-	await browser.tabs.update(otherTabId,{active:true})
-	await browser.tabs.update(tabId,{active:true})
+	// here we tried to trigger tab update event
+	// first attempt was:
+		// browser.tabs.update(tabId,{})
+	// this didn't work
+	// second attempt was causing update event by switching active tabs back and forth:
+		// await browser.tabs.update(otherTabId,{active:true})
+		// await browser.tabs.update(tabId,{active:true})
+	// it worked, but then probably because of some browser update it stopped working; the update was before Firefox 101.0.1
+	// third attempt - just call actions manager directly:
+	const tab=await browser.tabs.get(tabId)
+	const tabState=statesManager.getTabState(tabId)
+	if (await actionsManager.act(settings,tab,tabState,messageTab)) {
+		reactToActionsUpdate()
+	}
 }
 
 function reactToActionsUpdate() {
