@@ -3,6 +3,7 @@
 ## 0.6.4
 
 - Fixes to *Add to new ticket form* related to browser tab update event behavior change and potential race conditions
+- *Comment/resolve issue* button available after copying reports to a ticket
 
 ## 0.6.3
 

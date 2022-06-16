@@ -33,7 +33,7 @@ You start by opening the issue webpage (`https://www.openstreetmap.org/issues/`*
 The new ticket form is going to have all of the required fields set. These fields are:
 
 - *Customer user* containing usernames of users who reported the issue formatted as email addresses. If the issue was reported by several users and more than one report was selected, multiple customer user values will be set. Customers have an email address specified in the *Customer template* extension setting, which is set to `@dwgmail.info` by default.
-- *To queue* set to a first valid queue. In case of the current DWG setup this is going to be a generic *Data Working Group* queue. You may want to change the quere right away to something more specific. Changing the queue later, when the ticket is already created, may do other possibly unwanted things like unlocking.
+- *To queue* set to a first valid queue. In case of the current DWG setup this is going to be a generic *Data Working Group* queue. You may want to change the queue right away to something more specific. Changing the queue later, when the ticket is already created, may do other possibly unwanted things like unlocking.
 - *Subject* containing the issue id and the reported item.
 - *Text* with selected issue reports and comments.
 
@@ -41,7 +41,7 @@ When the reported item is a user, there's an additional option to create a ticke
 
 Another thing you may encounter before the *Create New Phone Ticket* form is the OTRS login form. This happens if you haven't yet logged in OTRS with your browser, that is, if you haven't successfully opened any page on the OTRS website, or if your login timed out. Just enter your OTRS username and password as usual and, after a successful login, you'll see the ticket form. Usernames and passwords are not read and stored by this extension, all the credentials management is done by the OTRS code.
 
-Last thing that happens is that the issue gets commented with a link to the newly created ticket.
+Last thing that happens is that the issue gets its comment form filled with a link to the newly created ticket. This doesn't yet submit the comment which could be done manually or with a help from the extension. There will be an *update issue* entry under *Ongoing actions* with a button that reads either *resolve issue* or *comment issue*. Clicking *resolve issue* will submit the comment and resolve the issue. Resolving is only available if all new reports were selected to be added to the newly created ticket. Otherwise there are more reports that were probably saved for another ticket, therefore resolving may have to wait. After dealing with these reports you can resolve the issue manually.
 
 ### Add messages to tickets
 
