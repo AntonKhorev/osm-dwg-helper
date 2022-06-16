@@ -57,34 +57,50 @@ class GoToUrl extends Action {
 }
 
 class RemindToResolveIssue extends Action {
+	constructor(haveToResolveIssue) {
+		super()
+		this.haveToResolveIssue=haveToResolveIssue
+	}
 	getOngoingActionMenuEntry() {
-		return [[`update issue `],[`resolve issue`,'button']]
+		if (this.haveToResolveIssue) {
+			return [[`update issue `],[`resolve issue`,'button']]
+		} else {
+			return [[`update issue `],[`comment issue`,'button'],[` (no auto-resolve because some new reports weren't copied)`]]
+		}
 	}
 	getOngoingActionMenuButtonResponse() {
-		return new ResolveIssue(true)
+		return new ResolveIssue(true,this.haveToResolveIssue)
 	}
 }
 
 class ResolveIssue extends Action {
-	constructor(haveToSubmitComment) {
+	constructor(haveToSubmitComment,haveToResolveIssue) {
 		super()
 		this.haveToSubmitComment=haveToSubmitComment
+		this.haveToResolveIssue=haveToResolveIssue
 	}
 	getOngoingActionMenuEntry() {
-		if (this.haveToSubmitComment) {
-			return [[`resolve issue starting by submitting comment`]]
-		} else {
-			return [[`resolve issue`]]
-		}
+		const items=[]
+		if (this.haveToSubmitComment) items.push(`submit comment`)
+		if (this.haveToResolveIssue) items.push(`resolve issue`)
+		return [[items.join(` then `)]]
 	}
 	async act(settings,tab,tabState,messageTab) {
 		if (this.haveToSubmitComment) {
 			try {
 				const submittedComment=await messageTab(tab.id,'issue',{action:'submitComment'})
-				if (submittedComment) return [tab.id,new ResolveIssue(false)]
+				if (submittedComment) {
+					if (this.haveToResolveIssue) {
+						return [tab.id,new ResolveIssue(false,true)]
+					} else {
+						return
+					}
+				}
 			} catch {}
 		}
-		await messageTab(tab.id,'issue',{action:'resolveIssue'})
+		if (this.haveToResolveIssue) {
+			await messageTab(tab.id,'issue',{action:'resolveIssue'})
+		}
 	}
 }
 
@@ -125,13 +141,16 @@ export class CreateIssueTicket extends OffshootAction {
 		return `${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 	}
 	async act(settings,tab,tabState,messageTab) {
-		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
 		try {
-			await messageTab(tab.id,'create-ticket',{action:'addIssueDataToTicket',ticketData})
+			await messageTab(tab.id,'create-ticket',this.getCreateTicketMessage(settings))
 		} catch {
 			return [tab.id,this]
 		}
-		return [tab.id,new CommentIssueWithTicketUrlForCreatedTicket(this.openerTabId)]
+		return [tab.id,new CommentIssueWithTicketUrlForCreatedTicket(this.openerTabId,selectedAllNewIssueReports(this.issueData))]
+	}
+	getCreateTicketMessage(settings) {
+		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
+		return {action:'addIssueDataToTicket',ticketData}
 	}
 }
 
@@ -142,21 +161,16 @@ export class AddToCreateIssueTicket extends CreateIssueTicket { // TODO not actu
 	getOngoingActionMenuEntry() {
 		return [[`add `],[` issue #${this.issueData.id}`,'em'],[` to create ticket form`]]
 	}
-	// TODO copypaste of CreateIssueTicket
-	async act(settings,tab,tabState,messageTab) {
+	getCreateTicketMessage(settings) {
 		const ticketData=convertIssueDataToTicketData(settings,this.issueData,this.additionalUserData)
-		try {
-			await messageTab(tab.id,'create-ticket',{action:'addMoreIssueDataToTicket',ticketData})
-		} catch {
-			return [tab.id,this]
-		}
-		return [tab.id,new CommentIssueWithTicketUrlForCreatedTicket(this.openerTabId)]
+		return {action:'addMoreIssueDataToTicket',ticketData}
 	}
 }
 
 class CommentIssueWithTicketUrl extends OffshootAction {
-	constructor(openerTabId) {
+	constructor(openerTabId,haveToResolveIssue) {
 		super(openerTabId)
+		this.haveToResolveIssue=haveToResolveIssue
 	}
 	getOngoingActionMenuEntry() {
 		return [[`add comment to issue for created ticket`]]
@@ -175,7 +189,7 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 		if (ticketAction=='Phone') {
 			return [
 				tab.id,new GoToUrl(ticketUrl),
-				this.openerTabId,new RemindToResolveIssue()
+				this.openerTabId,new RemindToResolveIssue(this.haveToResolveIssue)
 			]
 		}
 	}
@@ -301,7 +315,7 @@ export class AddSelectedReportsAndCommentsToTicket extends AddArticleToTicket {
 		return [ticketData.Subject,ticketData.Body]
 	}
 	actAfterMessaging(settings,tab) {
-		return [tab.id,new CommentIssueWithTicketUrlForAddedReports(this.otherTabId)]
+		return [tab.id,new CommentIssueWithTicketUrlForAddedReports(this.otherTabId,selectedAllNewIssueReports(this.issueData))]
 	}
 }
 
@@ -359,6 +373,15 @@ export class AddBlockToTicket extends AddArticleToTicket {
 			actionInputName:settings.article_input_action
 		}
 	}
+}
+
+function selectedAllNewIssueReports(issueData) {
+	if (!issueData.reports) return true
+	for (const report of issueData.reports) {
+		if (report.wasRead) continue
+		if (!report.selected) return false
+	}
+	return true
 }
 
 function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
