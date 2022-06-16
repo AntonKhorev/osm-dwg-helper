@@ -115,7 +115,7 @@ describe("Actions.CreateIssueTicket",()=>{
 			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;Subaction=Created;TicketID=${ticketId}`
 			assert.equal(action.getActionUrl(settings),undefined)
 			assert.equal(action.needToRejectUrl(settings,url),false)
-			const actResult=await testAct(
+			const [tabId2,action2,tabId2f,action2f]=await testAct(
 				action,settings,
 				{id:newTabId,url},{},
 				[(tabId,script,message)=>{
@@ -127,7 +127,8 @@ describe("Actions.CreateIssueTicket",()=>{
 					})
 				}]
 			)
-			assert.equal(actResult,undefined)
+			assert.equal(tabId2,undefined)
+			assert.equal(tabId2f,openerTabId)
 		}])
 	})
 })
@@ -193,7 +194,7 @@ describe("Actions.AddSelectedReportsAndCommentsToTicket",()=>{
 			const url=`OTRS/otrs/index.pl?Action=AgentTicketZoom;TicketID=${ticketId}`
 			assert.equal(action.getActionUrl(settings),undefined)
 			assert.equal(action.needToRejectUrl(settings,url),false)
-			const actResult=await testAct(
+			const [tabId2,action2,tabId2f,action2f]=await testAct(
 				action,settings,
 				{id:openerTabId,url},{},
 				[(tabId,script,message)=>{
@@ -205,7 +206,8 @@ describe("Actions.AddSelectedReportsAndCommentsToTicket",()=>{
 					})
 				}]
 			)
-			assert.equal(actResult,undefined)
+			assert.equal(tabId2,undefined)
+			assert.equal(tabId2f,otherTabId)
 		}])
 	})
 })

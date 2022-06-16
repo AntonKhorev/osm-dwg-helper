@@ -191,6 +191,11 @@ class CommentIssueWithTicketUrl extends OffshootAction {
 				tab.id,new GoToUrl(ticketUrl),
 				this.openerTabId,new RemindToResolveIssue(this.haveToResolveIssue)
 			]
+		} else {
+			return [
+				,,
+				this.openerTabId,new RemindToResolveIssue(this.haveToResolveIssue)
+			]
 		}
 	}
 	// abstract getOtrsTicketIdAndAction(settings,tab) {}
