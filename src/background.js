@@ -38,14 +38,15 @@ browser.runtime.onMessage.addListener(message=>{
 		return initiateCurrentTabAction(tabAction,message.tabId)
 	} else if (message.action=='initiateImmediateCurrentTabAction') {
 		const tabAction=makeAction(...message.tabAction)
-		return initiateImmediateCurrentTabAction(tabAction,message.tabId,message.otherTabId)
+		actionsManager.addImmediateCurrentTabAction(tabAction,message.tabId)
+		return reactToImmediateTabAction(message.tabId)
+	} else if (message.action=='runTabMenuAction') {
+		actionsManager.replaceTabActionWithButtonResponse(message.tabId,message.tabActionIndex)
+		return reactToImmediateTabAction(message.tabId)
 	} else if (message.action=='cancelTabAction') {
 		if (actionsManager.deleteTab(message.tabId)) {
 			reactToActionsUpdate()
 		}
-		return Promise.resolve()
-	} else if (message.action=='runTabMenuAction') {
-		console.log('runTabMenuAction',message) ///
 		return Promise.resolve()
 	} else if (message.action=='tabStateWasChanged') {
 		return handleStateChangingTabCallback(message.tabId)
@@ -160,10 +161,9 @@ async function initiateCurrentTabAction(action,tabId) {
 	reactToActionsUpdate()
 }
 
-async function initiateImmediateCurrentTabAction(action,tabId,otherTabId) {
-	const settings=await settingsManager.read()
-	actionsManager.addImmediateCurrentTabAction(settings,action,tabId)
+async function reactToImmediateTabAction(tabId) {
 	reactToActionsUpdate()
+	const settings=await settingsManager.read()
 	// here we tried to trigger tab update event
 	// first attempt was:
 		// browser.tabs.update(tabId,{})

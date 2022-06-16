@@ -68,8 +68,17 @@ export default class ActionsManager {
 	/**
 	 * @param action {Action}
 	 */
-	async addImmediateCurrentTabAction(settings,action,tabId) {
+	addImmediateCurrentTabAction(action,tabId) {
 		this._addAction(tabId,action)
+	}
+	replaceTabActionWithButtonResponse(tabId,tabActionIndex) {
+		const actions=this.tabActions.get(tabId)
+		if (!actions) return
+		const action=actions[tabActionIndex]
+		if (!action) return
+		const newAction=action.getOngoingActionMenuButtonResponse()
+		if (!newAction) return
+		actions[tabActionIndex]=newAction
 	}
 	/**
 	 * @returns {Promise<boolean>} true if tab actions changed

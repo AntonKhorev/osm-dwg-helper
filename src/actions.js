@@ -67,6 +67,7 @@ class RemindToResolveIssue extends Action {
 
 class ResolveIssue extends Action {
 	constructor(haveToSubmitComment) {
+		super()
 		this.haveToSubmitComment=haveToSubmitComment
 	}
 	getOngoingActionMenuEntry() {

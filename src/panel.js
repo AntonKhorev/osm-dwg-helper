@@ -115,8 +115,7 @@ function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
 	for (const [tabId,singleTabActionEntries] of tabActionEntries) {
-		let tabActionIndex=0
-		for (const menuEntryElements of singleTabActionEntries) {
+		for (const [tabActionIndex,menuEntryElements] of singleTabActionEntries.entries()) {
 			const $li=document.createElement('li')
 			for (const [text,type] of menuEntryElements) {
 				if (type=='em') {
@@ -147,6 +146,5 @@ function updateActionsOngoing(tabActionEntries) {
 			$li.append(` `,$switchButton,` `,$cancelButton)
 			$actions.append($li)
 		}
-		tabActionIndex++
 	}
 }

@@ -94,7 +94,7 @@ describe("ActionsManager",()=>{
 		const browserTabs=new MockBrowserTabs()
 		const actionsManager=new ActionsManager(browserTabs)
 		const action=new MockAction(101,'url(11)','entry(11)')
-		await actionsManager.addImmediateCurrentTabAction(settings,action,11)
+		actionsManager.addImmediateCurrentTabAction(action,11)
 		const tabActionEntries=actionsManager.listTabActionEntries()
 		assert.deepEqual(browserTabs.log,[])
 		assert.deepEqual(tabActionEntries,[
@@ -107,7 +107,7 @@ describe("ActionsManager",()=>{
 		const action1=new MockAction(101,'url(1)','entry(1)')
 		await actionsManager.addCurrentTabAction(settings,action1,23)
 		const action2=new MockAction(101,'url(2)','entry(2)')
-		await actionsManager.addImmediateCurrentTabAction(settings,action2,23)
+		actionsManager.addImmediateCurrentTabAction(action2,23)
 		const tabActionEntries=actionsManager.listTabActionEntries()
 		assert.deepEqual(browserTabs.log,[
 			['update',23,{url:'url(1)'}]
