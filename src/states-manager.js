@@ -121,7 +121,6 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 		if (messageId!=null) {
 			tabState.type='message'
 			tabState.messageData={
-				osmRoot:settings.osm, // TODO get rid of osmRoot, unnecessary for message
 				id:messageId,
 				url:tab.url // TODO what if url includes anchor?
 			}
@@ -196,7 +195,6 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 				const contentIssueId=await messageTab(tab.id,'ticket',{action:'getIssueId'})
 				if (contentIssueId!=null) {
 					tabState.issueData={
-						osmRoot:settings.osm,
 						id:contentIssueId,
 						url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
 					}

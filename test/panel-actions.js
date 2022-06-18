@@ -106,7 +106,6 @@ describe("panel-actions-new",()=>{
 		const permissions=settings
 		const tabId=1
 		const issueData={
-			osmRoot:'https://myosm.example.com/',
 			id:'321',
 			url:'https://myosm.example.com/issues/321',
 			reportedItem:{
@@ -142,7 +141,6 @@ describe("panel-actions-new",()=>{
 		const permissions=settings
 		const tabId=1
 		const issueData={
-			osmRoot:'https://myosm.example.com/',
 			id:'321',
 			url:'https://myosm.example.com/issues/321',
 			reportedItem:{
@@ -201,7 +199,6 @@ describe("panel-actions-new",()=>{
 		const permissions=settings
 		const tabId=1
 		const issueData={
-			osmRoot:'https://myosm.example.com/',
 			id:'321',
 			url:'https://myosm.example.com/issues/321',
 			reportedItem:{
@@ -268,7 +265,6 @@ describe("panel-actions-new",()=>{
 		const permissions=settings
 		const tabId=1
 		const issueData={
-			osmRoot:'https://myosm.example.com/',
 			id:'321',
 			url:'https://myosm.example.com/issues/321',
 			reportedItem:{
@@ -318,7 +314,6 @@ describe("panel-actions-new",()=>{
 		const permissions=settings
 		const tabId=1
 		const blockData={
-			osmRoot:'https://myosm.example.com/',
 			id:'789',
 			url:'https://myosm.example.com/user_blocks/789',
 			user:'BadUser',
