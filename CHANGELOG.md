@@ -3,6 +3,7 @@
 ## 0.6.5
 
 - Fix tab state update when report/comment selection changes due to page reloading
+- Quick message menu shows users with selected reports
 
 ## 0.6.4
 

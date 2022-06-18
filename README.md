@@ -68,7 +68,7 @@ If you've issued a block, you can add it to a ticket in a manner similar to addi
 
 ### Quick messages from issues
 
-Sometimes you don't want to create a ticket for an issue. You may want just to send a message to the reporting user and resolve te issue. To quickly do this from the issue page, click on the username under *Quick message reporting user* in the extension panel. An OSM new message form will be opened with a pregenerated subject.
+Sometimes you don't want to create a ticket for an issue. You may want just to send a message to the reporting user and resolve te issue. To quickly do this from the issue page, click the username under *Quick message reporting user* in the extension panel. The list of users in the menu includes only those who have at least one report selected with a checkbox. After clicking the username a new OSM message form will be opened with a pregenerated subject.
 
 ### Other actions
 

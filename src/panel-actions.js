@@ -41,36 +41,35 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.osm) {
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
-				const newUsers=new Set()
-				const oldUsers=new Set()
+				const users=new Map()
 				if (issueData.reports) {
 					for (const report of issueData.reports) {
+						if (!report.selected) continue
 						const userName=report.by
 						if (userName==null) continue
-						if (report.wasRead) {
-							if (!newUsers.has(userName)) {
-								oldUsers.add(userName)
-							}
+						let userReportCounts={read:0, unread:0}
+						if (users.has(userName)) {
+							userReportCounts=users.get(userName)
 						} else {
-							oldUsers.delete(userName)
-							newUsers.add(userName)
+							users.set(userName,userReportCounts)
+						}
+						if (report.wasRead) {
+							userReportCounts.read++
+						} else {
+							userReportCounts.unread++
 						}
 					}
 				}
-				if (newUsers.size>0 || oldUsers.size>0) {
+				if (users.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
 					const subject=getSubject()
-					for (const userName of newUsers) {
+					for (const [userName,userReportCounts] of users) {
 						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`))
-						if (newUsers.size==1 && oldUsers.size==0) {
-							$li.append(" - the only reporting user")
-						} else if (newUsers.size==1) {
-							$li.append(" - the only reporting user with unread report")
-						}
-					}
-					for (const userName of oldUsers) {
-						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`))
-						$li.append(" - report was read")
+						const counts=[]
+						if (userReportCounts.unread>0) counts.push(`${userReportCounts.unread} new`)
+						if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)
+						const totalUserReportCount=userReportCounts.unread+userReportCounts.read
+						$li.append(` - ${counts.join(` and `)} report${totalUserReportCount>1?'s':''} selected`)
 					}
 				}
 				function getSubject() {
