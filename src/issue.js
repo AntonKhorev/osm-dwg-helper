@@ -26,6 +26,21 @@ export function getUserMessageBody(settings,issueData,userName) {
 	for (const report of issueData.reports) {
 		if (!report.selected) continue
 		if (report.by!=userName) continue
+		if (report.lead.length>0) {
+			for (const [fragmentType,fragmentText] of report.lead) {
+				const t=escapeHtml(fragmentText)
+				if (fragmentType=='user') {
+					body+=`[${userName}](${escapeHtml(report.byUrl)})` // TODO escape userName in [] because it can include these chars
+				} else if (fragmentType=='category') {
+					body+=`**${t}**`
+				} else {
+					body+=t
+				}
+			}
+			body+=`:\n`
+		} else {
+			body+=`${userName} wrote:\n` // fallback, this shouldn't happen
+		}
 		body+=`<blockquote>\n${report.text}</blockquote>\n\n`
 	}
 	return body
