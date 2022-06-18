@@ -394,8 +394,8 @@ export class SendMessageFromIssueReports extends OffshootAction {
 	async act(settings,tab,tabState,messageTab) {
 		await messageTab(tab.id,'message-add',{
 			action: 'setMessageSubjectAndBody',
-			subject: issueHandler.getSubject(settings,this.issueData),
-			body: 'TODO body'
+			subject: issueHandler.getUserMessageSubject(settings,this.issueData),
+			body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
 		})
 	}
 }

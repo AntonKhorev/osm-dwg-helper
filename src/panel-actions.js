@@ -62,7 +62,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				}
 				if (users.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
-					const subject=issueHandler.getSubject(settings,issueData)
+					const subject=issueHandler.getUserMessageSubject(settings,issueData)
 					for (const [userName,userReportCounts] of users) {
 						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`,()=>sendMessage({
 							action:'initiateNewTabAction',

@@ -1,7 +1,16 @@
 import * as templateEngine from './template-engine.js'
 import {escapeHtml} from './utils.js'
 
-export function getSubject(settings,issueData) {
+export function areAllNewReportsSelected(issueData) {
+	if (!issueData.reports) return true
+	for (const report of issueData.reports) {
+		if (report.wasRead) continue
+		if (!report.selected) return false
+	}
+	return true
+}
+
+export function getUserMessageSubject(settings,issueData) {
 	if (issueData.reportedItem?.type=='user') {
 		return templateEngine.evaluate(settings.issue_message_subject_user,{user:issueData.reportedItem})
 	} else if (issueData.reportedItem?.type=='note') {
@@ -11,13 +20,15 @@ export function getSubject(settings,issueData) {
 	}
 }
 
-export function areAllNewReportsSelected(issueData) {
-	if (!issueData.reports) return true
+export function getUserMessageBody(settings,issueData,userName) {
+	if (!issueData.reports) return ''
+	let body=''
 	for (const report of issueData.reports) {
-		if (report.wasRead) continue
-		if (!report.selected) return false
+		if (!report.selected) continue
+		if (report.by!=userName) continue
+		body+=`<blockquote>\n${report.text}</blockquote>\n\n`
 	}
-	return true
+	return body
 }
 
 export function convertToTicketData(settings,issueData,additionalUserData) {
