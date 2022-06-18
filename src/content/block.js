@@ -6,6 +6,7 @@ export function getBlockData(document) {
 	const $userLink=getUserLink($userLinks,document.head.dataset.locale)
 	if ($userLink) {
 		blockData.user=$userLink.textContent
+		blockData.userUrl=$userLink.href
 	}
 	const $blockInfo=$content.querySelector('.content-body .content-inner dl')
 	if ($blockInfo) {

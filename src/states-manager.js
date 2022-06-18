@@ -173,7 +173,6 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 		if (blockId!=null) {
 			tabState.type='block'
 			tabState.blockData={
-				osmRoot:settings.osm, // TODO get rid of osmRoot, currently used to construct osm links from reported-by usernames
 				id:blockId,
 				url:tab.url
 			}

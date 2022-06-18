@@ -358,11 +358,10 @@ export class AddBlockToTicket extends AddArticleToTicket {
 	getSubjectAndBody(settings) {
 		const subjectTemplate=settings[`article_subject_block${this.blockData.isZeroHour?'_zero':''}`]
 		const bodyTemplate=settings.article_body_block
-		const userName=this.blockData.user
 		const context={
 			user:{
-				name:userName,
-				url:this.blockData.osmRoot+'user/'+encodeURIComponent(userName)
+				name: this.blockData.user,
+				url: this.blockData.userUrl,
 			},
 			block:this.blockData
 		}
