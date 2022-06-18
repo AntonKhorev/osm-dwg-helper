@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.5
+
+- Fix tab state update when report/comment selection changes due to page reloading
+
 ## 0.6.4
 
 - Fixes to *Add to new ticket form* related to browser tab update event behavior change and potential race conditions

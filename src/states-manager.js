@@ -1,3 +1,5 @@
+import {isTabStateEqual} from './states.js'
+
 import {
 	getOsmMessageIdFromUrl,
 	getOsmIssueIdFromUrl,
@@ -210,23 +212,4 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 		}
 	}
 	return tabState
-}
-
-function isTabStateEqual(data1,data2) {
-	if (data1.type!=data2.type) return false
-	if (data1.type=='message') {
-		if (data1.messageData.id!=data2.messageData.id) return false
-	}
-	if (data1.type=='user') {
-		if (data1.userData.id!=data2.userData.id) return false
-	}
-	if (data1.type=='issue') {
-		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff: data1.issueData.reportedItem
-	}
-	if (data1.type=='ticket') {
-		if (data1.issueData.id!=data2.issueData.id) return false
-		// TODO compare other stuff
-	}
-	return true
 }
