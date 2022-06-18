@@ -392,10 +392,52 @@ export class SendMessageFromIssueReports extends OffshootAction {
 		return `${settings.osm}message/new/${encodeURIComponent(this.userName)}`
 	}
 	async act(settings,tab,tabState,messageTab) {
-		await messageTab(tab.id,'message-add',{
-			action: 'setMessageSubjectAndBody',
-			subject: issueHandler.getUserMessageSubject(settings,this.issueData),
-			body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
+		try {
+			await messageTab(tab.id,'message-add',{
+				action: 'setMessageSubjectAndBody',
+				subject: issueHandler.getUserMessageSubject(settings,this.issueData),
+				body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
+			})
+		} catch {
+			return [tab.id,this]
+		}
+		return [tab.id,new CommentIssueAboutUserMessage(
+			this.openerTabId,
+			issueHandler.areAllNewReportsSelectedAndBelongToUser(this.issueData,this.userName),
+			this.userName
+		)]
+	}
+}
+
+class CommentIssueAboutUserMessage extends OffshootAction {
+	constructor(openerTabId,haveToResolveIssue,userName) {
+		super(openerTabId)
+		this.haveToResolveIssue=haveToResolveIssue
+		this.userName=userName
+	}
+	getOngoingActionMenuEntry() {
+		return [[`add comment to issue for sent message`]]
+	}
+	// getActionUrl(settings) {
+	// 	return `${settings.osm}messages/inbox`
+	// }
+	async act(settings,tab,tabState,messageTab) {
+		if (tab.url!=`${settings.osm}messages/inbox`) {
+			return [tab.id,this]
+		}
+		await messageTab(this.openerTabId,'issue',{
+			action:'addComment',
+			comment:this.getComment(settings)
 		})
+		return [
+			,,
+			this.openerTabId,new RemindToResolveIssue(this.haveToResolveIssue)
+		]
+	}
+	getComment(settings) {
+		return templateEngine.evaluate(
+			settings.issue_comment_message_sent,
+			{user:{name:this.userName,url:`${settings.osm}user/${encodeURIComponent(this.userName)}`}}
+		)
 	}
 }

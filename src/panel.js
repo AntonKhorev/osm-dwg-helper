@@ -141,7 +141,7 @@ function updateActionsOngoing(tabActionEntries) {
 			const $cancelButton=document.createElement('button')
 			$cancelButton.textContent='cancel'
 			$cancelButton.addEventListener('click',()=>{
-				browser.runtime.sendMessage({action:'cancelTabAction',tabId})
+				browser.runtime.sendMessage({action:'cancelTabAction',tabId,tabActionIndex}) // TODO actually use the index
 			})
 			$li.append(` `,$switchButton,` `,$cancelButton)
 			$actions.append($li)

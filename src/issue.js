@@ -2,10 +2,19 @@ import * as templateEngine from './template-engine.js'
 import {escapeHtml} from './utils.js'
 
 export function areAllNewReportsSelected(issueData) {
+	return areAllNewReportsSelectedAndPassExtraCheck(issueData,report=>true)
+}
+
+export function areAllNewReportsSelectedAndBelongToUser(issueData,userName) {
+	return areAllNewReportsSelectedAndPassExtraCheck(issueData,report=>report.by==userName)
+}
+
+function areAllNewReportsSelectedAndPassExtraCheck(issueData,extraCheck) {
 	if (!issueData.reports) return true
 	for (const report of issueData.reports) {
 		if (report.wasRead) continue
 		if (!report.selected) return false
+		if (!extraCheck(report)) return false
 	}
 	return true
 }

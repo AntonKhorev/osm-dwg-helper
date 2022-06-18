@@ -30,4 +30,5 @@ export default [
 	['issue_message_subject',`reported issue`,"Subject template for generic reported item"],
 	['issue_message_subject_user',`reported user "\${user.name}"`,"Subject template for reported user"],
 	['issue_message_subject_note',`reported note #\${note.id}`,"Subject template for reported note"],
+	['issue_comment_message_sent',`OSM message sent to user <a href='\${user.url}'>\${user.name}</a>`,"Issue comment about quick messages sent to users"],
 ]
