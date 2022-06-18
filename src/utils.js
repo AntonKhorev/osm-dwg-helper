@@ -2,6 +2,11 @@ export function getOsmMessageIdFromUrl(osmRoot,url) {
 	return getIdFromUrl(osmRoot+'messages/',url)
 }
 
+export function isOsmNewMessageUrl(osmRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'message/new/'))
+	return !!match
+}
+
 export function getOsmIssueIdFromUrl(osmRoot,url) {
 	return getIdFromUrl(osmRoot+'issues/',url)
 }

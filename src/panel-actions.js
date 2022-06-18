@@ -64,7 +64,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
 					const subject=getSubject()
 					for (const [userName,userReportCounts] of users) {
-						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`))
+						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`,()=>sendMessage({
+							action:'initiateNewTabAction',
+							tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
+						})))
 						const counts=[]
 						if (userReportCounts.unread>0) counts.push(`${userReportCounts.unread} new`)
 						if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)

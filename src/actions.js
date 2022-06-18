@@ -379,6 +379,23 @@ export class AddBlockToTicket extends AddArticleToTicket {
 	}
 }
 
+export class SendMessageFromIssueReports extends OffshootAction {
+	constructor(openerTabId,issueData,userName) {
+		super(openerTabId)
+		this.issueData=issueData
+		this.userName=userName
+	}
+	getOngoingActionMenuEntry() {
+		return [[`quick message to `],[this.userName,'em']]
+	}
+	getActionUrl(settings) {
+		return `${settings.osm}message/new/${encodeURIComponent(this.userName)}`
+	}
+	async act(settings,tab,tabState,messageTab) {
+		await messageTab(tab.id,'message-add',{action:'setMessageSubjectAndBody',subject:'TODO subj',body:'TODO body'})
+	}
+}
+
 function selectedAllNewIssueReports(issueData) {
 	if (!issueData.reports) return true
 	for (const report of issueData.reports) {

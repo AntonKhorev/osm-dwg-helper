@@ -7,18 +7,18 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=['message','issue','user','block','ticket','ticket-add']
+export const types=['message','message-add','issue','user','block','ticket','ticket-add']
 
 export const uiBrandings=['closed','open','ticket']
 
 export function svg(type) {
 	let content=tabs()
-	if (type=='message') content+=envelope()
+	if (type=='message' || type=='message-add') content+=envelope()
 	if (type=='issue') content+=flag()
 	if (type=='user' || type=='block') content+=avatar()
 	if (type=='block') content+=cross()
 	if (type=='ticket' || type=='ticket-add') content+=ticket()
-	if (type=='ticket-add') content+=add()
+	if (type=='ticket-add' || type=='message-add') content+=add()
 	if (type=='closed') content+=closedMarker()
 	if (type=='open') content+=openMarker()
 	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`

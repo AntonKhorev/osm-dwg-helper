@@ -2,6 +2,7 @@ import {isTabStateEqual} from './states.js'
 
 import {
 	getOsmMessageIdFromUrl,
+	isOsmNewMessageUrl,
 	getOsmIssueIdFromUrl,
 	isOsmUserUrl,
 	getOsmBlockIdFromUrl,
@@ -128,6 +129,11 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 				const contentMessageData=await messageTab(tab.id,'message',{action:'getMessageData'})
 				if (contentMessageData) Object.assign(tabState.messageData,contentMessageData)
 			}
+		}
+	}
+	if (settings.osm) {
+		if (isOsmNewMessageUrl(settings.osm,tab.url)) {
+			tabState.type='message-add'
 		}
 	}
 	if (settings.osm) {
