@@ -392,6 +392,10 @@ export class SendMessageFromIssueReports extends OffshootAction {
 		return `${settings.osm}message/new/${encodeURIComponent(this.userName)}`
 	}
 	async act(settings,tab,tabState,messageTab) {
-		await messageTab(tab.id,'message-add',{action:'setMessageSubjectAndBody',subject:'TODO subj',body:'TODO body'})
+		await messageTab(tab.id,'message-add',{
+			action: 'setMessageSubjectAndBody',
+			subject: issueHandler.getSubject(settings,this.issueData),
+			body: 'TODO body'
+		})
 	}
 }

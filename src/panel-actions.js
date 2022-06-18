@@ -1,4 +1,4 @@
-import * as templateEngine from './template-engine.js'
+import * as issueHandler from './issue.js'
 
 /**
  * @returns [global, this tab, this+other tab] actions menu updater functions
@@ -62,7 +62,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				}
 				if (users.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
-					const subject=getSubject()
+					const subject=issueHandler.getSubject(settings,issueData)
 					for (const [userName,userReportCounts] of users) {
 						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`,()=>sendMessage({
 							action:'initiateNewTabAction',
@@ -73,15 +73,6 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)
 						const totalUserReportCount=userReportCounts.unread+userReportCounts.read
 						$li.append(` - ${counts.join(` and `)} report${totalUserReportCount>1?'s':''} selected`)
-					}
-				}
-				function getSubject() {
-					if (issueData.reportedItem?.type=='user') {
-						return templateEngine.evaluate(settings.issue_message_subject_user,{user:issueData.reportedItem})
-					} else if (issueData.reportedItem?.type=='note') {
-						return templateEngine.evaluate(settings.issue_message_subject_note,{note:issueData.reportedItem})
-					} else {
-						return templateEngine.evaluate(settings.issue_message_subject,{})
 					}
 				}
 				function getUserMessageUrl(userName,subject) {

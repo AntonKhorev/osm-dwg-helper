@@ -1,6 +1,16 @@
 import * as templateEngine from './template-engine.js'
 import {escapeHtml} from './utils.js'
 
+export function getSubject(settings,issueData) {
+	if (issueData.reportedItem?.type=='user') {
+		return templateEngine.evaluate(settings.issue_message_subject_user,{user:issueData.reportedItem})
+	} else if (issueData.reportedItem?.type=='note') {
+		return templateEngine.evaluate(settings.issue_message_subject_note,{note:issueData.reportedItem})
+	} else {
+		return templateEngine.evaluate(settings.issue_message_subject,{})
+	}
+}
+
 export function areAllNewReportsSelected(issueData) {
 	if (!issueData.reports) return true
 	for (const report of issueData.reports) {
