@@ -421,10 +421,10 @@ function convertIssueDataToTicketData(settings,issueData,additionalUserData) {
 		const addedCustomersList=[]
 		for (const report of reports) {
 			if (!report.selected) continue
-			const user={} // TODO save user url in content script
+			const user={}
 			if (report.by!=null) {
 				user.name=report.by
-				user.url=issueData.osmRoot+'user/'+encodeURIComponent(report.by)
+				user.url=report.byUrl??'#'
 				if (!addedCustomers[user.name]) {
 					addedCustomers[user.name]=true
 					addedCustomersList.push(templateEngine.evaluate(settings.ticket_customer,{user}))

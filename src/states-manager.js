@@ -137,7 +137,6 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 			injectCssIntoTab(tab.id,'issue')
 			tabState.type='issue'
 			tabState.issueData={
-				osmRoot:settings.osm, // TODO get rid of osmRoot, currently used to construct osm links from reported-by usernames
 				id:issueId,
 				url:tab.url
 			}

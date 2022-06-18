@@ -85,21 +85,15 @@ function parseLead($p) {
 	}
 	for (const pChild of $p.childNodes) {
 		if (pChild.nodeType==/*Node.TEXT_NODE*/3) {
-			const [textBefore,textCategory,textAfter]=splitByReportCategory(pChild.nodeValue)
-			if (textBefore.length>0) {
-				report.lead.push(['plain',textBefore])
-			}
-			if (textCategory.length>0) {
-				report.category=textCategory
-				report.lead.push(['category',textCategory])
-			}
-			if (textAfter.length>0) {
-				report.lead.push(['plain',textAfter])
-			}
+			parsePlainText(pChild.nodeValue)
 		} else if (pChild.nodeType==/*Node.ELEMENT_NODE*/1) {
-			// TODO check if it's <a>, process as plaintext otherwise
-			report.by=pChild.textContent
-			report.lead.push(['user',report.by])
+			if (pChild.tagName=='A') {
+				report.by=pChild.textContent
+				report.byUrl=pChild.href
+				report.lead.push(['user',report.by])
+			} else {
+				parsePlainText(pChild.textContent)
+			}
 		}
 	}
 	if (report.lead.length>0) {
@@ -113,6 +107,19 @@ function parseLead($p) {
 		}
 	}
 	return report
+	function parsePlainText(text) {
+		const [textBefore,textCategory,textAfter]=splitByReportCategory(text)
+		if (textBefore.length>0) {
+			report.lead.push(['plain',textBefore])
+		}
+		if (textCategory.length>0) {
+			report.category=textCategory
+			report.lead.push(['category',textCategory])
+		}
+		if (textAfter.length>0) {
+			report.lead.push(['plain',textAfter])
+		}
+	}
 }
 
 function splitByReportCategory(text) {

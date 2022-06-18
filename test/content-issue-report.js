@@ -114,6 +114,7 @@ function assertReportText(result,text) {
 		text,
 		selected: false,
 		category: 'spam',
-		by: 'testuser'
+		by: 'testuser',
+		byUrl: '/user/testuser'
 	})
 }

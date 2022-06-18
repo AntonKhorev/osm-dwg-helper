@@ -154,6 +154,7 @@ describe("panel-actions-new",()=>{
 			reports:[
 				{
 					by:'WatchfulUser',
+					byUrl:'https://myosm.example.com/user/WatchfulUser',
 					wasRead:false,
 					lead:[['plain','reported by '],['user','WatchfulUser']],
 					text:`<p>he did things</p>`,
@@ -212,6 +213,7 @@ describe("panel-actions-new",()=>{
 			reports:[
 				{
 					by:'WatchfulUser',
+					byUrl:'https://myosm.example.com/user/WatchfulUser',
 					wasRead:false,
 					lead:[['plain','reported by '],['user','WatchfulUser']],
 					text:`<p>he did things</p>`,
@@ -221,6 +223,7 @@ describe("panel-actions-new",()=>{
 			comments:[
 				{
 					by:'BoredModerator',
+					byUrl:'https://myosm.example.com/user/BoredModerator',
 					lead:[['plain','comment from '],['user','BoredModerator']],
 					text:`<p>who cares</p>`,
 					selected:true,
@@ -277,6 +280,7 @@ describe("panel-actions-new",()=>{
 			reports:[
 				{
 					by:'WatchfulUser',
+					byUrl:'https://myosm.example.com/user/WatchfulUser',
 					wasRead:false,
 					lead:[['plain','reported by '],['user','WatchfulUser']],
 					text:`<p>he did things</p>`,

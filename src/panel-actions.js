@@ -83,7 +83,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					}
 				}
 				function getUserMessageUrl(userName,subject) {
-					return issueData.osmRoot+'message/new/'+encodeURIComponent(userName)+'?message[title]='+encodeURIComponent(subject)
+					return settings.osm+'message/new/'+encodeURIComponent(userName)+'?message[title]='+encodeURIComponent(subject)
 				}
 			}
 		}
