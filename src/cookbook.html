@@ -48,6 +48,15 @@ details:target {
     Inside OTRS note is a type of article that can be added to a ticket, available under <em>Communication</em> menu of a ticket.
     <em>DWG Helper</em> allows to create OTRS notes from OSM reports and messages.
     That means, you can create an OTRS note from an OSM report about an OSM note.</dd>
+<dt>phone ticket</dt>
+<dd>This is a kind of OTRS ticket created by <em>DWG Helper</em>, for the lack of a better kind.
+    From the point of view of OTRS, DWG acts as a customer service, receiving complaints either by email or by phone calls.
+    Emails are actually real, there's an address where anyone can send an email and a ticket is going to be automatically created by OTRS.
+    There's no phone of course, <em>phone tickets</em> are a way to indicate that these tickets came from some other source.</dd>
+<dt>ticket queue</dt>
+<dd>A ticket category used in activity reports.
+    From the point of view of pretend-customer-service, it would have been a way to assign tickets to different people.
+    In DWG it's rarely used that way because tickets are usually handled by whoever created them.</dd>
 </dl>
 <h2>Kinds of issues and what to do with them</h2>
 <details id=one-simple>
@@ -123,7 +132,28 @@ details:target {
 </details>
 <details id=one-ticket>
 <summary>One issue to be converted to a ticket - the most common case</summary>
-<p>TODO</p>
+<ol>
+<li>Open the <em>issue page</em>.
+    Don't yet start fixing the issue.</li>
+<li>Click any of <em>Create ticket > issue...</em> links in <em>DWG Helper panel</em>.
+    If it's a user who is being reported, there are going to be two links.
+    One of the links ends with <em>scan user id</em>.
+    Click it if you want user id added to the ticket.
+    It does an extra step required for retrieving the id.
+    You'll want the id if you expect the reported user to change their username, something that they can do any moment.
+    After clicking any of the links you'll arrive at <em>Create New Phone Ticket</em> form.</li>
+<li>If possible, set the <em>To queue</em> field to an appropriate queue instead of the default one.
+    Changing the queue later is going to unlock the ticket.
+    Updates to unlocked tickets are received by everyone, not just by its owner.
+    You you are going to change the queue later, don't forget to lock the ticket again, if you still intend to work on it.</li>
+<li>If possible, set the <em>DWG Region</em>.
+    Not all of the ticket update forms have this field.
+    If left blank, you'll have to do an extra step of going into <em>Miscellaneous > Free Fields</em> ticket menu item to set it later.</li>
+<li>Click <em>Create</em>.
+    This takes you to the ticket page.</li>
+<li>Press the <em>resolve issue</em> button in the <em>Ongoing actions</em> section of the panel to resolve the issue.
+    Now the issue is taken off the open issues list and you can start working on it.</li>
+</ol>
 </details>
 <details>
 <summary>Several related issues to be converted to a ticket</summary>
@@ -132,6 +162,14 @@ details:target {
 <details>
 <summary>New issue to be added to a related existing ticket</summary>
 <p>TODO</p>
+</details>
+<details>
+<summary>One issue of several reports to be converted to several tickets</summary>
+<p>TODO</p>
+</details>
+<details>
+<summary>Any kind of issue to be converted to a ticket without the help of <em>DWG Helper</em></summary>
+<p>TODO - in case the extension fails</p>
 </details>
 </body>
 </html>
