@@ -9,11 +9,6 @@
 	*:visited {
 		color: #CAC;
 	}
-	input[type=text],
-	input[type=url] {
-		background: #222;
-		color: #DDD;
-	}
 }
 body {
 	padding: .5rem;
