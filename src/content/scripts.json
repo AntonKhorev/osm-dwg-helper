@@ -20,7 +20,8 @@
 	},
 	"message-add":{
 		"getUserData":[],
-		"setMessageSubjectAndBody":["subject","body"]
+		"setMessageSubjectAndBody":["subject","body"],
+		"addMessageSubjectAndBody":["subject","body"]
 	},
 	"ticket":{
 		"getIssueId":[]

@@ -246,7 +246,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						const addSubAction=addSubmenu(`Add to quick message to user ${userData.name}`)
 						const $li=addSubAction(makeLink('#',userData.name,()=>sendMessage({
 							action:'initiateImmediateCurrentTabAction',
-							tabAction:['AddToQuickMessage',otherTabId,issueData],
+							tabAction:['AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name],
 							tabId,
 							otherTabId
 						})))

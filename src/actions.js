@@ -155,9 +155,6 @@ export class CreateIssueTicket extends OffshootAction {
 }
 
 export class AddToCreateIssueTicket extends CreateIssueTicket { // TODO not actually an offshoot, "openerTab" should be "otherTab"
-	constructor(openerTabId,issueData,additionalUserData) {
-		super(openerTabId,issueData,additionalUserData)
-	}
 	getOngoingActionMenuEntry() {
 		return [[`add `],[` issue #${this.issueData.id}`,'em'],[` to create ticket form`]]
 	}
@@ -393,11 +390,7 @@ export class SendMessageFromIssueReports extends OffshootAction {
 	}
 	async act(settings,tab,tabState,messageTab) {
 		try {
-			await messageTab(tab.id,'message-add',{
-				action: 'setMessageSubjectAndBody',
-				subject: issueHandler.getUserMessageSubject(settings,this.issueData),
-				body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
-			})
+			await messageTab(tab.id,'message-add',this.getMessageAddMessage(settings))
 		} catch {
 			return [tab.id,this]
 		}
@@ -406,6 +399,26 @@ export class SendMessageFromIssueReports extends OffshootAction {
 			issueHandler.areAllNewReportsSelectedAndBelongToUser(this.issueData,this.userName),
 			this.userName
 		)]
+	}
+	getMessageAddMessage(settings) {
+		return {
+			action: 'setMessageSubjectAndBody',
+			subject: issueHandler.getUserMessageSubject(settings,this.issueData),
+			body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
+		}
+	}
+}
+
+export class AddToSendMessageFromIssueReports extends SendMessageFromIssueReports { // TODO not actually an offshoot, "openerTab" should be "otherTab"
+	getOngoingActionMenuEntry() {
+		return [[`add to quick message to `],[this.userName,'em']]
+	}
+	getMessageAddMessage(settings) {
+		return {
+			action: 'addMessageSubjectAndBody',
+			subject: issueHandler.getUserMessageSubject(settings,this.issueData),
+			body: issueHandler.getUserMessageBody(settings,this.issueData,this.userName)
+		}
 	}
 }
 
