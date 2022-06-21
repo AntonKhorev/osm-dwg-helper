@@ -39,6 +39,15 @@ details:target {
 <dt>issue page</dt>
 <dd>Webpage (<code>https://www.openstreetmap.org/issues/<em>issueId</em></code>) on the OSM website containing one or more reports associated with an issue.
     Can be opened through the <em>issues list</em>.</dd>
+<dt>customer</dt>
+<dd>This is how the user who reported an issue is known inside OTRS.
+    Creating an OTRS ticket from an OSM issue attaches the reporting users to the ticket as <em>customers</em>.</dd>
+<dt>note</dt>
+<dd>Inside OSM note is a message with coordinates left for OSM contributors, telling them about thing that need to be updated in the map data.
+    Notes are one of the things that can be reported.
+    Inside OTRS note is a type of article that can be added to a ticket, available under <em>Communication</em> menu of a ticket.
+    <em>DWG Helper</em> allows to create OTRS notes from OSM reports and messages.
+    That means, you can create an OTRS note from an OSM report about an OSM note.</dd>
 </dl>
 <h2>Kinds of issues and what to do with them</h2>
 <details id=one-simple>
@@ -53,7 +62,7 @@ details:target {
 <li>Press the <em>resolve issue</em> button in the <em>Ongoing actions</em> section of the panel to resolve the issue.</li>
 </ol>
 </details>
-<details>
+<details id=several-simple>
 <summary>Several related issues reported by one user that are not worthy of creating a ticket</summary>
 <p>Typically these are a number of spam or personal information notes reported by one user in quick succession.
    Often you can find them in the <em>issues list</em> by looking for issues with dates very close to each other.</p>
@@ -63,6 +72,7 @@ details:target {
 <li>Contact the reporting user by clicking <em>Quick message reporting user...</em> in <em>DWG Helper panel</em>.
     DON'T SEND THE MESSAGE YET.
     Keep the message form tab open.</li>
+<li>Go through the remaining issues:
 	<ol>
 	<li>Switch to <em>issues list</em> tab.</li>
 	<li>Open another related <em>issue page</em>.</li>
@@ -74,10 +84,54 @@ details:target {
 	<li>Click <em>Add to quick message...</em>.
 	    Another issue report is going to be appended to the message.</li>
 	<li>Repeat if there are undealt related issues left.</li>
-	</ol>
+	</ol></li>
 <li>Finish writing the message and send it.</li>
 <li>Press all the <em>resolve issue</em> buttons in <em>Ongoing actions</em>.</li>
 </ol>
+</details>
+<details id=one-simple-to-ticket>
+<summary>One ticket-unworthy issue that became complicated enough for ticket</summary>
+<p>This section assumes that the message was already sent and the issue was marked as resolved.
+   Now you change our mind and want to create a ticket.</p>
+<ol>
+<li>Find and open the <em>issue page</em>.
+    You can do this by opening the <em>issues list</em> and using a search form on top:
+	<ul>
+	<li>If a user was reported in the issue, change the status from <em>Open</em> to <em>Resolved</em> and copy the reported username into the <em>Reported User</em> field, then press <em>Search</em>.</li>
+	<li>If it was a reported note, you can't search for its id.
+	    You can still search by username of the user who created the note like above if the note is not anonymous.
+	    Otherwise get the list of all note issues you worked with and find it manually:
+	    change the status from <em>Open</em> to <em>Resolved</em>, change <em>Type</em> to <em>Note</em> and in <em>Select Last Updated By</em> pick yourself to limit the number of issues displayed.</li>
+	</ul></li>
+<li>The report of resolved note is displayed as <em>read</em> and is not selected for ticket creation by default.
+    Select the ticket by checking the box next to <img src="icons/ticket.svg" alt="DWG Helper ticket icon"> below the reporter's avatar.</li>
+<li>Open a new ticket form <a href=#one-ticket>as usual</a>, by clicking any <em>Create ticket</em> link other than <em>empty</em> in <em>DWG Helper panel</em>.</li>
+<li>Alter ticket details as necessary, then click <em>Create</em>.
+    A new ticket is going to be open in the current tab.</li>
+<li>You're done, unless you want to attach previously sent or received messages to the ticket.
+    This makes them visible to other DWG members and searchable by OTRS.
+    To attach the messages, first open <a href="https://www.openstreetmap.org/messages/inbox">your mailbox</a> in a new tab.
+	<ol>
+	<li>For each message, navigate to it in your mailbox.</li>
+	<li>Once on the message webpage, switch to the ticket tab.</li>
+	<li>Click <em>Add message... > as note</em> under <em>This+other tab actions</em> of <em>DWG Helper panel</em>.
+	    <em>Add note to ticket</em> form is going to appear.</li>
+	<li>Submit the form, getting back to the ticket page.</li>
+	<li>Repeat for other messages.</li>
+	</ol></li>
+</ol>
+</details>
+<details id=one-ticket>
+<summary>One issue to be converted to a ticket - the most common case</summary>
+<p>TODO</p>
+</details>
+<details>
+<summary>Several related issues to be converted to a ticket</summary>
+<p>TODO</p>
+</details>
+<details>
+<summary>New issue to be added to a related existing ticket</summary>
+<p>TODO</p>
 </details>
 </body>
 </html>
