@@ -2,22 +2,81 @@
 <html lang=en>
 <head>
 <meta charset=utf-8>
+<meta name=color-scheme content='light dark'>
 <title>OSM DWG Helper - Dealing with issues</title>
-<link rel=stylesheet href=ui.css>
+<style>
+@keyframes yellow-flash {
+	from {
+		background: #FF02;
+	}
+	to {
+		background: transparent;
+	}
+}
+details:target {
+	animation-name: yellow-flash;
+	animation-duration: 3s;
+}
+</style>
 </head>
 <body>
 <h1>Dealing with reported OSM issues</h1>
-<p><em>DWG Helper panel</em> this guide refers to is located either in a browser sidebar, or in an extension popup.</p>
-<details>
+<h2>Things referred by this guide</h2>
+<dl>
+<dt>DWG Helper panel</dt>
+<dd>The main UI element of the extension. Located either in a browser sidebar, or in an extension popup.</dd>
+<dt>issue</dt>
+<dd>Collection of reports provided by OSM users linked to a specific OSM entity.
+    There are various possible kinds of entities that can have issues linked to them.
+    The ones available to <em>moderators</em> are <em>users</em> and <em><a href='https://wiki.openstreetmap.org/wiki/Notes'>notes</a></em>.
+    When a user reports another user or note that wasn't reported before, a new issue is created.
+    <em>Moderators</em> (you) then try to sole the issue so it's no longer open.
+    If the same user or note gets reported again, their issue is reopened with a new report added.</dd>
+<dt>issues list</dt>
+<dd>List of issues opened by OSM users on the OSM website.
+    Usually we're interested only in <a href='https://www.openstreetmap.org/issues?status=open'>open issues</a>.
+    There's a link to this list on the top of <em>DWG Helper panel</em>.</dd>
+<dt>issue page</dt>
+<dd>Webpage (<code>https://www.openstreetmap.org/issues/<em>issueId</em></code>) on the OSM website containing one or more reports associated with an issue.
+    Can be opened through the <em>issues list</em>.</dd>
+</dl>
+<h2>Kinds of issues and what to do with them</h2>
+<details id=one-simple>
 <summary>One issue that is not worthy of creating a ticket</summary>
 <p>These are typically reported by only one user.</p>
 <ol>
-<li>Open the issue page (<code>https://www.openstreetmap.org/issues/<em>issueId</em></code>)</li>
-<li>Do whatever actions required to solve the issue, or what is possible to do before contacting the reporting user.</li>
-<li>Contact the reporting user by selecting <em>Quick message reporting user...</em> in <em>DWG Helper panel</em>.
+<li>Open the <em>issue page</em>.</li>
+<li>Do whatever actions required to fix the issue, or what is possible to do before contacting the reporting user.</li>
+<li>Contact the reporting user by clicking <em>Quick message reporting user...</em> in <em>DWG Helper panel</em>.
     This opens an OSM message form (<code>https://www.openstreetmap.org/message/new/<em>username</em></code>) with the issue report copied.
 <li>Write a message and send it.</li>
 <li>Press the <em>resolve issue</em> button in the <em>Ongoing actions</em> section of the panel to resolve the issue.</li>
+</ol>
+</details>
+<details>
+<summary>Several related issues reported by one user that are not worthy of creating a ticket</summary>
+<p>Typically these are a number of spam or personal information notes reported by one user in quick succession.
+   Often you can find them in the <em>issues list</em> by looking for issues with dates very close to each other.</p>
+<ol>
+<li>Open the <em>issue page</em> in a new tab.</li>
+<li>Do whatever actions required to fix the issue like for <a href='#one-simple'>one issue</a>.</li>
+<li>Contact the reporting user by clicking <em>Quick message reporting user...</em> in <em>DWG Helper panel</em>.
+    DON'T SEND THE MESSAGE YET.
+    Keep the message form tab open.</li>
+	<ol>
+	<li>Switch to <em>issues list</em> tab.</li>
+	<li>Open another related <em>issue page</em>.</li>
+	<li>Fix the issue.</li>
+	<li>If you're not on the issue page tab, switch to it.</li>
+	<li>From the issue tab switch directly to the opened and still unfinished message tab.
+	This makes <em>DWG Helper</em> understand that you may want to copy data from the issue tab to the message form.
+	If done correctly, <em>Add to quick message...</em> should appear in the <em>This+other tab actions</em> section of the panel.</li>
+	<li>Click <em>Add to quick message...</em>.
+	    Another issue report is going to be appended to the message.</li>
+	<li>Repeat if there are undealt related issues left.</li>
+	</ol>
+<li>Finish writing the message and send it.</li>
+<li>Press all the <em>resolve issue</em> buttons in <em>Ongoing actions</em>.</li>
 </ol>
 </details>
 </body>
