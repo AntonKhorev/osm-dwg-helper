@@ -67,6 +67,43 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 	await fs.remove(filename)
 }
 
+// generate table of contents for cookbook
+{
+	const filename=path.join('dist','cookbook.html')
+	const contents=String(await fs.readFile(filename))
+	let text=`<nav>\n`
+	let depth=0
+	let id=``
+	for (const line of contents.split('\n')) {
+		let match
+		match=line.match(`<section id=(.*)>`)
+		if (match) {
+			[,id]=match
+			continue
+		}
+		match=line.match(`<h([2-6])>(.*)</h`)
+		if (!match) continue
+		const [,levelString,title]=match
+		const level=Number(levelString)-1
+		while (depth<level) {
+			text+=`<ol>\n`
+			depth++
+		}
+		while (depth>level) {
+			text+=`</ol>\n`
+			depth--
+		}
+		text+=`<li><a href=#${id}>${title}</a>\n`
+	}
+	while (depth>0) {
+		text+=`</ol>\n`
+		depth--
+	}
+	text+=`</nav>`
+	const patchedContents=contents.replace(`<!-- TOC -->`,text)
+	await fs.writeFile(filename,patchedContents)
+}
+
 // convert extension icon to png
 // chrome doesn't support svg icons in manifest: https://bugs.chromium.org/p/chromium/issues/detail?id=29683
 // addons.mozilla.org also asks for png/jpg icon that overrides one specified in manifest

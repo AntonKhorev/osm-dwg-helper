@@ -13,14 +13,19 @@
 		background: transparent;
 	}
 }
-details:target {
+section:target {
 	animation-name: yellow-flash;
 	animation-duration: 3s;
 }
 </style>
 </head>
 <body>
+
 <h1>Dealing with reported OSM issues</h1>
+
+<!-- TOC -->
+
+<section id=terms>
 <h2>Things referred by this guide</h2>
 <dl>
 <dt>DWG Helper panel</dt>
@@ -58,9 +63,13 @@ details:target {
     From the point of view of pretend-customer-service, it would have been a way to assign tickets to different people.
     In DWG it's rarely used that way because tickets are usually handled by whoever created them.</dd>
 </dl>
+</section>
+
+<section id=issues>
 <h2>Kinds of issues and what to do with them</h2>
-<details id=one-simple>
-<summary>One issue that is not worthy of creating a ticket</summary>
+
+<section id=one-simple>
+<h3>One issue that is not worthy of creating a ticket</h3>
 <p>These are typically reported by only one user.</p>
 <ol>
 <li>Open the <em>issue page</em>.</li>
@@ -70,9 +79,10 @@ details:target {
 <li>Write a message and send it.</li>
 <li>Press the <em>resolve issue</em> button in the <em>Ongoing actions</em> section of the panel to resolve the issue.</li>
 </ol>
-</details>
-<details id=several-simple>
-<summary>Several related issues reported by one user that are not worthy of creating a ticket</summary>
+</section>
+
+<section id=several-simple>
+<h3>Several related issues reported by one user that are not worthy of creating a ticket</h3>
 <p>Typically these are a number of spam or personal information notes reported by one user in quick succession.
    Often you can find them in the <em>issues list</em> by looking for issues with dates very close to each other.</p>
 <ol>
@@ -97,9 +107,10 @@ details:target {
 <li>Finish writing the message and send it.</li>
 <li>Press all the <em>resolve issue</em> buttons in <em>Ongoing actions</em>.</li>
 </ol>
-</details>
-<details id=one-simple-to-ticket>
-<summary>One ticket-unworthy issue that became complicated enough for ticket</summary>
+</section>
+
+<section id=one-simple-to-ticket>
+<h3>One ticket-unworthy issue that became complicated enough for ticket</h3>
 <p>This section assumes that the message was already sent and the issue was marked as resolved.
    Now you change our mind and want to create a ticket.</p>
 <ol>
@@ -129,9 +140,10 @@ details:target {
 	<li>Repeat for other messages.</li>
 	</ol></li>
 </ol>
-</details>
-<details id=one-ticket>
-<summary>One issue to be converted to a ticket - the most common case</summary>
+</section>
+
+<section id=one-ticket>
+<h3>One issue to be converted to a ticket - the most common case</h3>
 <ol>
 <li>Open the <em>issue page</em>.
     Don't yet start fixing the issue.</li>
@@ -154,22 +166,25 @@ details:target {
 <li>Press the <em>resolve issue</em> button in the <em>Ongoing actions</em> section of the panel to resolve the issue.
     Now the issue is taken off the open issues list and you can start working on it.</li>
 </ol>
-</details>
-<details>
-<summary>Several related issues to be converted to a ticket</summary>
+</section>
+
+<section id=several-ticket>
+<h3>Several related issues to be converted to a ticket</h3>
 <p>You can deal with them in a similar manner to <a href=#several-simple>several issues in a single message</a>.</p>
-</details>
-<details>
-<summary>New issue to be added to a related existing ticket</summary>
+</section>
+
+<section id=one-add-to-ticket>
+<h3>New issue to be added to a related existing ticket</h3>
 <ol>
 <li>Open a ticket in one tab.</li>
 <li>Open an issue in another tab.</li>
 <li>Switch from the issue tab to the ticket tab.</li>
 <li>Click <em>This+other tab actions > Add selected report(s) > as note</em> in the panel.</li>
 </ol>
-</details>
-<details>
-<summary>One issue of several reports to be converted to several tickets</summary>
+</section>
+
+<section id=several-tickets>
+<h3>One issue of several reports to be converted to several tickets</h3>
 <p>You may need this if an issue has more than one users reporting it and you want to have a separate communication with each of them.</p>
 <ol>
 <li>Open an issue page.</li>
@@ -183,13 +198,17 @@ details:target {
 <li>Repeat for different selections of reports until all necessary tickets are created.</li>
 <li>Resolve the issue by clicking <em>Resolve</em> on the issue page.</li>
 </ol>
-</details>
-<details>
-<summary>Any kind of issue to be converted to a ticket without the help of <em>DWG Helper</em></summary>
+</section>
+
+<section id=manual>
+<h3>Any kind of issue to be converted to a ticket without the help of <em>DWG Helper</em></h3>
 <p>You'll need this in case the extension fails, or if a ticket has to be created not from an OSM issue but from some other source.</p>
 <ol>
 <li>Select <em>Create ticket > empty</em> from the panel.</li>
 </ol>
-</details>
+</section>
+
+</section>
+
 </body>
 </html>
