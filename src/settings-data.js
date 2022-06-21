@@ -12,10 +12,10 @@ export default [
 	['ticket_subject_note',`Issue #\${issue.id} (Note #\${note.id})`,"Subject template for reported note"],
 	// TODO textareas for html templates, also need to alter textfile format
 	['ticket_body_header',`<h1><a href='\${issue.url}'>Issue #\${issue.id}</a></h1>`,"Body header template",{note:"HTML"}],
-	['ticket_body_item',`<p>Reported item : <a href='\${item.url}'>osm link</a></p>`,"Body reported item template when it's unknown",{note:"HTML"}],
-	['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when it's user with unknown id",{note:"HTML"}],
-	['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when it's user with known id",{note:"HTML"}],
-	['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when it's note",{note:"HTML"}],
+	['ticket_body_item',`<p>Reported item : <a href='\${item.url}'>osm link</a></p>`,"Body reported item template when item type unknown",{note:"HTML"}],
+	['ticket_body_item_user',`<p>User : <a href='\${user.url}'>\${user.name}</a></p>`,"Body reported item template when item is a user with unknown id",{note:"HTML"}],
+	['ticket_body_item_user_id',`<p>User : <a href='\${user.url}'>\${user.name}</a> , <a href='\${user.apiUrl}'>#\${user.id}</a></p>`,"Body reported item template when item is a user with known id",{note:"HTML"}],
+	['ticket_body_item_note',`<p>Note : <a href='\${note.url}'>Note #\${note.id}</a></p>`,"Body reported item template when item is a note",{note:"HTML"}],
 	['issue_comment_ticket_created',`OTRS ticket created: \${ticket.url}`,"Issue comment about new ticket"],
 	['issue_comment_ticket_reports_added',`New reports added to OTRS ticket: \${ticket.url}`,"Issue comment about reports added to an existing ticket"],
 	"Addition of OSM blocks to OTRS tickets",
@@ -30,5 +30,8 @@ export default [
 	['issue_message_subject',`reported issue`,"Subject template for generic reported item"],
 	['issue_message_subject_user',`reported user "\${user.name}"`,"Subject template for reported user"],
 	['issue_message_subject_note',`reported note #\${note.id}`,"Subject template for reported note"],
-	['issue_comment_message_sent',`OSM message sent to user <a href='\${user.url}'>\${user.name}</a>`,"Issue comment about quick messages sent to users"],
+	['issue_message_body_item',`[Item](\${item.url})`,"Body reported item template when item type unknown",{note:"kramdown"}],
+	['issue_message_body_item_user',`User [\${user.name}](\${user.url})`,"Body reported item template when item is a user",{note:"kramdown"}],
+	['issue_message_body_item_note',`Note [#\${note.id}](\${note.url})`,"Body reported item template when item is a note",{note:"kramdown"}],
+	['issue_comment_message_sent',`OSM message sent to user <a href='\${user.url}'>\${user.name}</a>`,"Issue comment about quick messages sent to users",{note:"HTML"}], // TODO kramdown
 ]

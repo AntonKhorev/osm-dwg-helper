@@ -25,16 +25,25 @@ export function getUserMessageSubject(settings,issueData) {
 	} else if (issueData.reportedItem?.type=='note') {
 		return templateEngine.evaluate(settings.issue_message_subject_note,{note:issueData.reportedItem})
 	} else {
-		return templateEngine.evaluate(settings.issue_message_subject,{})
+		return templateEngine.evaluate(settings.issue_message_subject,{item:issueData.reportedItem})
 	}
 }
 
 export function getUserMessageBody(settings,issueData,userName) {
 	if (!issueData.reports) return ''
+	let itemLead
+	if (issueData.reportedItem?.type=='user') {
+		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item_user,{user:issueData.reportedItem})
+	} else if (issueData.reportedItem?.type=='note') {
+		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item_note,{note:issueData.reportedItem})
+	} else {
+		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item,{item:issueData.reportedItem})
+	}
 	let body=''
 	for (const report of issueData.reports) {
 		if (!report.selected) continue
 		if (report.by!=userName) continue
+		body+=`${itemLead} - `
 		if (report.lead.length>0) {
 			for (const [fragmentType,fragmentText] of report.lead) {
 				const t=escapeHtml(fragmentText)
@@ -48,7 +57,7 @@ export function getUserMessageBody(settings,issueData,userName) {
 			}
 			body+=`:\n`
 		} else {
-			body+=`${userName} wrote:\n` // fallback, this shouldn't happen
+			body+=`Reported by ${userName}:\n` // fallback, this shouldn't happen
 		}
 		body+=`<blockquote>\n${report.text}</blockquote>\n\n`
 	}

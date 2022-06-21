@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.6
+
+- Add reported item to quick message body
+
 ## 0.6.5
 
 - Fix tab state update when report/comment selection changes due to page reloading
