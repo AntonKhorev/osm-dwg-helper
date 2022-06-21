@@ -41,38 +41,16 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.osm) {
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
-				const users=new Map()
-				if (issueData.reports) {
-					for (const report of issueData.reports) {
-						if (!report.selected) continue
-						const userName=report.by
-						if (userName==null) continue
-						let userReportCounts={read:0, unread:0}
-						if (users.has(userName)) {
-							userReportCounts=users.get(userName)
-						} else {
-							users.set(userName,userReportCounts)
-						}
-						if (report.wasRead) {
-							userReportCounts.read++
-						} else {
-							userReportCounts.unread++
-						}
-					}
-				}
-				if (users.size>0) {
+				const userReportCountsMap=getUserReportCountsMap(issueData)
+				if (userReportCountsMap.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
 					const subject=issueHandler.getUserMessageSubject(settings,issueData)
-					for (const [userName,userReportCounts] of users) {
-						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),`${userName}`,()=>sendMessage({
+					for (const [userName,userReportCounts] of userReportCountsMap) {
+						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),userName,()=>sendMessage({
 							action:'initiateNewTabAction',
 							tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
 						})))
-						const counts=[]
-						if (userReportCounts.unread>0) counts.push(`${userReportCounts.unread} new`)
-						if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)
-						const totalUserReportCount=userReportCounts.unread+userReportCounts.read
-						$li.append(` - ${counts.join(` and `)} report${totalUserReportCount>1?'s':''} selected`)
+						$li.append(` - ${formatUserReportCounts(userReportCounts)} selected`)
 					}
 				}
 				function getUserMessageUrl(userName,subject) {
@@ -260,10 +238,24 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		}
 		if (permissions.osm) {
 			if (tabState.type=='message-add' && otherTabState.type=='issue') {
-				// TODO deselect all messages from other users? this won't happen often because typically you get one user reporting several notes that are not reported by anyone else
-				if (tabState.userData.name) {
-					const addSubAction=addSubmenu(`Add report to quick message to user ${tabState.userData.name}`)
-					// TODO
+				const userData=tabState.userData
+				const issueData=otherTabState.issueData
+				if (userData.name) {
+					const userReportCountsMap=getUserReportCountsMap(issueData)
+					if (userReportCountsMap.has(userData.name)) {
+						const addSubAction=addSubmenu(`Add to quick message to user ${userData.name}`)
+						const $li=addSubAction(makeLink('#',userData.name,()=>sendMessage({
+							action:'initiateImmediateCurrentTabAction',
+							tabAction:['AddToQuickMessage',otherTabId,issueData],
+							tabId,
+							otherTabId
+						})))
+						$li.append(` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`)
+						const nOtherUsers=userReportCountsMap.size-1
+						if (nOtherUsers>0) {
+							addSubAction(`won't add selected reports from ${nOtherUsers} other ${plural(`user`,nOtherUsers)}`)
+						}
+					}
 				}
 			}
 		}
@@ -311,4 +303,39 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			return $a
 		}
 	}
+}
+
+function getUserReportCountsMap(issueData) {
+	const userReportCountsMap=new Map()
+	if (issueData.reports) {
+		for (const report of issueData.reports) {
+			if (!report.selected) continue
+			const userName=report.by
+			if (userName==null) continue
+			let userReportCounts={read:0, unread:0}
+			if (userReportCountsMap.has(userName)) {
+				userReportCounts=userReportCountsMap.get(userName)
+			} else {
+				userReportCountsMap.set(userName,userReportCounts)
+			}
+			if (report.wasRead) {
+				userReportCounts.read++
+			} else {
+				userReportCounts.unread++
+			}
+		}
+	}
+	return userReportCountsMap
+}
+
+function formatUserReportCounts(userReportCounts) {
+	const counts=[]
+	if (userReportCounts.unread>0) counts.push(`${userReportCounts.unread} new`)
+	if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)
+	const totalUserReportCount=userReportCounts.unread+userReportCounts.read
+	return counts.join(` and `)+` `+plural(`report`,totalUserReportCount)
+}
+
+function plural(w,n) {
+	return w+(n>1?'s':'')
 }
