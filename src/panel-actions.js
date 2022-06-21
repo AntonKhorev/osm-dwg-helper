@@ -6,6 +6,7 @@ import * as issueHandler from './issue.js'
 export default (document,closeWindow,createTab,sendMessage)=>{
 	return [($menu,settings,permissions,tabId)=>{ // global actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
+		addAction(makeLink(`cookbook.html`,"dealing with issues (read this first)"))
 		if (settings.osm) {
 			addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
 		}

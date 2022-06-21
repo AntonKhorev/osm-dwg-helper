@@ -2,7 +2,8 @@
 
 ## 0.6.6
 
-- Add reported item to quick message body
+- Write reported item to quick message body
+- *Add to quick message* command to put several issues ito one message
 
 ## 0.6.5
 
