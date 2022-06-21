@@ -258,6 +258,15 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				}
 			}
 		}
+		if (permissions.osm) {
+			if (tabState.type=='message-add' && otherTabState.type=='issue') {
+				// TODO deselect all messages from other users? this won't happen often because typically you get one user reporting several notes that are not reported by anyone else
+				if (tabState.userData.name) {
+					const addSubAction=addSubmenu(`Add report to quick message to user ${tabState.userData.name}`)
+					// TODO
+				}
+			}
+		}
 		function makeAddToOtrsLink(addAs,ticketId,message) {
 			let otrsAction='AgentTicketNote'
 			if (addAs=='pending') otrsAction='AgentTicketPending'

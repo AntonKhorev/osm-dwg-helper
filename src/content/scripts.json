@@ -19,6 +19,7 @@
 		"getMessageData":[]
 	},
 	"message-add":{
+		"getUserData":[],
 		"setMessageSubjectAndBody":["subject","body"]
 	},
 	"ticket":{

@@ -134,6 +134,11 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 	if (settings.osm) {
 		if (isOsmNewMessageUrl(settings.osm,tab.url)) {
 			tabState.type='message-add'
+			tabState.userData={}
+			if (permissions.osm) {
+				const contentUserData=await messageTab(tab.id,'message-add',{action:'getUserData'})
+				if (contentUserData) Object.assign(tabState.userData,contentUserData)
+			}
 		}
 	}
 	if (settings.osm) {
