@@ -4,6 +4,7 @@
 
 - Write reported item to quick message body
 - *Add to quick message* command to put several issues ito one message
+- *Dealing with issues* guide
 
 ## 0.6.5
 
