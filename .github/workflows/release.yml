@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  release:
+    types: created
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build unsigned browser extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - name: Build browser extension files
+        run: npm run build
+      - name: Create an extension package
+        run: npx web-ext build -s dist
+      - name: Add the package to the release
+        run: gh release upload ${{github.event.release.tag_name}} web-ext-artifacts/*.zip
+        env:
+          GH_TOKEN: ${{github.token}}
