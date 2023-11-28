@@ -1,5 +1,4 @@
 import {strict as assert} from 'assert'
-import { create } from 'domain'
 
 import ActionsManager from '../src/actions-manager.js'
 
