@@ -5,8 +5,9 @@ export class SettingsManager {
 	 *              option spec: [key, default value, title, other attributes]
 	 *              other attributes: {type: input type, state: affects tab state, origin: needs origin permission, note}
 	 */
-	constructor(specs) {
+	constructor(specs,browserStorageArea) {
 		this.specs=specs
+		this.browserStorageArea=browserStorageArea
 		this.specKeys={}
 		for (const spec of this.getSpecsWithoutHeaders()) {
 			const [key]=spec
@@ -20,14 +21,14 @@ export class SettingsManager {
 		}
 	}
 	async read() {
-		const kvs=await browser.storage.local.get()
+		const kvs=await this.browserStorageArea.get()
 		for (const [k,v] of this.getSpecsWithoutHeaders()) {
 			if (kvs[k]==null) kvs[k]=v
 		}
 		return kvs
 	}
 	async write(kvs) {
-		await browser.storage.local.set(kvs)
+		await this.browserStorageArea.set(kvs)
 		const needToUpdate=(attr)=>{
 			for (const key of Object.keys(kvs)) {
 				const [,,,attrs]=this.specKeys[key]

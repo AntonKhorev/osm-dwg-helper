@@ -2,7 +2,7 @@ import settingsData from './settings-data.js'
 import {SettingsManager,SettingsAndPermissionsReader} from './settings-manager.js'
 import makePermissionsButtonPairHandler from './permissions-buttons.js'
 
-const settingsManager=new SettingsManager(settingsData)
+const settingsManager=new SettingsManager(settingsData,browser.storage.local)
 const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
 
 async function settingsWriteWrapper(settings) {

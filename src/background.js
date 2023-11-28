@@ -8,7 +8,7 @@ import installOrUninstallHeadersReceivedListener from './webrequest.js'
 
 const statesManager=new StatesManager(messageTab,injectCssIntoTab)
 const actionsManager=new ActionsManager(browser.tabs)
-const settingsManager=new SettingsManager(settingsData)
+const settingsManager=new SettingsManager(settingsData,browser.storage.local)
 const settingsAndPermissionsReader=new SettingsAndPermissionsReader(settingsManager,browser.permissions)
 
 // can't use window.* here and browser.runtime.getBackgroundPage() in panel/options pages because:
