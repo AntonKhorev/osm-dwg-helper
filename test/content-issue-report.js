@@ -1,5 +1,5 @@
 import {strict as assert} from 'assert'
-import fs from 'fs-extra'
+import * as fs from 'fs/promises'
 import {JSDOM} from 'jsdom'
 
 import processReport from '../src/content/issue-report.js'

@@ -1,7 +1,7 @@
 // Copy version notes to clipboard in order to paste them on Add-on Developer Hub > Manage Version
 // Allowed HTML: <a href title> <abbr title> <acronym title> <b> <blockquote> <code> <em> <i> <li> <ol> <strong> <ul>
 
-import fs from 'fs-extra'
+import * as fs from 'fs/promises'
 import clipboard from 'clipboardy'
 import {escapeHtml} from './src/utils.js'
 

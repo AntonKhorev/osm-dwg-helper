@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import * as fs from 'fs/promises'
 import path from 'path'
 import convertSvgToPng from 'convert-svg-to-png'
 import { rollup } from 'rollup'
@@ -7,15 +7,16 @@ import camelcase from 'camelcase'
 import iconData, * as icon from './src/icon.js'
 
 // copy files
-await fs.remove('dist')
+await fs.rm('dist',{recursive:true,force:true})
+await fs.mkdir('dist')
 for (const entry of await fs.readdir('src',{withFileTypes:true})) {
 	if (entry.isDirectory()) continue
-	await fs.copy(
+	await fs.copyFile(
 		path.join('src',entry.name),
 		path.join('dist',entry.name)
 	)
 }
-await fs.copy('node_modules/webextension-polyfill/dist/browser-polyfill.js','dist/browser-polyfill.js')
+await fs.copyFile('node_modules/webextension-polyfill/dist/browser-polyfill.js','dist/browser-polyfill.js')
 
 // add browser object polyfill
 for (const htmlFilename of ['background.html','panel.html','options.html']) {
@@ -64,7 +65,7 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 	await fs.writeFile(path.join('dist','popup.html'),contents)
 	const patchedContents=contents.replace(/<!--\s+(.*permissions-warning.*)\s+-->/,'$1')
 	await fs.writeFile(path.join('dist','sidebar.html'),patchedContents)
-	await fs.remove(filename)
+	await fs.rm(filename)
 }
 
 // generate table of contents for cookbook
@@ -110,13 +111,13 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 {
 	const filename=path.join('dist','icon.svg')
 	await convertSvgToPng.convertFile(filename,{width:64,height:64})
-	await fs.remove(filename)
+	await fs.rm(filename)
 }
 
 // generate toolbar/sidebar icon svgs
 {
 	const dirname=path.join('dist','icons')
-	await fs.mkdir(dirname)
+	await fs.mkdir(dirname,{recursive:true})
 	await generateIconFile('default')
 	for (const type of icon.types) {
 		await generateIconFile(type,type)
