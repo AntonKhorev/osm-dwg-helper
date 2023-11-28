@@ -19,14 +19,14 @@
   },
   "homepage": "https://github.com/AntonKhorev/osm-dwg-helper#readme",
   "devDependencies": {
-    "@rollup/plugin-virtual": "^2.0.3",
+    "@rollup/plugin-virtual": "^3.0.2",
     "camelcase": "^8.0.0",
     "clipboardy": "^4.0.0",
     "convert-svg-to-png": "^0.6.4",
     "js-yaml": "^4.1.0",
     "jsdom": "^23.0.0",
     "mocha": "^10.2.0",
-    "rollup": "^2.66.1",
+    "rollup": "^4.6.0",
     "webextension-polyfill": "^0.10.0"
   }
 }
