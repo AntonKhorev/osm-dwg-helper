@@ -20,7 +20,7 @@
   "homepage": "https://github.com/AntonKhorev/osm-dwg-helper#readme",
   "devDependencies": {
     "@rollup/plugin-virtual": "^2.0.3",
-    "camelcase": "^6.3.0",
+    "camelcase": "^8.0.0",
     "clipboardy": "^3.0.0",
     "convert-svg-to-png": "^0.6.4",
     "js-yaml": "^4.1.0",
