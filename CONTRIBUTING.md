@@ -9,7 +9,7 @@ There are two build stages:
 
 ### Required build
 
-1. install [Node.js](https://nodejs.org/). Version 14 was tested
+1. install [Node.js](https://nodejs.org/). Version 20 was tested
 2. download the extension files (clone the repository)
 3. run `npm install`
 4. run `npm run build`
