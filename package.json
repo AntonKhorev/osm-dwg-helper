@@ -27,6 +27,7 @@
     "jsdom": "^23.0.0",
     "mocha": "^10.2.0",
     "rollup": "^4.6.0",
+    "web-ext": "^7.8.0",
     "webextension-polyfill": "^0.10.0"
   }
 }
