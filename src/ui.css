@@ -11,21 +11,22 @@
 	}
 }
 body {
+	display: unset;
 	padding: .5rem;
 	min-width: 15rem;
 }
 #extension-options {
-	position: absolute;
+	float: inline-end;
 	display: block;
+	margin-inline-start: .5rem;
+	margin-block-end: .5rem;
 	padding: 0;
-	top: .5rem;
-	right: .5rem;
 	width: 2em;
 	height: 2em;
 	text-align: center;
 }
 #permissions:not(:empty) {
-	margin-top: 2rem;
+	clear: both;
 }
 ul:empty::before {
 	content: "(none)";
