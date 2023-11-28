@@ -3,6 +3,7 @@
 ## 0.6.7
 
 - Remove outdated permissions browser bug warning
+- Fix access OSM permission for root URLs with port numbers
 
 ## 0.6.6
 

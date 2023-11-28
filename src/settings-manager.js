@@ -55,7 +55,8 @@ export class SettingsAndPermissionsReader {
 		for (const [key,,,attrs] of this.settingsManager.getSpecsWithoutHeaders()) {
 			if (!settings[key]) continue
 			if (!attrs?.origin) continue
-			const origin=settings[key]+'*'
+			const url=new URL(settings[key])
+			const origin=`${url.protocol}//${url.hostname}/*`
 			const containsOrigin=await this.browserPermissions.contains({
 				origins:[origin],
 			})
