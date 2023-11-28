@@ -61,10 +61,8 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 // generate sidebar and popup html
 {
 	const filename=path.join('dist','panel.html')
-	const contents=String(await fs.readFile(filename))
-	await fs.writeFile(path.join('dist','popup.html'),contents)
-	const patchedContents=contents.replace(/<!--\s+(.*permissions-warning.*)\s+-->/,'$1')
-	await fs.writeFile(path.join('dist','sidebar.html'),patchedContents)
+	await fs.copyFile(filename,path.join('dist','popup.html'))
+	await fs.copyFile(filename,path.join('dist','sidebar.html'))
 	await fs.rm(filename)
 }
 

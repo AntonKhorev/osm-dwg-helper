@@ -43,9 +43,7 @@ function setupUpdateScheduler(handlerFn,filterFn) {
 
 function updatePermissions(missingOrigins) {
 	const $permissions=document.getElementById('permissions')
-	const $permissionsWarning=document.getElementById('permissions-warning')
 	$permissions.innerHTML=""
-	if ($permissionsWarning) $permissionsWarning.innerHTML=""
 	if (missingOrigins.length<=0) return
 	const $button=document.createElement('button')
 	$button.innerText="Grant access to OSM/OTRS webpages"
@@ -57,29 +55,6 @@ function updatePermissions(missingOrigins) {
 		})
 	})
 	$permissions.append($button)
-	if (!$permissionsWarning) return
-	const bugHref='https://bugzilla.mozilla.org/show_bug.cgi?id=1493396'
-	const $p=document.createElement('p')
-	$p.append(
-		"Note that the button above won't work in Firefox until ",
-		makeLink(bugHref,"this bug",()=>browser.tabs.create({url:bugHref})),
-		" is fixed. Please press this button in a ",
-		makeLink('#',"popup window",()=>browser.browserAction.openPopup()),
-		" or in ",
-		makeLink('#',"the extension's options page",()=>browser.runtime.openOptionsPage()),
-		"."
-	)
-	$permissionsWarning.append($p)
-	function makeLink(href,text,handler) {
-		const $a=document.createElement('a')
-		$a.innerText=text
-		$a.href=href
-		$a.addEventListener('click',ev=>{
-			ev.preventDefault()
-			handler()
-		})
-		return $a
-	}
 }
 
 /**
