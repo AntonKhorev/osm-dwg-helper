@@ -108,6 +108,15 @@ function parseLead($p) {
 			}
 		}
 	}
+	for (let i=0;i<report.lead.length-1;) {
+		const [type0,text0]=report.lead[i]
+		const [type1,text1]=report.lead[i+1]
+		if (type0!='plain' || type1!='plain') {
+			i++
+		} else {
+			report.lead.splice(i,2,['plain',text0+text1])
+		}
+	}
 	if (report.lead.length>0) {
 		{
 			const [type,text]=report.lead[0]
