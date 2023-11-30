@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.8
+
+- Prepare for machine-readable report categories/dates on issue pages
+
 ## 0.6.7
 
 - Remove outdated permissions browser bug warning
