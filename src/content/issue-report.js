@@ -83,16 +83,28 @@ function parseLead($p) {
 	const report={
 		lead: []
 	}
+	const $markedCategory=$p.querySelector(":scope > [data-category]")
+	if ($markedCategory) {
+		report.category=$markedCategory.dataset.category
+	}
 	for (const pChild of $p.childNodes) {
 		if (pChild.nodeType==/*Node.TEXT_NODE*/3) {
-			parsePlainText(pChild.nodeValue)
+			if ($markedCategory) {
+				report.lead.push(['plain',pChild.nodeValue])
+			} else {
+				parsePlainTextWithUnmarkedCategory(pChild.nodeValue)
+			}
 		} else if (pChild.nodeType==/*Node.ELEMENT_NODE*/1) {
-			if (pChild.tagName=='A') {
+			if (pChild.dataset?.category) {
+				report.lead.push(['category',pChild.textContent])
+			} else if (pChild.tagName=='A') {
 				report.by=pChild.textContent
 				report.byUrl=pChild.href
 				report.lead.push(['user',report.by])
+			} else if (pChild.tagName=='TIME') {
+				report.lead.push(['plain',pChild.textContent])
 			} else {
-				parsePlainText(pChild.textContent)
+				parsePlainTextWithUnmarkedCategory(pChild.textContent)
 			}
 		}
 	}
@@ -107,7 +119,7 @@ function parseLead($p) {
 		}
 	}
 	return report
-	function parsePlainText(text) {
+	function parsePlainTextWithUnmarkedCategory(text) {
 		const [textBefore,textCategory,textAfter]=splitByReportCategory(text)
 		if (textBefore.length>0) {
 			report.lead.push(['plain',textBefore])
