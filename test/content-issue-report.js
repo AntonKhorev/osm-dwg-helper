@@ -94,8 +94,11 @@ describe("issue report module",()=>{
 	})
 })
 
-function prepareDocumentAndReport(report) {
-	const issuePage=issuePageTemplate.replace('{{report}}',report)
+function prepareDocumentAndReport(text) {
+	const reportLead=`Reported as spam by <a href="/user/testuser">testuser</a> on 18 May 2021 at 11:54`
+	const issuePage=issuePageTemplate
+		.replace('{{report-lead}}',reportLead)
+		.replace('{{report-text}}',text)
 	const {document}=new JSDOM(issuePage).window
 	const $report=document.querySelector('#content .row .row')
 	return [document,$report]
