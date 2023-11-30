@@ -6,23 +6,25 @@ import processReport from '../src/content/issue-report.js'
 
 const issuePageTemplate=String(await fs.readFile('test/issue.html'))
 
+const unmarkedLead=`Reported as spam by <a href="/user/testuser">testuser</a> on 18 May 2021 at 11:54`
+
 describe("issue report module",()=>{
 	it("processes old plaintext reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(`<p>old style plaintext</p>`)
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,`<p>old style plaintext</p>`)
 		const result=processReport(document,$report)
-		assertReportText(result,'<p>old style plaintext</p>')
+		assertReportTextWithUnmarkedLead(result,'<p>old style plaintext</p>')
 	})
 	it("processes broken richtext single-paragraph reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<p class="richtext text-break"></p>`+
 			`<p>broken richtext</p>`+
 			`<p></p>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,`<p>broken richtext</p>`)
+		assertReportTextWithUnmarkedLead(result,`<p>broken richtext</p>`)
 	})
 	it("processes broken richtext multi-paragraph reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<p class="richtext text-break"></p>`+
 			`<p>one</p>`+
 			`<p>two</p>`+
@@ -30,10 +32,10 @@ describe("issue report module",()=>{
 			`<p></p>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,`<p>one</p><p>two</p><p>three</p>`)
+		assertReportTextWithUnmarkedLead(result,`<p>one</p><p>two</p><p>three</p>`)
 	})
 	it("processes broken richtext multi-paragraph reports with empty paragraphs",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<p class="richtext text-break"></p>`+
 			`<p>one</p>`+
 			`<p>two</p>`+
@@ -43,7 +45,7 @@ describe("issue report module",()=>{
 			`<p></p>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,
+		assertReportTextWithUnmarkedLead(result,
 			`<p>one</p>`+
 			`<p>two</p>`+
 			`<p></p>`+
@@ -52,16 +54,16 @@ describe("issue report module",()=>{
 		)
 	})
 	it("processes richtext single-paragraph reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<div class="richtext text-break">`+
 			`<p>ok richtext</p>`+
 			`</div>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,`<p>ok richtext</p>`)
+		assertReportTextWithUnmarkedLead(result,`<p>ok richtext</p>`)
 	})
 	it("processes richtext multi-paragraph reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<div class="richtext text-break">`+
 			`<p>one</p>`+
 			`<p>two</p>`+
@@ -69,10 +71,10 @@ describe("issue report module",()=>{
 			`</div>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,`<p>one</p><p>two</p><p>three</p>`)
+		assertReportTextWithUnmarkedLead(result,`<p>one</p><p>two</p><p>three</p>`)
 	})
 	it("processes richtext arbitrary html reports",()=>{
-		const [document,$report]=prepareDocumentAndReport(
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,
 			`<div class="richtext text-break">`+
 			`<p>one <strong>marked</strong> thing</p>`+
 			`<hr>`+
@@ -83,7 +85,7 @@ describe("issue report module",()=>{
 			`</div>`
 		)
 		const result=processReport(document,$report)
-		assertReportText(result,
+		assertReportTextWithUnmarkedLead(result,
 			`<p>one <strong>marked</strong> thing</p>`+
 			`<hr>`+
 			`<ul>`+
@@ -94,17 +96,16 @@ describe("issue report module",()=>{
 	})
 })
 
-function prepareDocumentAndReport(text) {
-	const reportLead=`Reported as spam by <a href="/user/testuser">testuser</a> on 18 May 2021 at 11:54`
+function prepareDocumentAndReport(lead,text) {
 	const issuePage=issuePageTemplate
-		.replace('{{report-lead}}',reportLead)
+		.replace('{{report-lead}}',lead)
 		.replace('{{report-text}}',text)
 	const {document}=new JSDOM(issuePage).window
 	const $report=document.querySelector('#content .row .row')
 	return [document,$report]
 }
 
-function assertReportText(result,text) {
+function assertReportTextWithUnmarkedLead(result,text) {
 	const lead=[
 		['plain', 'Reported as '],
 		['category', 'spam'],
