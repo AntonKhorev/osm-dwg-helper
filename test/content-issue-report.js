@@ -94,6 +94,30 @@ describe("issue report module",()=>{
 			`</ul>`
 		)
 	})
+	it("processes lead with unmarked category and marked time",()=>{
+		const [document,$report]=prepareDocumentAndReport(
+			`Reported as vandal by <a href="/user/fred">fred</a> on <time datetime="2021-08-12T15:24:00Z">12 August 2021 at 15:24</time>`,
+			`<div class="richtext text-break">`+
+			`<p>want to check the lead above</p>`+
+			`</div>`
+		)
+		const result=processReport(document,$report)
+		const lead=[
+			['plain', 'Reported as '],
+			['category', 'vandal'],
+			['plain', ' by '],
+			['user', 'fred'],
+			['plain', ' on 12 August 2021 at 15:24']
+		]
+		assert.deepEqual(result,{
+			lead,
+			text: `<p>want to check the lead above</p>`,
+			selected: false,
+			category: 'vandal',
+			by: 'fred',
+			byUrl: '/user/fred'
+		})
+	})
 	it("processes lead with marked category and time",()=>{
 		const [document,$report]=prepareDocumentAndReport(
 			`Reported as <strong data-category="other">something other we dunno</strong> by <a href="/user/fred">fred</a> on <time datetime="2022-08-12T15:24:00Z">12 August 2022 at 15:24</time>`,
