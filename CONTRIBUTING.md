@@ -14,7 +14,7 @@ There are two build stages:
 3. run `npm install`
 4. run `npm run build`
 
-After these steps `dist` subdirectory should contain the unpacked extension suitable to be loaded with *Settings > Extensions > Load unpacked* in Chromium. See the next section for loading in Firefox.
+After these steps the `dist` subdirectory could be loaded as a temporary/unpacked extension in the developer mode/version of browsers. See the subsections below for loading the extension in Firefox and Chrome.
 
 The building process does these things:
 
@@ -24,7 +24,7 @@ The building process does these things:
 
 The last operation is the largest dev dependency to be installed because it requires a Chromium build ran by [Puppeteer](https://github.com/puppeteer/puppeteer).
 
-### Install as a temporary extension in Firefox
+#### Install as a temporary extension in Firefox
 
 1. build the extension
 2. open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
@@ -32,6 +32,14 @@ The last operation is the largest dev dependency to be installed because it requ
 4. open any file inside the [`dist`](./dist) subdirectory
 
 Installed in this manner, the extension won't persist across different browser sessions.
+
+#### Install as an unpacked extension in Chrome
+
+1. build the extension
+2. select *Extensions > Manage Extensions* or open [chrome://extensions/](chrome://extensions/)
+3. enable *Developer mode*
+4. click *Load unpacked*
+5. select the [`dist`](./dist) subdirectory
 
 ### Packing
 
