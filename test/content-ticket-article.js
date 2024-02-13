@@ -3,6 +3,21 @@ import {JSDOM} from 'jsdom'
 
 import * as contentScript from '../src/content/ticket-article.js'
 
+const otrsPageHtml = (
+	`<!DOCTYPE html>`+
+	`<form action="/otrs/index.pl" method="post" enctype="multipart/form-data" name="compose" id="Compose" class="Validate PreventMultipleSubmits">`+
+	`<input type="text" id="Subject" name="Subject" value="" class="W75pc Validate  Validate_Required"/>`+
+	`<textarea id="RichText" class="RichText Validate  Validate_Required" name="Body" rows="15" cols="78"></textarea>`+
+	`</form>`
+)
+
+const otrsPageWithRteHtml = (
+	otrsPageHtml +
+	`<div id="RichTextField" class="RichTextField">`+
+	`<iframe></iframe>`+
+	`</div>`
+)
+
 describe("ticket article content script",()=>{
 	it("throws on unknown webpage",()=>{
 		const {document}=new JSDOM(`<!DOCTYPE html><p>wrong page!`).window
@@ -19,14 +34,8 @@ describe("ticket article content script",()=>{
 		assert($informBox)
 		assert($informBox.innerHTML.includes('ticket'))
 	})
-	it("populates the form",()=>{
-		const {document}=new JSDOM(
-			`<!DOCTYPE html>`+
-			`<form action="/otrs/index.pl" method="post" enctype="multipart/form-data" name="compose" id="Compose" class="Validate PreventMultipleSubmits">`+
-			`<input type="text" id="Subject" name="Subject" value="" class="W75pc Validate  Validate_Required"/>`+
-			`<textarea id="RichText" class="RichText Validate  Validate_Required" name="Body" rows="15" cols="78"></textarea>`+
-			`</form>`
-		).window
+	it("populates the form before CKEditor is loaded",()=>{
+		const {document}=new JSDOM(otrsPageHtml).window
 		contentScript.addArticleSubjectAndBody(document,"Hello","<p>Hello!</p>")
 		assert.equal(
 			document.getElementById('Subject').value,
@@ -34,6 +43,23 @@ describe("ticket article content script",()=>{
 		)
 		assert.equal(
 			document.getElementById('RichText').value,
+			"<p>Hello!</p>"
+		)
+	})
+	it("populates the form after CKEditor is loaded",()=>{
+		const {document}=new JSDOM(otrsPageWithRteHtml).window
+		contentScript.addArticleSubjectAndBody(document,"Hello","<p>Hello!</p>")
+		assert.equal(
+			document.getElementById('Subject').value,
+			"Hello"
+		)
+		assert.equal(
+			document.getElementById('RichText').value,
+			"<p>Hello!</p>"
+		)
+		const $rteIframe=document.querySelector('#RichTextField iframe')
+		assert.equal(
+			$rteIframe.contentDocument.body.innerHTML,
 			"<p>Hello!</p>"
 		)
 	})

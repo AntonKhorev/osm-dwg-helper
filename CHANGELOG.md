@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.9
+
+- Fix *Add report to ticket* in case this extension runs after OTRS rich text editor loads
+
 ## 0.6.8
 
 - Prepare for machine-readable report categories/dates on issue pages

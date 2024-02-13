@@ -3,6 +3,27 @@ import {JSDOM} from 'jsdom'
 
 import * as contentScript from '../src/content/create-ticket.js'
 
+const otrsPageHtml = (
+	`<!DOCTYPE html>`+
+	`<form action="/otrs/index.pl" method="post" enctype="multipart/form-data" name="compose" id="NewPhoneTicket" class="Validate PreventMultipleSubmits">`+
+	`<input id="FromCustomer" type="text" name="FromCustomer" value="" class="CustomerAutoComplete W75pc " autocomplete="off" />`+
+	`<select name="Dest" id="Dest" class="Validate_Required Modernize" data-tree="true"   >`+
+	`<option value="||-">-</option>`+
+	`<option value="5||Data Working Group">Data Working Group</option>`+
+	`<option value="37||Data Working Group::API Misuse">&nbsp;&nbsp;API Misuse</option>`+
+	`</select>`+
+	`<input class="W75pc Validate_Required " type="text" name="Subject" id="Subject" value=""/>`+
+	`<textarea id="RichText" class="RichText Validate_Required " name="Body" title="Message body" rows="15" cols="78"></textarea>`+
+	`</form>`
+)
+
+const otrsPageWithRteHtml = (
+	otrsPageHtml +
+	`<div id="RichTextField" class="RichTextField">`+
+	`<iframe></iframe>`+
+	`</div>`
+)
+
 describe("create ticket content script",()=>{
 	it("throws on unknown webpage",()=>{
 		const {document}=new JSDOM(`<!DOCTYPE html><p>wrong page!`).window
@@ -19,20 +40,8 @@ describe("create ticket content script",()=>{
 		assert($informBox)
 		assert($informBox.innerHTML.includes('ticket'))
 	})
-	it("populates the form",()=>{
-		const {document}=new JSDOM(
-			`<!DOCTYPE html>`+
-			`<form action="/otrs/index.pl" method="post" enctype="multipart/form-data" name="compose" id="NewPhoneTicket" class="Validate PreventMultipleSubmits">`+
-			`<input id="FromCustomer" type="text" name="FromCustomer" value="" class="CustomerAutoComplete W75pc " autocomplete="off" />`+
-			`<select name="Dest" id="Dest" class="Validate_Required Modernize" data-tree="true"   >`+
-			`<option value="||-">-</option>`+
-			`<option value="5||Data Working Group">Data Working Group</option>`+
-			`<option value="37||Data Working Group::API Misuse">&nbsp;&nbsp;API Misuse</option>`+
-			`</select>`+
-			`<input class="W75pc Validate_Required " type="text" name="Subject" id="Subject" value=""/>`+
-			`<textarea id="RichText" class="RichText Validate_Required " name="Body" title="Message body" rows="15" cols="78"></textarea>`+
-			`</form>`
-		).window
+	it("populates the form before CKEditor is loaded",()=>{
+		const {document}=new JSDOM(otrsPageHtml).window
 		contentScript.addIssueDataToTicket(document,{
 			Subject:`Problem!`,
 			Body:`<p>Issue report here!</p>`,
@@ -49,6 +58,31 @@ describe("create ticket content script",()=>{
 		assert.equal(
 			document.getElementById('Dest').value,
 			"5||Data Working Group"
+		)
+	})
+	it("populates the form after CKEditor is loaded",()=>{
+		const {document}=new JSDOM(otrsPageWithRteHtml).window
+		contentScript.addIssueDataToTicket(document,{
+			Subject:`Problem!`,
+			Body:`<p>Issue report here!</p>`,
+			FromCustomers:[`Some One <someone@example.com>`]
+		})
+		assert.equal(
+			document.getElementById('Subject').value,
+			"Problem!"
+		)
+		assert.equal(
+			document.getElementById('RichText').value,
+			"<p>Issue report here!</p>"
+		)
+		assert.equal(
+			document.getElementById('Dest').value,
+			"5||Data Working Group"
+		)
+		const $rteIframe=document.querySelector('#RichTextField iframe')
+		assert.equal(
+			$rteIframe.contentDocument.body.innerHTML,
+			"<p>Issue report here!</p>"
 		)
 	})
 })

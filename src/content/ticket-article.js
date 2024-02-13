@@ -1,12 +1,14 @@
-import otrsFallback from './otrs.js'
+import { addInvalidOtrsPageFallback, setOtrsFormBody } from './otrs.js'
 
 export function addArticleSubjectAndBody(document,subject,body) {
 	const $form=document.getElementById('Compose')
 	if ($form) {
+		// setTimeout(()=>{ // for testing CKEditor loading race conditions
 		setFormSubjectAndBody(document,$form,subject,body)
+		// },1000)
 		return
 	}
-	otrsFallback(document,`Will add an article to a ticket after a successful login.`)
+	addInvalidOtrsPageFallback(document,`Will add an article to a ticket after a successful login.`)
 }
 
 export function addArticleSubjectAndBodyWithBlockAction(document,subject,body,actionInputName) {
@@ -16,16 +18,14 @@ export function addArticleSubjectAndBodyWithBlockAction(document,subject,body,ac
 		setFormBlockAction(document,$form,actionInputName)
 		return
 	}
-	otrsFallback(document,`Will add an article to a ticket after a successful login.`)
+	addInvalidOtrsPageFallback(document,`Will add an article to a ticket after a successful login.`)
 }
 
 function setFormSubjectAndBody(document,$form,subject,body) {
 	const Event=document.defaultView.Event
 	$form.elements.Subject.value=subject
 	$form.elements.Subject.dispatchEvent(new Event('change'))
-	$form.elements.Body.value=body
-	// ckeditor should load after this field is updated
-	// TODO but create ticket form required a fallback for early load - maybe need it here too?
+	setOtrsFormBody(document,$form,body)
 }
 
 function setFormBlockAction(document,$form,actionInputName) {
