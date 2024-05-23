@@ -163,9 +163,29 @@ describe("issue report module",()=>{
 })
 
 function prepareDocumentAndReport(lead,text) {
-	const issuePage=issuePageTemplate
-		.replace('{{report-lead}}',lead)
-		.replace('{{report-text}}',text)
+	const issueReportBlock=`
+		<div>
+			<h4>New Reports</h4>
+			<div class="row">
+				<div class="col-auto">
+					<a href="/user/testuser"><img class="user_thumbnail border border-grey" alt="" width="50" height="50" src="/assets/avatar_small-d6bb1741f052ec0a1e536f01ad31c551aa25e42f35194bdc037e084382f0f278.png" /></a>
+				</div>
+				<div class="col">
+					<p class="text-muted">
+					{{report-lead}}
+					</p>
+					{{report-text}}
+				</div>
+			</div>
+			<hr>
+		</div>
+	`
+	const issuePage=issuePageTemplate.replace(
+		'{{report-blocks}}',
+		issueReportBlock
+			.replace('{{report-lead}}',lead)
+			.replace('{{report-text}}',text)
+	)
 	const {document}=new JSDOM(issuePage).window
 	const $report=document.querySelector('#content .row .row')
 	return [document,$report]
