@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.6.10
+
+- Fix extension popup size in Chrome
+- Update issue page processing for [new Bootstrap classes](https://github.com/openstreetmap/openstreetmap-website/pull/4756)
+
 ## 0.6.9
 
 - Fix *Add report to ticket* in case this extension runs after OTRS rich text editor loads
