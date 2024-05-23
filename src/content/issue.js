@@ -80,7 +80,10 @@ function getReportsAndComments($contentBodyInner) {
 	let $readReports,$newReports
 	for (const $reports of $allReports.children) {
 		if ($reports.tagName!='DIV') continue
-		if ($reports.classList.contains('text-muted')) {
+		if (
+				$reports.classList.contains('text-muted') ||
+				$reports.classList.contains('text-body-secondary')
+		) {
 			$readReports=$reports
 		} else {
 			$newReports=$reports

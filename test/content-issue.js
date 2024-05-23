@@ -30,8 +30,16 @@ describe("issue content script",()=>{
 		assert.equal(issueData.reports[0].text,`<p>new report</p>`)
 		assert.equal(issueData.reports[0].wasRead,false)
 	})
-	it("scrapes the page and finds single read (old muted) report",()=>{
+	it("scrapes the page and finds single read (old-style muted) report",()=>{
 		const [document]=prepareDocumentAndReport(unmarkedLead,`<p>old report</p>`,'bg-body-tertiary text-muted')
+		const issueData=contentScript.getIssueDataAndInjectItemPanes(document,()=>{})
+		console.log(issueData)
+		assert.equal(issueData.reports.length,1)
+		assert.equal(issueData.reports[0].text,`<p>old report</p>`)
+		assert.equal(issueData.reports[0].wasRead,true)
+	})
+	it("scrapes the page and finds single read report",()=>{
+		const [document]=prepareDocumentAndReport(unmarkedLead,`<p>old report</p>`,'bg-body-tertiary text-body-secondary')
 		const issueData=contentScript.getIssueDataAndInjectItemPanes(document,()=>{})
 		console.log(issueData)
 		assert.equal(issueData.reports.length,1)
