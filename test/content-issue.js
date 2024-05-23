@@ -22,6 +22,14 @@ describe("issue content script",()=>{
 			"Already written.\n\nSomething else."
 		)
 	})
+	it("scrapes the page and finds single new report",()=>{
+		const [document,$report]=prepareDocumentAndReport(unmarkedLead,`<p>new report</p>`)
+		const issueData=contentScript.getIssueDataAndInjectItemPanes(document,()=>{})
+		console.log(issueData)
+		assert.equal(issueData.reports.length,1)
+		assert.equal(issueData.reports[0].text,`<p>new report</p>`)
+		assert.equal(issueData.reports[0].wasRead,false)
+	})
 })
 
 describe("issue report module",()=>{
