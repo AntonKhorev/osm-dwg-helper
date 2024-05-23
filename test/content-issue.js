@@ -23,12 +23,20 @@ describe("issue content script",()=>{
 		)
 	})
 	it("scrapes the page and finds single new report",()=>{
-		const [document,$report]=prepareDocumentAndReport(unmarkedLead,`<p>new report</p>`)
+		const [document]=prepareDocumentAndReport(unmarkedLead,`<p>new report</p>`)
 		const issueData=contentScript.getIssueDataAndInjectItemPanes(document,()=>{})
 		console.log(issueData)
 		assert.equal(issueData.reports.length,1)
 		assert.equal(issueData.reports[0].text,`<p>new report</p>`)
 		assert.equal(issueData.reports[0].wasRead,false)
+	})
+	it("scrapes the page and finds single read (old muted) report",()=>{
+		const [document]=prepareDocumentAndReport(unmarkedLead,`<p>old report</p>`,'bg-body-tertiary text-muted')
+		const issueData=contentScript.getIssueDataAndInjectItemPanes(document,()=>{})
+		console.log(issueData)
+		assert.equal(issueData.reports.length,1)
+		assert.equal(issueData.reports[0].text,`<p>old report</p>`)
+		assert.equal(issueData.reports[0].wasRead,true)
 	})
 })
 
@@ -168,24 +176,30 @@ describe("issue report module",()=>{
 	})
 })
 
-function prepareDocumentAndReport(lead,text) {
-	const issueReportBlock=`
-		<div>
-			<h4>New Reports</h4>
-			<div class="row">
-				<div class="col-auto">
-					<a href="/user/testuser"><img class="user_thumbnail border border-grey" alt="" width="50" height="50" src="/assets/avatar_small-d6bb1741f052ec0a1e536f01ad31c551aa25e42f35194bdc037e084382f0f278.png" /></a>
-				</div>
-				<div class="col">
-					<p class="text-muted">
-					{{report-lead}}
-					</p>
-					{{report-text}}
-				</div>
+function prepareDocumentAndReport(lead,text,reportBlockClasses) {
+	let issueReportBlock=``
+	if (reportBlockClasses) {
+		issueReportBlock+=`<div class="${reportBlockClasses}">`
+	} else {
+		issueReportBlock+=`<div>`
+	}
+	issueReportBlock+=`
+		<h4>New Reports</h4>
+		<div class="row">
+			<div class="col-auto">
+				<a href="/user/testuser"><img class="user_thumbnail border border-grey" alt="" width="50" height="50" src="/assets/avatar_small-d6bb1741f052ec0a1e536f01ad31c551aa25e42f35194bdc037e084382f0f278.png" /></a>
 			</div>
-			<hr>
+			<div class="col">
+				<p class="text-muted">
+				{{report-lead}}
+				</p>
+				{{report-text}}
+			</div>
 		</div>
+		<hr>
 	`
+	issueReportBlock+=`</div>`
+
 	const issuePage=issuePageTemplate.replace(
 		'{{report-blocks}}',
 		issueReportBlock
