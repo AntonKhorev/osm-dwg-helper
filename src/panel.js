@@ -72,7 +72,11 @@ async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tab
 
 const actionsMenuWriters=makeActionsMenuWriters(
 	document,
-	()=>window.close(),
+	()=>{
+		if (location.href.endsWith("/popup.html")) {
+			window.close()
+		}
+	},
 	(createProperties)=>browser.tabs.create(createProperties),
 	(message)=>browser.runtime.sendMessage(message)
 )

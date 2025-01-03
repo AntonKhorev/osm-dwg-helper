@@ -299,7 +299,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			$a.addEventListener('click',ev=>{
 				ev.preventDefault()
 				clickHandler()
-				closeWindow() // for popup; does nothing on sidebar
+				closeWindow()
 			})
 			return $a
 		}

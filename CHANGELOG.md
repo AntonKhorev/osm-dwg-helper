@@ -4,6 +4,7 @@
 
 - Add *Go to blocks list* action
 - Support canonical new message URL `/messages/new`
+- Don't close the sidebar after clicking on an action in Firefox
 
 ## 0.6.10
 
