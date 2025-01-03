@@ -3,7 +3,7 @@ export function getOsmMessageIdFromUrl(osmRoot,url) {
 }
 
 export function isOsmNewMessageUrl(osmRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'message/new/'))
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'messages?/new/'))
 	return !!match
 }
 
