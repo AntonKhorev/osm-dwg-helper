@@ -3,6 +3,7 @@
 ## 0.6.11
 
 - Add *Go to blocks list* action
+- Support canonical new message URL `/messages/new`
 
 ## 0.6.10
 

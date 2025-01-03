@@ -44,6 +44,7 @@ await clipboard.write(contents)
 function processMarkdown(s) {
 	s=s.replace(/\[([^\]]*)\]\(([^\)]*)\)/g,(_,text,href)=>`<a href='${escapeHtml(href)}'>${text}</a>`)
 	s=s.replace(/\*([^*]*)\*/g,(_,text)=>`<em>${text}</em>`)
+	s=s.replace(/`([^`]*)`/g,(_,text)=>`<code>${text}</code>`)
 	return s
 }
 
