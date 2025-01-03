@@ -9,6 +9,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		addAction(makeLink(`cookbook.html`,"Read 'dealing with issues' guide"))
 		if (settings.osm) {
 			addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
+			addAction(makeLink(`${settings.osm}user_blocks`,"Go to blocks list"))
 		}
 		if (settings.otrs) {
 			addAction(makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS")) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen

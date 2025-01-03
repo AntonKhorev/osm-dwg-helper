@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.11
+
+- Add *Go to blocks list* action
+
 ## 0.6.10
 
 - Fix extension popup size in Chrome
