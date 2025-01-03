@@ -388,6 +388,9 @@ export class SendMessageFromIssueReports extends OffshootAction {
 	getActionUrl(settings) {
 		return `${settings.osm}message/new/${encodeURIComponent(this.userName)}`
 	}
+	needToRejectUrl(settings,url) {
+		return url!=this.getActionUrl(settings) && url!=`${settings.osm}messages/new/${encodeURIComponent(this.userName)}`
+	}
 	async act(settings,tab,tabState,messageTab) {
 		try {
 			await messageTab(tab.id,'message-add',this.getMessageAddMessage(settings))
