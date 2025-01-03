@@ -46,17 +46,16 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const userReportCountsMap=getUserReportCountsMap(issueData)
 				if (userReportCountsMap.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
-					const subject=issueHandler.getUserMessageSubject(settings,issueData)
 					for (const [userName,userReportCounts] of userReportCountsMap) {
-						const $li=addSubAction(makeLink(getUserMessageUrl(userName,subject),userName,()=>sendMessage({
+						const $li=addSubAction(makeLink(getUserMessageUrl(userName),userName,()=>sendMessage({
 							action:'initiateNewTabAction',
 							tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
 						})))
 						$li.append(` - ${formatUserReportCounts(userReportCounts)} selected`)
 					}
 				}
-				function getUserMessageUrl(userName,subject) {
-					return settings.osm+'message/new/'+encodeURIComponent(userName)+'?message[title]='+encodeURIComponent(subject)
+				function getUserMessageUrl(userName) {
+					return settings.osm+'message/new/'+encodeURIComponent(userName)
 				}
 			}
 		}
