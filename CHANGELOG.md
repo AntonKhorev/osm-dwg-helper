@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.6.12
+
 ## 0.6.11
 
 - Add *Go to blocks list* action
