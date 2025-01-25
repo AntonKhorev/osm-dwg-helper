@@ -1,4 +1,5 @@
 import makeActionsMenuWriters from './panel-actions.js'
+import Menu from './menu.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
@@ -100,23 +101,24 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
+	const menu=new Menu($actions)
 	for (const [tabId,singleTabActionEntries] of tabActionEntries) {
 		for (const [tabActionIndex,menuEntryElements] of singleTabActionEntries.entries()) {
-			const $li=document.createElement('li')
+			const $elements=[]
 			for (const [text,type] of menuEntryElements) {
 				if (type=='em') {
 					const $em=document.createElement('em')
 					$em.textContent=text
-					$li.append($em)
+					$elements.push($em)
 				} if (type=='button') {
 					const $button=document.createElement('button')
 					$button.textContent=text
 					$button.addEventListener('click',()=>{
 						browser.runtime.sendMessage({action:'runTabMenuAction',tabId,tabActionIndex})
 					})
-					$li.append($button)
+					$elements.push($button)
 				} else {
-					$li.append(text)
+					$elements.push(text)
 				}
 			}
 			const $switchButton=document.createElement('button')
@@ -129,8 +131,8 @@ function updateActionsOngoing(tabActionEntries) {
 			$cancelButton.addEventListener('click',()=>{
 				browser.runtime.sendMessage({action:'cancelTabAction',tabId,tabActionIndex}) // TODO actually use the index
 			})
-			$li.append(` `,$switchButton,` `,$cancelButton)
-			$actions.append($li)
+			$elements.push(` `,$switchButton,` `,$cancelButton)
+			menu.addPassiveEntry(null,$elements)
 		}
 	}
 }
