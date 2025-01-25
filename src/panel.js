@@ -19,11 +19,18 @@ browser.runtime.onMessage.addListener(message=>{
 	return false
 })
 
-;(async()=>{
-	// top-level async is supported, but: https://github.com/mozilla/addons-linter/issues/4020
-	document.getElementById('options-button').onclick=()=>browser.runtime.openOptionsPage()
-	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
-	browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
+;(async()=>{ // top-level async is supported, but: https://github.com/mozilla/addons-linter/issues/4020
+	{
+		document.getElementById('options-button').onclick=()=>browser.runtime.openOptionsPage()
+	}{
+		const $version=document.getElementById('extension-version')
+		const manifest=browser.runtime.getManifest()
+		$version.textContent="v"+manifest.version
+		$version.href=manifest.homepage_url
+	}{
+		const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
+		browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
+	}
 })()
 
 function setupUpdateScheduler(handlerFn,filterFn) {

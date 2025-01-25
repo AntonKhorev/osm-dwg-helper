@@ -32,6 +32,13 @@ body.panel #permissions-button {
 body.panel #options-button {
 	min-width: 3rem;
 }
+body.panel #granted-permissions-span:not([hidden]) {
+	display: grid;
+	align-content: center;
+}
+body.panel #extension-version {
+	color: #888;
+}
 body.panel h2 {
 	margin: .5rem .5rem .5rem 1.5rem;
 	padding: 0;
