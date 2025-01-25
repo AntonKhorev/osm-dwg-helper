@@ -434,11 +434,11 @@ class CommentIssueAboutUserMessage extends OffshootAction {
 	getOngoingActionMenuEntry() {
 		return [[`add comment to issue for sent message`]]
 	}
-	// getActionUrl(settings) {
-	// 	return `${settings.osm}messages/inbox`
-	// }
 	async act(settings,tab,tabState,messageTab) {
-		if (tab.url!=`${settings.osm}messages/inbox`) {
+		if (
+			tab.url!=`${settings.osm}messages/inbox` &&
+			tab.url!=`${settings.osm}messages/outbox`
+		) {
 			return [tab.id,this]
 		}
 		await messageTab(this.openerTabId,'issue',{

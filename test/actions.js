@@ -215,7 +215,8 @@ describe("Actions.AddSelectedReportsAndCommentsToTicket",()=>{
 })
 
 describe("Actions.SendMessageFromIssueReports",()=>{
-	it("opens new message; comments the issue when reaches inbox",async()=>{
+	for (const mailbox of ['inbox','outbox']) {
+	it(`opens new message; comments the issue when reaches ${mailbox}`,async()=>{
 		const settings={
 			osm:'OSM/',
 			issue_message_subject_note:`reported note #\${note.id}`,
@@ -263,7 +264,7 @@ describe("Actions.SendMessageFromIssueReports",()=>{
 			assert.equal(tabId2,newTabId)
 			return action2
 		},async(action)=>{ // CommentIssueAboutUserMessage
-			const url='OSM/messages/inbox'
+			const url=`OSM/messages/${mailbox}`
 			assert.equal(action.needToRejectUrl(settings,url),false)
 			const [tabId2,action2,tabId2f,action2f]=await testAct(
 				action,settings,
@@ -281,4 +282,5 @@ describe("Actions.SendMessageFromIssueReports",()=>{
 			assert.equal(tabId2f,openerTabId)
 		}])
 	})
+	}
 })

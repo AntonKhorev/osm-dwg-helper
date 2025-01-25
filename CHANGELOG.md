@@ -2,6 +2,8 @@
 
 ## 0.6.12
 
+- Fix quick message proceeding to issue comment after landing on `/messages/outbox`
+
 ## 0.6.11
 
 - Add *Go to blocks list* action
