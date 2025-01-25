@@ -48,60 +48,50 @@ body.panel h2 {
 	margin-inline-start: calc(.5rem + 16px + .25rem);
 	padding: 0;
 }
-body.panel ul.stretched-actions,
-body.panel ul.stretched-actions ul {
+body.panel ul.actions,
+body.panel ul.actions ul {
 	display: flex;
 	flex-direction: column;
 	margin: 0;
 	padding: 0;
 }
-body.panel ul.stretched-actions li {
+body.panel ul.actions li {
 	margin: 0;
 	padding: 0;
 }
-body.panel ul.stretched-actions li:first-child {
+body.panel ul.actions li:first-child {
 	border-top: solid 1px #8882;
 }
-body.panel ul.stretched-actions li {
+body.panel ul.actions li {
 	border-bottom: solid 1px #8882;
 }
-body.panel ul.stretched-actions .slice,
-body.panel ul.stretched-actions .passive-slice {
+body.panel ul.actions .slice,
+body.panel ul.actions .passive-slice {
 	display: flex;
 	position: relative;
 	padding: .25rem .5rem;
 	gap: .25rem;
 }
-body.panel ul.stretched-actions .slice .slice-icon, 
-body.panel ul.stretched-actions .passive-slice .slice-icon {
+body.panel ul.actions .slice .slice-icon, 
+body.panel ul.actions .passive-slice .slice-icon {
 	width: 16px;
 	height: 16px;
 }
-body.panel ul.stretched-actions ul .slice,
-body.panel ul.stretched-actions ul .passive-slice {
+body.panel ul.actions ul .slice,
+body.panel ul.actions ul .passive-slice {
 	padding-inline-start: 1.5rem;
 }
-body.panel ul.stretched-actions .slice:hover {
+body.panel ul.actions .slice:hover {
 	background: #8882;
 }
-body.panel ul.stretched-actions .slice a::after {
+body.panel ul.actions .slice a::after {
 	position: absolute;
 	inset: 0;
 	z-index: 1;
 	content: "";
 }
-body.panel ul.stretched-actions:empty::before {
+body.panel ul.actions:empty::before {
 	margin-inline-start: calc(.5rem + 16px + .25rem);
-}
-body.panel ul.actions {
-	margin: 0 .5rem 0 .5rem;
-	margin-inline-start: 1.5rem;
-	padding: 0;
-}
-body.panel ul.actions ul {
-	margin: 0;
-	margin-inline-start: 1rem;
-	padding: 0;
 }
 body.panel a {
 	text-decoration: none;
