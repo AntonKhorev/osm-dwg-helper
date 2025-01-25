@@ -32,9 +32,10 @@ body.panel #permissions-button {
 body.panel #options-button {
 	min-width: 3rem;
 }
-body.panel #granted-permissions-span:not([hidden]) {
-	display: grid;
+body.panel #granted-permissions-span {
 	align-content: center;
+	text-align: center;
+	color: #888;
 }
 body.panel #extension-version {
 	color: #888;

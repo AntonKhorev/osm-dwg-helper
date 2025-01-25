@@ -23,8 +23,10 @@ browser.runtime.onMessage.addListener(message=>{
 	{
 		document.getElementById('options-button').onclick=()=>browser.runtime.openOptionsPage()
 	}{
+		const $name=document.getElementById('extension-name')
 		const $version=document.getElementById('extension-version')
 		const manifest=browser.runtime.getManifest()
+		$name.textContent=manifest.name
 		$version.textContent="v"+manifest.version
 		$version.href=manifest.homepage_url
 	}{
