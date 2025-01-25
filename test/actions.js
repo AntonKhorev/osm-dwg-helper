@@ -213,3 +213,72 @@ describe("Actions.AddSelectedReportsAndCommentsToTicket",()=>{
 		}])
 	})
 })
+
+describe("Actions.SendMessageFromIssueReports",()=>{
+	it("opens new message; comments the issue when reaches inbox",async()=>{
+		const settings={
+			osm:'OSM/',
+			issue_message_subject_note:`reported note #\${note.id}`,
+			issue_message_body_item_note:`Note [#\${note.id}](\${note.url})`,
+			issue_comment_message_sent:`OSM message sent to user [\${user.name}](\${user.url})`,
+		}
+		const issueData={
+			id:3021,
+			url:'OSM/issues/3021',
+			reportedItem:{
+				type:'note',
+				ref:'#987',
+				url:'OSM/note/987',
+				id:987
+			},
+			reports:[
+				{
+					by:'ContactedUserName',
+					byUrl:'https://myosm.example.com/user/ContactedUserName',
+					wasRead:false,
+					lead:[['plain','reported by '],['user','ContactedUserName']],
+					text:`<p>I reported it.</p>`,
+					selected:true,
+				}
+			],
+		}
+		const openerTabId=26
+		const newTabId=27
+		await testSequence(new Actions.SendMessageFromIssueReports(openerTabId,issueData,'ContactedUserName'),[
+		async(action)=>{ // SendMessageFromIssueReports
+			const url='OSM/message/new/ContactedUserName'
+			assert.equal(action.getActionUrl(settings),url)
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const [tabId2,action2]=await testAct(
+				action,settings,
+				{id:newTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,newTabId)
+					assert.equal(script,'message-add')
+					assert.equal(message.action,'setMessageSubjectAndBody')
+					assert.equal(message.subject,"reported note #987")
+					assert(message.body.startsWith("Note [#987](OSM/note/987)\n"))
+				}]
+			)
+			assert.equal(tabId2,newTabId)
+			return action2
+		},async(action)=>{ // CommentIssueAboutUserMessage
+			const url='OSM/messages/inbox'
+			assert.equal(action.needToRejectUrl(settings,url),false)
+			const [tabId2,action2,tabId2f,action2f]=await testAct(
+				action,settings,
+				{id:newTabId,url},{},
+				[(tabId,script,message)=>{
+					assert.equal(tabId,openerTabId)
+					assert.equal(script,'issue')
+					assert.deepEqual(message,{
+						action:'addComment',
+						comment:`OSM message sent to user [ContactedUserName](OSM/user/ContactedUserName)`,
+					})
+				}]
+			)
+			assert.equal(tabId2,undefined)
+			assert.equal(tabId2f,openerTabId)
+		}])
+	})
+})
