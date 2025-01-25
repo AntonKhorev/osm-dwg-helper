@@ -63,4 +63,13 @@ Content scripts for OSM webpages have to rely on the particulars of markup becau
 - [check-block-heading-user-order.js](./check-block-heading-user-order.js) checks OSM block page heading username order, see above
 - [copy-version-notes.js](./copy-version-notes.js) turns the most recent changelog entries into limited html code supported by [addons.mozilla.org](https://addons.mozilla.org/) and copies it to clipboard
 
+## Testing
+
+### Running only specific test
+
+Example command to run tests describing only `Actions.SendMessageFromIssueReports`:
+```
+npm test -- -f "Actions.SendMessageFromIssueReports"
+```
+
 [osm-dwg-userscripts]: https://github.com/woodpeck/osm-dwg-userscripts
