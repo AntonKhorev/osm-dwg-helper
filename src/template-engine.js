@@ -20,7 +20,7 @@ export function evaluate(template,values,escapeFn=s=>s) {
 				value=value[key]
 			}
 			if (!value) continue
-			result+=escapeFn(value)
+			result+=escapeFn(String(value))
 		}
 	}
 	return result
