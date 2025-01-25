@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.0
+
 ## 0.6.12
 
 - Fix *Quick message* not proceeding to issue comment after landing on `/messages/outbox`
