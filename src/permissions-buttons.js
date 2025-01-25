@@ -1,8 +1,8 @@
-export default function makePermissionsButtonPairHandler(idBase,grantTitle,recallTitle,okFn) {
-	let grantListener,recallListener
+export default function makePermissionsButtonPairHandler(idBase,grantTitle,revokeTitle,okFn) {
+	let grantListener,revokeListener
 	return (
-		grantEnabled,recallEnabled,
-		grantPermissions,recallPermissions
+		grantEnabled,revokeEnabled,
+		grantPermissions,revokePermissions
 	)=>{
 		grantListener=handleButton(
 			grantListener,`${idBase}-grant`,grantEnabled,
@@ -10,11 +10,11 @@ export default function makePermissionsButtonPairHandler(idBase,grantTitle,recal
 			okFn,
 			grantTitle,"Permissions already granted"
 		)
-		recallListener=handleButton(
-			recallListener,`${idBase}-recall`,recallEnabled,
-			()=>browser.permissions.remove(recallPermissions),
+		revokeListener=handleButton(
+			revokeListener,`${idBase}-revoke`,revokeEnabled,
+			()=>browser.permissions.remove(revokePermissions),
 			okFn,
-			recallTitle,"No permissions currently granted"
+			revokeTitle,"No permissions currently granted"
 		)
 	}
 }
