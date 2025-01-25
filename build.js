@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises'
 import path from 'path'
-import convertSvgToPng from 'convert-svg-to-png'
+import sharp from 'sharp'
 import { rollup } from 'rollup'
 import virtual from '@rollup/plugin-virtual'
 import camelcase from 'camelcase'
@@ -107,9 +107,10 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 // chrome doesn't support svg icons in manifest: https://bugs.chromium.org/p/chromium/issues/detail?id=29683
 // addons.mozilla.org also asks for png/jpg icon that overrides one specified in manifest
 {
-	const filename=path.join('dist','icon.svg')
-	await convertSvgToPng.convertFile(filename,{width:64,height:64})
-	await fs.rm(filename)
+	const svgFilename=path.join('dist','icon.svg')
+	const pngFilename=path.join('dist','icon.png')
+	await sharp(svgFilename).resize(64).toFile(pngFilename)
+	await fs.rm(svgFilename)
 }
 
 // generate toolbar/sidebar icon svgs

@@ -22,8 +22,6 @@ The building process does these things:
 - bundles content scripts injected into OSM and OTRS webpages
 - converts svg icons to png
 
-The last operation is the largest dev dependency to be installed because it requires a Chromium build ran by [Puppeteer](https://github.com/puppeteer/puppeteer).
-
 #### Install as a temporary extension in Firefox
 
 1. build the extension
