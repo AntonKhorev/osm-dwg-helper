@@ -6,13 +6,24 @@ import * as issueHandler from './issue.js'
 export default (document,closeWindow,createTab,sendMessage)=>{
 	return [($menu,settings,permissions,tabId)=>{ // global actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
-		addAction(makeLink(`cookbook.html`,"Read 'dealing with issues' guide"))
+		addAction(null,[
+			makeLink(`cookbook.html`,"Read 'dealing with issues' guide")
+		])
 		if (settings.osm) {
-			addAction(makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues"))
-			addAction(makeLink(`${settings.osm}user_blocks`,"Go to blocks list"))
+			addAction(null,[
+				makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues")
+			])
+			addAction(null,[
+				makeLink(`${settings.osm}user_blocks`,"Go to blocks list")
+			])
 		}
 		if (settings.otrs) {
-			addAction(makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS")) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
+			const $icon=document.createElement('img')
+			$icon.src='icons/ticket.svg'
+			$icon.alt=''
+			addAction($icon,[
+				makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS")
+			]) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
 		}
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
 		const [addAction,addSubmenu,makeLink]=enterMenu($menu,tabId)
@@ -26,18 +37,24 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 				}
 				if (issueData.reportedItem?.type=='user') {
-					addSubAction(makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
-						action:'initiateNewTabAction',
-						tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
-					})))
+					addSubAction(null,[
+						makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
+							action:'initiateNewTabAction',
+							tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
+						}))
+					])
 				}
-				addSubAction(makeLink(createTicketUrl,text,()=>sendMessage({
-					action:'initiateNewTabAction',
-					tabAction:['CreateIssueTicket',tabId,issueData]
-				})))
+				addSubAction(null,[
+					makeLink(createTicketUrl,text,()=>sendMessage({
+						action:'initiateNewTabAction',
+						tabAction:['CreateIssueTicket',tabId,issueData]
+					}))
+				])
 			}
 			{
-				addSubAction(makeLink(createTicketUrl,"empty"))
+				addSubAction(null,[
+					makeLink(createTicketUrl,"empty")
+				])
 			}
 		}
 		if (settings.osm) {
@@ -47,13 +64,13 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				if (userReportCountsMap.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
 					for (const [userName,userReportCounts] of userReportCountsMap) {
-						addSubAction(
+						addSubAction(null,[
 							makeLink(getUserMessageUrl(userName),userName,()=>sendMessage({
 								action:'initiateNewTabAction',
 								tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
 							})),
 							` - ${formatUserReportCounts(userReportCounts)} selected`
-						)
+						])
 					}
 				}
 				function getUserMessageUrl(userName) {
@@ -67,18 +84,30 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const numberNote='searching just for a number often yields unrelated results'
 				if (issueData.id!=null) {
 					const addSubAction=addSubmenu(`Search OTRS for issue`)
-					addSubAction(makeSearchLink(issueData.id,numberNote))
-					addSubAction(makeSearchLink('issue '+issueData.id))
+					addSubAction(null,[
+						makeSearchLink(issueData.id,numberNote)
+					])
+					addSubAction(null,[
+						makeSearchLink('issue '+issueData.id)
+					])
 				}
 				if (issueData.reportedItem?.type=='user') {
 					const addSubAction=addSubmenu(`Search OTRS for reported user`)
-					addSubAction(makeSearchLink(issueData.reportedItem.name))
-					addSubAction(makeSearchLink('user '+issueData.reportedItem.name))
+					addSubAction(null,[
+						makeSearchLink(issueData.reportedItem.name)
+					])
+					addSubAction(null,[
+						makeSearchLink('user '+issueData.reportedItem.name)
+					])
 				}
 				if (issueData.reportedItem?.type=='note') {
 					const addSubAction=addSubmenu(`Search OTRS for reported note`)
-					addSubAction(makeSearchLink(issueData.reportedItem.id,numberNote))
-					addSubAction(makeSearchLink('note '+issueData.reportedItem.id))
+					addSubAction(null,[
+						makeSearchLink(issueData.reportedItem.id,numberNote)
+					])
+					addSubAction(null,[
+						makeSearchLink('note '+issueData.reportedItem.id)
+					])
 				}
 				function makeSearchLink(query,note) {
 					const $a=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`)
@@ -96,7 +125,11 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.osm) {
 			if (tabState.type=='ticket' && tabState.issueData) {
 				const issueData=tabState.issueData
-				if (issueData.id!=null) addAction(makeLink(issueData.url,`Go to ticket issue #${issueData.id}`))
+				if (issueData.id!=null) {
+					addAction(null,[
+						makeLink(issueData.url,`Go to ticket issue #${issueData.id}`)
+					])
+				}
 			}
 		}
 		if (permissions.otrs && permissions.osm) {
@@ -104,8 +137,12 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				for (const mailbox of ['outbox','inbox']) {
 					const ticketData=tabState.ticketData
 					const addSubAction=addSubmenu(`Add last ${mailbox} message to ticket`)
-					addSubAction(makeMessageLink('note'))
-					addSubAction(makeMessageLink('pending'))
+					addSubAction(null,[
+						makeMessageLink('note')
+					])
+					addSubAction(null,[
+						makeMessageLink('pending')
+					])
 					function makeMessageLink(addAs) {
 						return makeLink(
 							`${settings.osm}messages/${mailbox}`,
@@ -121,14 +158,18 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		}
 		if (settings.osm) {
 			if (tabState.type=='user' && tabState.userData.id!=null) {
-				addAction(makeLink(tabState.userData.apiUrl,`Check user id #${tabState.userData.id}`))
+				addAction(null,[
+					makeLink(tabState.userData.apiUrl,`Check user id #${tabState.userData.id}`)
+				])
 			}
 		}
 		{
 			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
 				const text=tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n') // TODO remove tags?
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
-				addAction(makeLink(googleTranslateUrl,'translate issue text'))
+				addAction(null,[
+					makeLink(googleTranslateUrl,'translate issue text')
+				])
 			}
 		}
 	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
@@ -150,12 +191,14 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					// })))
 				// }
 				const addSubAction=addSubmenu(`Add to new ticket form`)
-				addSubAction(makeLink(createTicketUrl,text,()=>sendMessage({
-					action:'initiateImmediateCurrentTabAction',
-					tabAction:['AddToCreateIssueTicket',otherTabId,issueData],
-					tabId,
-					otherTabId
-				})))
+				addSubAction(null,[
+					makeLink(createTicketUrl,text,()=>sendMessage({
+						action:'initiateImmediateCurrentTabAction',
+						tabAction:['AddToCreateIssueTicket',otherTabId,issueData],
+						tabId,
+						otherTabId
+					}))
+				])
 			}
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {
 				const issueData=otherTabState.issueData
@@ -169,8 +212,12 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					if (selectedComments.length>0) menuTitleRocParts.push(getMenuTitleRocPart('comment',selectedComments))
 					const menuTitle=`Add ${menuTitleRocParts.join(' and ')} ${getMenuTitleIssuePart()}`
 					const addSubAction=addSubmenu(menuTitle)
-					addSubAction(makeIssueLink('note'))
-					addSubAction(makeIssueLink('pending'))
+					addSubAction(null,[
+						makeIssueLink('note')
+					])
+					addSubAction(null,[
+						makeIssueLink('pending')
+					])
 				}
 				function listSelectedReportsOrComments(rocs) {
 					if (rocs==null) return []
@@ -209,8 +256,12 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const messageData=otherTabState.messageData
 				const ticketData=tabState.ticketData
 				const addSubAction=addSubmenu(`Add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket`)
-				addSubAction(makeMessageLink('note'))
-				addSubAction(makeMessageLink('pending'))
+				addSubAction(null,[
+					makeMessageLink('note')
+				])
+				addSubAction(null,[
+					makeMessageLink('pending')
+				])
 				function makeMessageLink(addAs) {
 					return makeAddToOtrsLink(addAs,ticketData.id,{
 						action:'initiateCurrentTabAction',
@@ -225,11 +276,15 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const blockData=otherTabState.blockData
 				const ticketData=tabState.ticketData
 				const addSubAction=addSubmenu(`Add user ${blockData.user} block record to ticket`)
-				addSubAction(makeBlockLink('note'))
+				addSubAction(null,[
+					makeBlockLink('note')
+				])
 				const $explanation=document.createElement('span')
 				$explanation.textContent=`won't fully work`
 				$explanation.title=`Normally, DWG Action field is updated to have "block issued" action added. This field is not present in the "pending" form and thus can't be changed in this manner. The "pending" menu entry is removed to avoid unexpectedly leaving out "block issued" actions.`
-				addSubAction(`"as pending" `,$explanation)
+				addSubAction(null,[
+					`"as pending" `,$explanation
+				])
 				function makeBlockLink(addAs) {
 					return makeAddToOtrsLink(addAs,ticketData.id,{
 						action:'initiateCurrentTabAction',
@@ -247,7 +302,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					const userReportCountsMap=getUserReportCountsMap(issueData)
 					if (userReportCountsMap.has(userData.name)) {
 						const addSubAction=addSubmenu(`Add to quick message to user ${userData.name}`)
-						addSubAction(
+						addSubAction(null,[
 							makeLink('#',userData.name,()=>sendMessage({
 								action:'initiateImmediateCurrentTabAction',
 								tabAction:['AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name],
@@ -255,10 +310,12 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 								otherTabId
 							})),
 							` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`
-						)
+						])
 						const nOtherUsers=userReportCountsMap.size-1
 						if (nOtherUsers>0) {
-							addSubAction(`won't add selected reports from ${nOtherUsers} other ${plural(`user`,nOtherUsers)}`)
+							addSubAction(null,[
+								`won't add selected reports from ${nOtherUsers} other ${plural(`user`,nOtherUsers)}`
+							]) // TODO passive slice
 						}
 					}
 				}
@@ -276,31 +333,35 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 	}]
 
 	function enterMenu($menu,tabId) {
+		const makeSlice=($icon,$elements,sliceClass='slice')=>{
+			const $sliceIcon=document.createElement('div')
+			$sliceIcon.classList.add('slice-icon')
+			if ($icon) $sliceIcon.append($icon)
+			const $sliceEntry=document.createElement('div')
+			$sliceEntry.classList.add('slice-entry')
+			$sliceEntry.append(...$elements)
+			const $slice=document.createElement('div')
+			$slice.classList.add(sliceClass)
+			$slice.append($sliceIcon,$sliceEntry)
+			return $slice
+		}
 		const addItems=(...$items)=>{
 			const $li=document.createElement('li')
 			$li.append(...$items)
 			$menu.append($li)
 		}
 		return [addAction,addSubmenu,makeLink]
-		function addAction(...$action) {
-			const $slice=document.createElement('div')
-			$slice.classList.add('slice')
-			$slice.append(...$action)
-			addItems($slice)
+		function addAction($icon,$elements) {
+			addItems(makeSlice($icon,$elements))
 		}
 		function addSubmenu(name) {
-			const $passiveSlice=document.createElement('div')
-			$passiveSlice.classList.add('passive-slice')
-			$passiveSlice.innerText=name
-			const $subactions=document.createElement('ul')
-			addItems($passiveSlice,$subactions)
-			const addSubAction=(...$subaction)=>{
+			const $passiveSlice=makeSlice(null,name,'passive-slice')
+			const $subActions=document.createElement('ul')
+			addItems($passiveSlice,$subActions)
+			const addSubAction=($icon,$elements)=>{
 				const $li=document.createElement('li')
-				const $slice=document.createElement('div')
-				$slice.classList.add('slice')
-				$slice.append(...$subaction)
-				$li.append($slice)
-				$subactions.append($li)
+				$li.append(makeSlice($icon,$elements))
+				$subActions.append($li)
 			}
 			return addSubAction
 		}

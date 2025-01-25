@@ -45,7 +45,7 @@ body.panel #extension-version {
 }
 body.panel h2 {
 	margin: .5rem;
-	margin-inline-start: 1.5rem;
+	margin-inline-start: calc(.5rem + 16px + .25rem);
 	padding: 0;
 }
 body.panel ul.stretched-actions,
@@ -67,9 +67,15 @@ body.panel ul.stretched-actions li {
 }
 body.panel ul.stretched-actions .slice,
 body.panel ul.stretched-actions .passive-slice {
-	display: block;
+	display: flex;
 	position: relative;
 	padding: .25rem .5rem;
+	gap: .25rem;
+}
+body.panel ul.stretched-actions .slice .slice-icon, 
+body.panel ul.stretched-actions .passive-slice .slice-icon {
+	width: 16px;
+	height: 16px;
 }
 body.panel ul.stretched-actions ul .slice,
 body.panel ul.stretched-actions ul .passive-slice {
@@ -83,6 +89,9 @@ body.panel ul.stretched-actions .slice a::after {
 	inset: 0;
 	z-index: 1;
 	content: "";
+}
+body.panel ul.stretched-actions:empty::before {
+	margin-inline-start: calc(.5rem + 16px + .25rem);
 }
 body.panel ul.actions {
 	margin: 0 .5rem 0 .5rem;
