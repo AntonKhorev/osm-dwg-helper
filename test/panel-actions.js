@@ -33,11 +33,27 @@ const createCallbacksWithLog=()=>{
 	]
 }
 
+const getSliceLink=($slice)=>{
+	return $slice.querySelector('.slice-entry a[href]')
+}
+const getItemSlice=($li)=>{
+	const $slice=$li.firstElementChild
+	if (!$slice) return
+	if (!$slice.classList.contains('slice')) return
+	return $slice
+}
+const getItemLink=($li)=>{
+	const $slice=getItemSlice($li)
+	if (!$slice) return
+	return getSliceLink($slice)
+}
 const findItem=($menu,text)=>{
 	for (const $li of $menu.children) {
-		const $item=$li.firstElementChild
-		if (!$item) continue
-		if ($item.innerText.includes(text)) return $item
+		const $slice=getItemSlice($li)
+		if (!$slice) continue
+		const $sliceEntry=$slice.querySelector('.slice-entry')
+		if (!$sliceEntry) continue
+		if ($sliceEntry.textContent.includes(text)) return $li
 	}
 }
 const assertItem=($menu,text)=>{
@@ -48,12 +64,9 @@ const assertItem=($menu,text)=>{
 const findSubItem=($menu,text,subText)=>{
 	const $superItem=findItem($menu,text)
 	if (!$superItem) return
-	const $subMenu=$superItem.nextElementSibling
-	for (const $li of $subMenu.children) {
-		const $item=$li.firstElementChild
-		if (!$item) continue
-		if ($item.innerText.includes(subText)) return $item
-	}
+	const $subMenu=$superItem.querySelector('ul')
+	if (!$subMenu) return
+	return findItem($subMenu,subText)
 }
 const assertSubItem=($menu,text,subText)=>{
 	const $item=findSubItem($menu,text,subText)
@@ -62,7 +75,7 @@ const assertSubItem=($menu,text,subText)=>{
 }
 
 describe("panel-actions-new",()=>{
-	it("writes only the guid link without settings/permissions",()=>{
+	it("writes only the guide link without settings/permissions",()=>{
 		const [document,$globalMenu,$thisMenu,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
 		const [writeGlobalActionsMenu,writeThisActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
@@ -87,9 +100,9 @@ describe("panel-actions-new",()=>{
 		const permissions={}
 		const tabId=1
 		writeGlobalActionsMenu($globalMenu,settings,permissions,tabId)
-		const $item=assertItem($globalMenu,'open OSM issues')
-		assert.equal($item.href,`https://myosm.example.com/issues?status=open`)
-		$item.click()
+		const $a=getItemLink(assertItem($globalMenu,'open OSM issues'))
+		assert.equal($a.href,`https://myosm.example.com/issues?status=open`)
+		$a.click()
 		assert.deepEqual(callbackLog,[
 			['createTab',{
 				openerTabId:tabId,
@@ -122,9 +135,9 @@ describe("panel-actions-new",()=>{
 			issueData
 		}
 		writeThisActionsMenu($thisMenu,settings,permissions,tabId,tabState)
-		const $item=assertSubItem($thisMenu,'Create ticket','issue #321')
-		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketPhone`)
-		$item.click()
+		const $a=getItemLink(assertSubItem($thisMenu,'Create ticket','issue #321'))
+		assert.equal($a.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketPhone`)
+		$a.click()
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateNewTabAction',
@@ -179,9 +192,9 @@ describe("panel-actions-new",()=>{
 			issueData
 		}
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		const $item=assertSubItem($otherMenu,'Add 1 selected report','note')
-		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
-		$item.click()
+		const $a=getItemLink(assertSubItem($otherMenu,'Add 1 selected report','note'))
+		assert.equal($a.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
+		$a.click()
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateCurrentTabAction',
@@ -245,9 +258,9 @@ describe("panel-actions-new",()=>{
 			issueData
 		}
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		const $item=assertSubItem($otherMenu,'Add 1 selected comment','note')
-		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
-		$item.click()
+		const $a=getItemLink(assertSubItem($otherMenu,'Add 1 selected comment','note'))
+		assert.equal($a.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=54321`)
+		$a.click()
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateCurrentTabAction',
@@ -333,9 +346,9 @@ describe("panel-actions-new",()=>{
 			blockData
 		}
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		const $item=assertSubItem($otherMenu,'block record','note')
-		assert.equal($item.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=43215`)
-		$item.click()
+		const $a=getItemLink(assertSubItem($otherMenu,'block record','note'))
+		assert.equal($a.href,`https://myotrs.example.com/otrs/index.pl?Action=AgentTicketNote;TicketID=43215`)
+		$a.click()
 		assert.deepEqual(callbackLog,[
 			['sendMessage',{
 				action:'initiateCurrentTabAction',

@@ -101,7 +101,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	const menu=new Menu($actions)
+	const menu=new Menu(document,$actions)
 	for (const [tabId,singleTabActionEntries] of tabActionEntries) {
 		for (const [tabActionIndex,menuEntryElements] of singleTabActionEntries.entries()) {
 			const $elements=[]

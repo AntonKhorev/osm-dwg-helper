@@ -4,9 +4,20 @@ import Menu from './menu.js'
  * @returns [global, this tab, this+other tab] actions menu updater functions
  */
 export default (document,closeWindow,createTab,sendMessage)=>{
+	const makeMakeLink=(tabId)=>(href,text,clickHandler=()=>createTab({openerTabId:tabId,url:href}))=>{
+		const $a=document.createElement('a')
+		$a.href=href
+		if (text!=null) $a.textContent=text
+		$a.addEventListener('click',ev=>{
+			ev.preventDefault()
+			clickHandler()
+			closeWindow()
+		})
+		return $a
+	}
 	return [($menu,settings,permissions,tabId)=>{ // global actions
 		const makeLink=makeMakeLink(tabId)
-		const menu=new Menu($menu)
+		const menu=new Menu(document,$menu)
 		menu.addActiveEntry(null,[
 			makeLink(`cookbook.html`,"Read 'dealing with issues' guide")
 		])
@@ -28,7 +39,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		}
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
 		const makeLink=makeMakeLink(tabId)
-		const menu=new Menu($menu)
+		const menu=new Menu(document,$menu)
 		if (permissions.otrs) {
 			const submenu=menu.addSubmenu(null,[
 				`Create ticket`
@@ -188,7 +199,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		}
 	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
 		const makeLink=makeMakeLink(tabId)
-		const menu=new Menu($menu)
+		const menu=new Menu(document,$menu)
 		if (permissions.otrs && permissions.osm) {
 			if (tabState.type=='ticket-add' && otherTabState.type=='issue') {
 				// const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
@@ -357,20 +368,6 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			)
 		}
 	}]
-
-	function makeMakeLink(tabId) {
-		return (href,text,clickHandler=()=>createTab({openerTabId:tabId,url:href}))=>{
-			const $a=document.createElement('a')
-			$a.href=href
-			if (text!=null) $a.innerText=text
-			$a.addEventListener('click',ev=>{
-				ev.preventDefault()
-				clickHandler()
-				closeWindow()
-			})
-			return $a
-		}
-	}
 }
 
 function getUserReportCountsMap(issueData) {
