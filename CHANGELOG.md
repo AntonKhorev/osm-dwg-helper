@@ -2,7 +2,7 @@
 
 ## 0.6.12
 
-- Fix quick message proceeding to issue comment after landing on `/messages/outbox`
+- Fix *Quick message* not proceeding to issue comment after landing on `/messages/outbox`
 
 ## 0.6.11
 
@@ -60,7 +60,7 @@
 ## 0.6.0
 
 - Partial fix for richtext issue reports
-- Partial fix for [the osm website fix of richtext issue reports](https://github.com/openstreetmap/openstreetmap-website/pull/3566) (wrap richtext with *div* instead of *p*)
+- Partial fix for [the osm website fix of richtext issue reports](https://github.com/openstreetmap/openstreetmap-website/pull/3566) (wrap richtext with `div` instead of `p`)
 
 ## 0.5.1
 
