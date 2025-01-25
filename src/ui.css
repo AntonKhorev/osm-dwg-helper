@@ -10,23 +10,49 @@
 		color: #CAC;
 	}
 }
-body {
-	padding: .5rem;
+
+body.panel {
 	min-width: 15rem;
 }
-#extension-options {
-	float: inline-end;
-	display: block;
-	margin-inline-start: .5rem;
-	margin-block-end: .5rem;
-	padding: 0;
-	width: 2em;
-	height: 2em;
+body.panel .slice {
+	display: flex;
+	padding: .5rem;
+	gap: .5rem;
+	align-items: stretch;
+}
+body.panel .slice button {
+	min-height: 3rem;
+	padding: 0 .5rem;
 	text-align: center;
 }
-#permissions:not(:empty) {
-	clear: both;
+body.panel #granted-permissions-span,
+body.panel #permissions-button {
+	flex-grow: 1;
 }
+body.panel #options-button {
+	min-width: 3rem;
+}
+body.panel h2 {
+	margin: .5rem .5rem .5rem 1.5rem;
+	padding: 0;
+}
+body.panel ul {
+	margin: 0 .5rem 0 1.5rem;
+	padding: 0;
+}
+body.panel ul ul {
+	margin: 0 0 0 1rem;
+}
+body.panel a {
+	text-decoration: none;
+}
+body.panel a:hover {
+	text-decoration: underline;
+}
+body.panel span[title] {
+	text-decoration: underline dashed;
+}
+
 ul:empty::before {
 	content: "(none)";
 	color: gray;
@@ -78,21 +104,4 @@ input[type=url] {
 	width: 100%;
 	margin: .5em 0;
 	text-align: center;
-}
-#action-lists h2 {
-	margin: .5rem 1rem;
-	padding: 0;
-}
-#action-lists ul {
-	margin: 0 0 0 1rem;
-	padding: 0;
-}
-#action-lists a {
-	text-decoration: none;
-}
-#action-lists a:hover {
-	text-decoration: underline;
-}
-#action-lists span[title] {
-	text-decoration: underline dashed;
 }

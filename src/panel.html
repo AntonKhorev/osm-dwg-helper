@@ -6,19 +6,32 @@
 <link rel=stylesheet href=ui.css>
 <script type=module src=panel.js></script>
 </head>
-<body>
+<body class=panel>
 <div>
-<button id=extension-options title='Options'>⚙️</button>
-<div id=permissions></div>
-<div id=action-lists>
-<ul class=actions id=actions-global></ul>
-<h2>This tab actions</h2>
-<ul class=actions id=actions-this></ul>
-<h2>This+<span title="Tab you've switched from. Switch to an OTRS ticket tab from an OSM issue/message/block tab for possible actions here. There actions add articles to the ticket.">other</span> tab actions</h2>
-<ul class=actions id=actions-other></ul>
-<h2>Ongoing actions</h2>
-<ul class=actions id=actions-ongoing></ul>
-</div>
+
+<section>
+	<div class=slice>
+		<span id=granted-permissions-span></span>
+		<button id=permissions-button hidden>Grant access to OSM/OTRS webpages</button>
+		<button id=options-button title='Options'>⚙️</button>
+	</div>
+</section>
+<section>
+	<ul class=actions id=actions-global></ul>
+</section>
+<section>
+	<h2>This tab actions</h2>
+	<ul class=actions id=actions-this></ul>
+</section>
+<section>
+	<h2>This+<span title="Tab you've switched from. Switch to an OTRS ticket tab from an OSM issue/message/block tab for possible actions here. There actions add articles to the ticket.">other</span> tab actions</h2>
+	<ul class=actions id=actions-other></ul>
+</section>
+<section>
+	<h2>Ongoing actions</h2>
+	<ul class=actions id=actions-ongoing></ul>
+</section>
+
 </div>
 </body>
 </html>

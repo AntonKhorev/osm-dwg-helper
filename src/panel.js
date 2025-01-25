@@ -21,7 +21,7 @@ browser.runtime.onMessage.addListener(message=>{
 
 ;(async()=>{
 	// top-level async is supported, but: https://github.com/mozilla/addons-linter/issues/4020
-	document.getElementById('extension-options').addEventListener('click',()=>browser.runtime.openOptionsPage())
+	document.getElementById('options-button').onclick=()=>browser.runtime.openOptionsPage()
 	const [currentTab]=await browser.tabs.query({active:true,currentWindow:true})
 	browser.runtime.sendMessage({action:'registerNewPanel',tab:currentTab})
 })()
@@ -42,19 +42,17 @@ function setupUpdateScheduler(handlerFn,filterFn) {
 }
 
 function updatePermissions(missingOrigins) {
-	const $permissions=document.getElementById('permissions')
-	$permissions.innerHTML=""
-	if (missingOrigins.length<=0) return
-	const $button=document.createElement('button')
-	$button.innerText="Grant access to OSM/OTRS webpages"
-	$button.addEventListener('click',()=>{
+	const missing=missingOrigins.length>0
+	const $permissionsButton=document.getElementById('permissions-button')
+	const $grantedPermissionsSpan=document.getElementById('granted-permissions-span')
+	$permissionsButton.hidden=!($grantedPermissionsSpan.hidden=missing)
+	$permissionsButton.onclick=!missing?null:()=>{
 		browser.permissions.request({
 			origins:missingOrigins
 		}).then(granted=>{
 			if (granted) browser.runtime.sendMessage({action:'reportPermissionsWereChanged'})
 		})
-	})
-	$permissions.append($button)
+	}
 }
 
 /**
