@@ -47,11 +47,13 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				if (userReportCountsMap.size>0) {
 					const addSubAction=addSubmenu(`Quick message reporting user of issue #${issueData.id}`)
 					for (const [userName,userReportCounts] of userReportCountsMap) {
-						const $li=addSubAction(makeLink(getUserMessageUrl(userName),userName,()=>sendMessage({
-							action:'initiateNewTabAction',
-							tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
-						})))
-						$li.append(` - ${formatUserReportCounts(userReportCounts)} selected`)
+						addSubAction(
+							makeLink(getUserMessageUrl(userName),userName,()=>sendMessage({
+								action:'initiateNewTabAction',
+								tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
+							})),
+							` - ${formatUserReportCounts(userReportCounts)} selected`
+						)
 					}
 				}
 				function getUserMessageUrl(userName) {
@@ -245,13 +247,15 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					const userReportCountsMap=getUserReportCountsMap(issueData)
 					if (userReportCountsMap.has(userData.name)) {
 						const addSubAction=addSubmenu(`Add to quick message to user ${userData.name}`)
-						const $li=addSubAction(makeLink('#',userData.name,()=>sendMessage({
-							action:'initiateImmediateCurrentTabAction',
-							tabAction:['AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name],
-							tabId,
-							otherTabId
-						})))
-						$li.append(` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`)
+						addSubAction(
+							makeLink('#',userData.name,()=>sendMessage({
+								action:'initiateImmediateCurrentTabAction',
+								tabAction:['AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name],
+								tabId,
+								otherTabId
+							})),
+							` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`
+						)
 						const nOtherUsers=userReportCountsMap.size-1
 						if (nOtherUsers>0) {
 							addSubAction(`won't add selected reports from ${nOtherUsers} other ${plural(`user`,nOtherUsers)}`)
@@ -272,23 +276,31 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 	}]
 
 	function enterMenu($menu,tabId) {
+		const addItems=(...$items)=>{
+			const $li=document.createElement('li')
+			$li.append(...$items)
+			$menu.append($li)
+		}
 		return [addAction,addSubmenu,makeLink]
 		function addAction(...$action) {
-			const $li=document.createElement('li')
-			$li.append(...$action)
-			$menu.append($li)
-			return $li
+			const $slice=document.createElement('div')
+			$slice.classList.add('slice')
+			$slice.append(...$action)
+			addItems($slice)
 		}
 		function addSubmenu(name) {
-			const $span=document.createElement('span')
-			$span.innerText=name
+			const $passiveSlice=document.createElement('div')
+			$passiveSlice.classList.add('passive-slice')
+			$passiveSlice.innerText=name
 			const $subactions=document.createElement('ul')
-			addAction($span,$subactions)
+			addItems($passiveSlice,$subactions)
 			const addSubAction=(...$subaction)=>{
 				const $li=document.createElement('li')
-				$li.append(...$subaction)
+				const $slice=document.createElement('div')
+				$slice.classList.add('slice')
+				$slice.append(...$subaction)
+				$li.append($slice)
 				$subactions.append($li)
-				return $li
 			}
 			return addSubAction
 		}

@@ -14,13 +14,12 @@
 body.panel {
 	min-width: 15rem;
 }
-body.panel .slice {
+body.panel #lead-slice {
 	display: flex;
 	padding: .5rem;
 	gap: .5rem;
-	align-items: stretch;
 }
-body.panel .slice button {
+body.panel #lead-slice button {
 	min-height: 3rem;
 	padding: 0 .5rem;
 	text-align: center;
@@ -28,6 +27,10 @@ body.panel .slice button {
 body.panel #granted-permissions-span,
 body.panel #permissions-button {
 	flex-grow: 1;
+}
+body.panel #permissions-button,
+body.panel #options-button {
+	align-self: stretch;
 }
 body.panel #options-button {
 	min-width: 3rem;
@@ -41,22 +44,20 @@ body.panel #extension-version {
 	color: #888;
 }
 body.panel h2 {
-	margin: .5rem .5rem .5rem 1.5rem;
+	margin: .5rem;
+	margin-inline-start: 1.5rem;
 	padding: 0;
 }
-body.panel ul.stretched-actions {
+body.panel ul.stretched-actions,
+body.panel ul.stretched-actions ul {
 	display: flex;
 	flex-direction: column;
 	margin: 0;
 	padding: 0;
 }
 body.panel ul.stretched-actions li {
-	display: block;
-	position: relative;
-	padding: .25rem .5rem;
-}
-body.panel ul.stretched-actions li:hover {
-	background: #8882;
+	margin: 0;
+	padding: 0;
 }
 body.panel ul.stretched-actions li:first-child {
 	border-top: solid 1px #8882;
@@ -64,18 +65,33 @@ body.panel ul.stretched-actions li:first-child {
 body.panel ul.stretched-actions li {
 	border-bottom: solid 1px #8882;
 }
-body.panel ul.stretched-actions a::after {
+body.panel ul.stretched-actions .slice,
+body.panel ul.stretched-actions .passive-slice {
+	display: block;
+	position: relative;
+	padding: .25rem .5rem;
+}
+body.panel ul.stretched-actions ul .slice,
+body.panel ul.stretched-actions ul .passive-slice {
+	padding-inline-start: 1.5rem;
+}
+body.panel ul.stretched-actions .slice:hover {
+	background: #8882;
+}
+body.panel ul.stretched-actions .slice a::after {
 	position: absolute;
 	inset: 0;
 	z-index: 1;
 	content: "";
 }
 body.panel ul.actions {
-	margin: 0 .5rem 0 1.5rem;
+	margin: 0 .5rem 0 .5rem;
+	margin-inline-start: 1.5rem;
 	padding: 0;
 }
 body.panel ul.actions ul {
-	margin: 0 0 0 1rem;
+	margin: 0;
+	margin-inline-start: 1rem;
 	padding: 0;
 }
 body.panel a {
