@@ -26,7 +26,7 @@ export default class OtherMenu extends Menu {
 				const submenuWriter=writer.addSubmenu('ticket-add',[
 					`Add to new ticket form`
 				])
-				submenuWriter.addActiveEntry(null,[
+				submenuWriter.addActiveEntry({item:issueData.reportedItem?.type},[
 					linkWriter.makeImmediateCurrentTabActionLink(text,createTicketUrl,[
 						'AddToCreateIssueTicket',otherTabId,issueData
 					])

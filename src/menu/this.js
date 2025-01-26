@@ -22,24 +22,12 @@ export default class ThisMenu extends Menu {
 							'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
 						])
 					])
-					submenuWriter.addActiveEntry('user',[
-						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
-							'CreateIssueTicket',tabId,issueData
-						])
-					])
-				} else if (issueData.reportedItem?.type=='note') {
-					submenuWriter.addActiveEntry('note',[
-						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
-							'CreateIssueTicket',tabId,issueData
-						])
-					])
-				} else {
-					submenuWriter.addActiveEntry(null,[
-						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
-							'CreateIssueTicket',tabId,issueData
-						])
-					])
 				}
+				submenuWriter.addActiveEntry({item:issueData.reportedItem?.type},[
+					linkWriter.makeNewTabActionLink(text,createTicketUrl,[
+						'CreateIssueTicket',tabId,issueData
+					])
+				])
 			}
 			{
 				submenuWriter.addActiveEntry(null,[
@@ -80,7 +68,7 @@ export default class ThisMenu extends Menu {
 					submenuWriter.addActiveEntry(null,makeNumberNote(
 						otrsLinkWriter.makeSearchLink(issueData.id)
 					))
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addActiveEntry('issue',[
 						otrsLinkWriter.makeSearchLink('issue '+issueData.id)
 					])
 				}
@@ -91,7 +79,7 @@ export default class ThisMenu extends Menu {
 					submenuWriter.addActiveEntry(null,[
 						otrsLinkWriter.makeSearchLink(issueData.reportedItem.name)
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addActiveEntry('user',[
 						otrsLinkWriter.makeSearchLink('user '+issueData.reportedItem.name)
 					])
 				}
@@ -102,7 +90,7 @@ export default class ThisMenu extends Menu {
 					submenuWriter.addActiveEntry(null,makeNumberNote(
 						otrsLinkWriter.makeSearchLink(issueData.reportedItem.id)
 					))
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addActiveEntry('note',[
 						otrsLinkWriter.makeSearchLink('note '+issueData.reportedItem.id)
 					])
 				}
