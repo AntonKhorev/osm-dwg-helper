@@ -4,22 +4,22 @@ export default class MenuWriter {
 		this.$menu=$menu
 	}
 
-	addActiveEntry($icon,$elements) {
+	addActiveEntry(icon,$elements) {
 		this.addItems(
-			this.makeSlice($icon,$elements)
+			this.makeSlice(icon,$elements)
 		)
 	}
 
-	addPassiveEntry($icon,$elements) {
+	addPassiveEntry(icon,$elements) {
 		this.addItems(
-			this.makeSlice($icon,$elements,'passive-slice')
+			this.makeSlice(icon,$elements,'passive-slice')
 		)
 	}
 
-	addSubmenu($icon,$elements) {
+	addSubmenu(icon,$elements) {
 		const $subMenu=this.document.createElement('ul')
 		this.addItems(
-			this.makeSlice($icon,$elements),
+			this.makeSlice(icon,$elements),
 			$subMenu
 		)
 		return new MenuWriter(this.document,$subMenu)
@@ -33,10 +33,14 @@ export default class MenuWriter {
 		this.$menu.append($li)
 	}
 
-	makeSlice($icon,$elements,sliceClass='slice') {
+	makeSlice(icon,$elements,sliceClass='slice') {
 		const $sliceIcon=this.document.createElement('div')
 		$sliceIcon.classList.add('slice-icon')
-		if ($icon) $sliceIcon.append($icon)
+		if (icon) {
+			const $icon=this.document.createElement('img')
+			$icon.src=`icons/void/${icon}.svg`
+			$sliceIcon.append($icon)
+		}
 		const $sliceEntry=this.document.createElement('div')
 		$sliceEntry.classList.add('slice-entry')
 		$sliceEntry.append(...$elements)
