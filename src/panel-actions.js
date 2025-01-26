@@ -1,4 +1,5 @@
 import MenuWriter from './menu-writer.js'
+import MenuLinkWriter from './menu-link-writer.js'
 
 /**
  * @returns [global, this tab, this+other tab] actions menu updater functions
@@ -16,17 +17,17 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		return $a
 	}
 	return [($menu,settings,permissions,tabId)=>{ // global actions
-		const makeLink=makeMakeLink(tabId)
 		const menuWriter=new MenuWriter(document,$menu)
+		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
 		menuWriter.addActiveEntry(null,[
-			makeLink(`cookbook.html`,"Read 'dealing with issues' guide")
+			menuLinkWriter.makePageLink("Read 'dealing with issues' guide",`cookbook.html`)
 		])
 		if (settings.osm) {
 			menuWriter.addActiveEntry(null,[
-				makeLink(`${settings.osm}issues?status=open`,"Go to open OSM issues")
+				menuLinkWriter.makePageLink("Go to open OSM issues",`${settings.osm}issues?status=open`)
 			])
 			menuWriter.addActiveEntry(null,[
-				makeLink(`${settings.osm}user_blocks`,"Go to blocks list")
+				menuLinkWriter.makePageLink("Go to blocks list",`${settings.osm}user_blocks`)
 			])
 		}
 		if (settings.otrs) {
@@ -34,7 +35,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			$icon.src='icons/ticket.svg'
 			$icon.alt=''
 			menuWriter.addActiveEntry($icon,[
-				makeLink(`${settings.otrs}otrs/index.pl?Action=AgentDashboard`,"Go to OTRS") // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
+				menuLinkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
 			])
 		}
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
