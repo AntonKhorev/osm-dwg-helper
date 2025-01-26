@@ -1,4 +1,4 @@
-import MenuWriter from './menu.js'
+import MenuWriter from './menu-writer.js'
 
 /**
  * @returns [global, this tab, this+other tab] actions menu updater functions

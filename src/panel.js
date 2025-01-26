@@ -1,5 +1,5 @@
 import makeActionsMenuWriters from './panel-actions.js'
-import MenuWriter from './menu.js'
+import MenuWriter from './menu-writer.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
