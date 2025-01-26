@@ -140,10 +140,15 @@ export default class ThisMenu extends Menu {
 		}
 		{
 			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
-				const text=tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n') // TODO remove tags?
+				const doc = new DOMParser().parseFromString(tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n'), 'text/html')
+				const text=doc.body.textContent || ''
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
+				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=en&q=`+encodeURIComponent(text)
 				writer.addActiveEntry(null,[
-					linkWriter.makePageLink('Translate issue text',googleTranslateUrl)
+					linkWriter.makePageLink('Translate issue text (Google)',googleTranslateUrl)
+				])
+				writer.addActiveEntry(null,[
+					linkWriter.makePageLink('Translate issue text (LibreTranslate)',libreTranslateUrl)
 				])
 			}
 		}
