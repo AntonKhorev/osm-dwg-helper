@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','user','block','block-add','ticket','ticket-add','search','translate']
+export const symbols=['void','message','message-add','issue','issue-add','note','user','block','block-add','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -18,6 +18,7 @@ export function svg(symbol,modifier) {
 	if (modifier=='branded') content+=tabs()
 	if (symbol=='message' || symbol=='message-add') content+=envelope()
 	if (symbol=='issue' || symbol=='issue-add') content+=flag()
+	if (symbol=='note') content+=note()
 	if (symbol=='user' || symbol=='block' || symbol=='block-add') content+=avatar()
 	if (symbol=='block' || symbol=='block-add') content+=cross()
 	if (symbol=='ticket' || symbol=='ticket-add') content+=ticket()
@@ -47,6 +48,13 @@ function flag() {
 	return (
 		`<polygon points='-11,-7 11,-7 4,0 11,7 -11,7' fill='rgb(100%,20%,20%)' stroke='rgb(70%,0%,0%)' />`+
 		`<line x1='-11' y1='-8' x2='-11' y2='12' stroke='brown' stroke-linecap='round' />`
+	)
+}
+
+function note() {
+	return (
+		`<path d="M0,16 L9.37,0.76 A11,11 0 1 0 -9.37,0.76 Z" fill="#FFF"/>`+
+		`<path d="M0,14.09 L8.52,0.24 A10,10 0 1 0 -8.52,0.24 Z M-5,-5 A5,5 0 0 1 5,-5 A5,5 0 0 1 -5,-5" fill="#48C" stroke="#26A"/>`
 	)
 }
 

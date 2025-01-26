@@ -17,17 +17,29 @@ export default class ThisMenu extends Menu {
 					text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 				}
 				if (issueData.reportedItem?.type=='user') {
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addActiveEntry('user',[
 						linkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
 							'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
 						])
 					])
-				}
-				submenuWriter.addActiveEntry(null,[
-					linkWriter.makeNewTabActionLink(text,createTicketUrl,[
-						'CreateIssueTicket',tabId,issueData
+					submenuWriter.addActiveEntry('user',[
+						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
+							'CreateIssueTicket',tabId,issueData
+						])
 					])
-				])
+				} else if (issueData.reportedItem?.type=='note') {
+					submenuWriter.addActiveEntry('note',[
+						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
+							'CreateIssueTicket',tabId,issueData
+						])
+					])
+				} else {
+					submenuWriter.addActiveEntry(null,[
+						linkWriter.makeNewTabActionLink(text,createTicketUrl,[
+							'CreateIssueTicket',tabId,issueData
+						])
+					])
+				}
 			}
 			{
 				submenuWriter.addActiveEntry(null,[
