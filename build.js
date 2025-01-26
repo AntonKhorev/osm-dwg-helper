@@ -61,9 +61,9 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 	const outputFilename='dist/content/issue.css'
 	let contents=String(await fs.readFile(inputFilename))
 	for (const uiBranding of icon.uiBrandings) {
-		const data=iconData(uiBranding)
+		const data=iconData(uiBranding,'branded')
 		contents=contents.replace(
-			new RegExp(`url\\(/icons/${uiBranding}\\.svg\\)`,'g'),
+			new RegExp(`url\\(/icons/branded/${uiBranding}\\.svg\\)`,'g'),
 			`url(${data})`
 		)
 	}
@@ -127,25 +127,20 @@ for (const [contentScriptName,contentScriptCalls] of Object.entries(contentScrip
 
 // generate toolbar/sidebar icon svgs
 {
-	const dirname=path.join('dist','icons')
-	await fs.mkdir(dirname,{recursive:true})
-	await generateIconFile('default')
-	for (const type of icon.types) {
-		await generateIconFile(type,type)
-	}
-	async function generateIconFile(stringType,type) {
-		const data=icon.svg(type)
-		const filename=path.join(dirname,stringType+'.svg')
-		await fs.writeFile(filename,data)
+	for (const modifier of icon.modifiers) {
+		const dirname=path.join('dist','icons',modifier)
+		await fs.mkdir(dirname,{recursive:true})
+		for (const symbol of icon.symbols) {
+			const data=icon.svg(symbol,modifier)
+			const filename=path.join(dirname,symbol+'.svg')
+			await fs.writeFile(filename,data)
+		}
 	}
 	await fs.writeFile(
 		path.join('dist','icon.js'),
-		`export default function(type) {\n`+
-		`	if (${JSON.stringify(icon.types)}.includes(type)) {\n`+
-		`		return 'icons/'+type+'.svg'\n`+
-		`	} else {\n`+
-		`		return 'icons/default.svg'\n`+
-		`	}\n`+
+		`export default function(symbol,modifier='void') {\n`+
+		`	if (!${JSON.stringify(icon.symbols)}.includes(symbol)) symbol='void'\n`+
+		`	return 'icons/'+modifier+'/'+symbol+'.svg'\n`+
 		`}\n`
 	)
 }

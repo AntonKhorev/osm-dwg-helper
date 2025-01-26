@@ -199,7 +199,7 @@ function setIconOnTab(tab) {
 	const iconDetails={
 		// windowId: tab.windowId, // not in chrome
 		tabId: tab.id,
-		path: icon(tabStateType)
+		path: icon(tabStateType,'branded')
 	}
 	browser.browserAction.setIcon(iconDetails)
 	browser.sidebarAction?.setIcon(iconDetails)
