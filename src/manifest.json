@@ -15,12 +15,12 @@
 	"browser_action": {
 		"browser_style": true,
 		"default_title": "DWG Helper",
-		"default_icon": "icons/default.svg",
+		"default_icon": "icons/branded/void.svg",
 		"default_popup": "popup.html"
 	},
 	"sidebar_action": {
 		"default_title": "DWG Helper",
-		"default_icon": "icons/default.svg",
+		"default_icon": "icons/branded/void.svg",
 		"default_panel": "sidebar.html"
 	},
 	"options_ui": {
