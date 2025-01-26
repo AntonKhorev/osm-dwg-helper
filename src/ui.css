@@ -20,7 +20,7 @@ body.panel #lead-slice {
 	gap: .5rem;
 }
 body.panel #lead-slice button {
-	min-height: 3rem;
+	min-height: 2.5rem;
 	padding: 0 .5rem;
 	text-align: center;
 }
@@ -33,7 +33,7 @@ body.panel #options-button {
 	align-self: stretch;
 }
 body.panel #options-button {
-	min-width: 3rem;
+	min-width: 2.5rem;
 }
 body.panel #granted-permissions-span {
 	align-content: center;
