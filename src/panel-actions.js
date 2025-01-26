@@ -1,6 +1,7 @@
 import MenuWriter from './menu-writer.js'
 import MenuLinkWriter from './menu-link-writer.js'
 import OtrsMenuLinkWriter from './otrs-menu-link-writer.js'
+import ReportCounter from './report-counter.js'
 
 /**
  * @returns [global, this tab, this+other tab] actions menu updater functions
@@ -64,17 +65,17 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.osm) {
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
-				const userReportCountsMap=getUserReportCountsMap(issueData)
-				if (userReportCountsMap.size>0) {
+				const reportCounter=new ReportCounter(issueData)
+				if (reportCounter.nUsers>0) {
 					const submenuWriter=menuWriter.addSubmenu(null,[
 						`Quick message reporting user of issue #${issueData.id}`
 					])
-					for (const [userName,userReportCounts] of userReportCountsMap) {
+					for (const userName of reportCounter.userNames()) {
 						submenuWriter.addActiveEntry(null,[
 							menuLinkWriter.makeNewTabActionLink(userName,getUserMessageUrl(userName),[
 								'SendMessageFromIssueReports',tabId,issueData,userName
 							]),
-							` - ${formatUserReportCounts(userReportCounts)} selected`
+							` - ${reportCounter.formatUserReportCounts(userName)} selected`
 						])
 					}
 				}
@@ -302,8 +303,8 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const userData=tabState.userData
 				const issueData=otherTabState.issueData
 				if (userData.name) {
-					const userReportCountsMap=getUserReportCountsMap(issueData)
-					if (userReportCountsMap.has(userData.name)) {
+					const reportCounter=new ReportCounter(issueData)
+					if (reportCounter.hasUserName(userData.name)) {
 						const submenuWriter=menuWriter.addSubmenu(null,[
 							`Add to quick message to user ${userData.name}`
 						])
@@ -311,12 +312,11 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 							menuLinkWriter.makeImmediateCurrentTabActionLink(userData.name,'#',[
 								'AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name
 							]),
-							` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`
+							` - ${reportCounter.formatUserReportCounts(userData.name)} selected`
 						])
-						const nOtherUsers=userReportCountsMap.size-1
-						if (nOtherUsers>0) {
+						if (reportCounter.nUsers>1) {
 							submenuWriter.addPassiveEntry(null,[
-								`won't add selected reports from ${nOtherUsers} other ${plural(`user`,nOtherUsers)}`
+								`won't add selected reports from ${reportCounter.formatOtherUsersCount()}`
 							])
 						}
 					}
@@ -324,39 +324,4 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			}
 		}
 	}]
-}
-
-function getUserReportCountsMap(issueData) {
-	const userReportCountsMap=new Map()
-	if (issueData.reports) {
-		for (const report of issueData.reports) {
-			if (!report.selected) continue
-			const userName=report.by
-			if (userName==null) continue
-			let userReportCounts={read:0, unread:0}
-			if (userReportCountsMap.has(userName)) {
-				userReportCounts=userReportCountsMap.get(userName)
-			} else {
-				userReportCountsMap.set(userName,userReportCounts)
-			}
-			if (report.wasRead) {
-				userReportCounts.read++
-			} else {
-				userReportCounts.unread++
-			}
-		}
-	}
-	return userReportCountsMap
-}
-
-function formatUserReportCounts(userReportCounts) {
-	const counts=[]
-	if (userReportCounts.unread>0) counts.push(`${userReportCounts.unread} new`)
-	if (userReportCounts.read>0) counts.push(`${userReportCounts.read} read`)
-	const totalUserReportCount=userReportCounts.unread+userReportCounts.read
-	return counts.join(` and `)+` `+plural(`report`,totalUserReportCount)
-}
-
-function plural(w,n) {
-	return w+(n>1?'s':'')
 }
