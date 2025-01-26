@@ -23,7 +23,7 @@ export default class OtherMenu extends Menu {
 				// 		])
 				// 	])
 				// }
-				const submenuWriter=writer.addSubmenu(null,[
+				const submenuWriter=writer.addSubmenu('ticket-add',[
 					`Add to new ticket form`
 				])
 				submenuWriter.addActiveEntry(null,[
@@ -42,7 +42,7 @@ export default class OtherMenu extends Menu {
 					const menuTitleRocParts=[]
 					if (selectedReports.length>0) menuTitleRocParts.push(getMenuTitleRocPart('report',selectedReports))
 					if (selectedComments.length>0) menuTitleRocParts.push(getMenuTitleRocPart('comment',selectedComments))
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('issue-add',[
 						`Add ${menuTitleRocParts.join(' and ')} ${getMenuTitleIssuePart()}`
 					])
 					submenuWriter.addActiveEntry(null,[
@@ -86,7 +86,7 @@ export default class OtherMenu extends Menu {
 			if (tabState.type=='ticket' && otherTabState.type=='message') {
 				const messageData=otherTabState.messageData
 				const ticketData=tabState.ticketData
-				const submenuWriter=writer.addSubmenu(null,[
+				const submenuWriter=writer.addSubmenu('message-add',[
 					`Add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket`
 				])
 				submenuWriter.addActiveEntry(null,[
@@ -107,7 +107,7 @@ export default class OtherMenu extends Menu {
 			if (tabState.type=='ticket' && otherTabState.type=='block') {
 				const blockData=otherTabState.blockData
 				const ticketData=tabState.ticketData
-				const submenuWriter=writer.addSubmenu(null,[
+				const submenuWriter=writer.addSubmenu('block-add',[
 					`Add user ${blockData.user} block record to ticket`
 				])
 				submenuWriter.addActiveEntry(null,[
@@ -133,7 +133,7 @@ export default class OtherMenu extends Menu {
 				if (userData.name) {
 					const reportCounter=new ReportCounter(issueData)
 					if (reportCounter.hasUserName(userData.name)) {
-						const submenuWriter=writer.addSubmenu(null,[
+						const submenuWriter=writer.addSubmenu('issue-add',[
 							`Add to quick message to user ${userData.name}`
 						])
 						submenuWriter.addActiveEntry(null,[

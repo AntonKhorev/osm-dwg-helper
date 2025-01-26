@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','user','block','ticket','ticket-add']
+export const symbols=['void','message','message-add','issue','issue-add','user','block','block-add','ticket','ticket-add','search']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -17,11 +17,12 @@ export function svg(symbol,modifier) {
 	let content=''
 	if (modifier=='branded') content+=tabs()
 	if (symbol=='message' || symbol=='message-add') content+=envelope()
-	if (symbol=='issue') content+=flag()
-	if (symbol=='user' || symbol=='block') content+=avatar()
-	if (symbol=='block') content+=cross()
+	if (symbol=='issue' || symbol=='issue-add') content+=flag()
+	if (symbol=='user' || symbol=='block' || symbol=='block-add') content+=avatar()
+	if (symbol=='block' || symbol=='block-add') content+=cross()
 	if (symbol=='ticket' || symbol=='ticket-add') content+=ticket()
-	if (symbol=='ticket-add' || symbol=='message-add') content+=add()
+	if (symbol=='ticket-add' || symbol=='message-add' || symbol=='issue-add' || symbol=='block-add') content+=add()
+	if (symbol=='search') content+=search()
 	if (symbol=='closed') content+=closedMarker()
 	if (symbol=='open') content+=openMarker()
 	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
@@ -83,6 +84,16 @@ function add() {
 	return (
 		`<line x1='${x-size}' y1='0' x2='${x+size}' y2='0' stroke='#44F' stroke-width='4' />`+
 		`<line x1='${x}' y1='-${size}' x2='${x}' y2='${size}' stroke='#44F' stroke-width='4' />`
+	)
+}
+
+function search() {
+	const r=10
+	const s=4
+	const h=(r*.5**.5-s).toFixed(2)
+	return (
+		`<circle cx='${-s}' cy='${-s}' r='${r}' stroke='#755' fill='#44C4' />`+
+		`<line x1='${h}' y1='${h}' x2='14' y2='14' stroke='#755' stroke-width='4' />`
 	)
 }
 

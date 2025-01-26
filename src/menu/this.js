@@ -6,7 +6,7 @@ export default class ThisMenu extends Menu {
 		const writer=this.makeWriter($menu)
 		const linkWriter=this.makeLinkWriter(tabId)
 		if (permissions.otrs) {
-			const submenuWriter=writer.addSubmenu(null,[
+			const submenuWriter=writer.addSubmenu('ticket-add',[
 				`Create ticket`
 			])
 			const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
@@ -40,7 +40,7 @@ export default class ThisMenu extends Menu {
 				const issueData=tabState.issueData
 				const reportCounter=new ReportCounter(issueData)
 				if (reportCounter.nUsers>0) {
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('message-add',[
 						`Quick message reporting user of issue #${issueData.id}`
 					])
 					for (const userName of reportCounter.userNames()) {
@@ -62,7 +62,7 @@ export default class ThisMenu extends Menu {
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
 				if (issueData.id!=null) {
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for issue`
 					])
 					submenuWriter.addActiveEntry(null,makeNumberNote(
@@ -73,7 +73,7 @@ export default class ThisMenu extends Menu {
 					])
 				}
 				if (issueData.reportedItem?.type=='user') {
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for reported user`
 					])
 					submenuWriter.addActiveEntry(null,[
@@ -84,7 +84,7 @@ export default class ThisMenu extends Menu {
 					])
 				}
 				if (issueData.reportedItem?.type=='note') {
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for reported note`
 					])
 					submenuWriter.addActiveEntry(null,makeNumberNote(
@@ -104,7 +104,7 @@ export default class ThisMenu extends Menu {
 			if (tabState.type=='ticket' && tabState.issueData) {
 				const issueData=tabState.issueData
 				if (issueData.id!=null) {
-					writer.addActiveEntry(null,[
+					writer.addActiveEntry('issue',[
 						linkWriter.makePageLink(`Go to ticket issue #${issueData.id}`,issueData.url)
 					])
 				}
@@ -114,7 +114,7 @@ export default class ThisMenu extends Menu {
 			if (tabState.type=='ticket') {
 				for (const mailbox of ['outbox','inbox']) {
 					const ticketData=tabState.ticketData
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('message-add',[
 						`Add last ${mailbox} message to ticket`
 					])
 					submenuWriter.addActiveEntry(null,[
@@ -133,7 +133,7 @@ export default class ThisMenu extends Menu {
 		}
 		if (settings.osm) {
 			if (tabState.type=='user' && tabState.userData.id!=null) {
-				writer.addActiveEntry(null,[
+				writer.addActiveEntry('user',[
 					linkWriter.makePageLink(`Check user id #${tabState.userData.id}`,tabState.userData.apiUrl)
 				])
 			}
