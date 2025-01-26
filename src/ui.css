@@ -65,6 +65,9 @@ body.panel ul.actions li:first-child {
 body.panel ul.actions li {
 	border-bottom: solid 1px #8882;
 }
+body.panel ul.actions li ul li:last-child {
+	border-bottom: none;
+}
 body.panel ul.actions .slice,
 body.panel ul.actions .passive-slice {
 	display: flex;
