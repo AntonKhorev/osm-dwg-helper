@@ -53,8 +53,8 @@ function flag() {
 
 function note() {
 	return (
-		`<path d="M0,16 L9.37,0.76 A11,11 0 1 0 -9.37,0.76 Z" fill="#FFF"/>`+
-		`<path d="M0,14.09 L8.52,0.24 A10,10 0 1 0 -8.52,0.24 Z M-5,-5 A5,5 0 0 1 5,-5 A5,5 0 0 1 -5,-5" fill="#48C" stroke="#26A"/>`
+		`<path d="M0,16 L8.91,-1.45 A10,10 0 1 0 -8.91,-1.45 Z" fill="#48C" stroke="#26A"/>`+
+		`<path d="M-5,-6 A5,5 0 0 1 5,-6 A5,5 0 0 1 -5,-6" fill="#FFF" stroke="#26A"/>`
 	)
 }
 
