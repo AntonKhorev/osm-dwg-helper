@@ -19,7 +19,7 @@ export default class MenuWriter {
 	addSubmenu(icon,$elements) {
 		const $subMenu=this.document.createElement('ul')
 		this.addItems(
-			this.makeSlice(icon,$elements),
+			this.makeSlice(icon,$elements,'passive-slice'),
 			$subMenu
 		)
 		return new MenuWriter(this.document,$subMenu)
