@@ -8,18 +8,6 @@ export default class MenuLinkWriter {
 	}
 
 	/**
-	 * @param query {string}
-	 * @param otrs {string}
-	 * @returns {HTMLAnchorElement}
-	 */
-	makeOtrsSearchLink(query,otrs) {
-		return this.makePageLink(
-			query,
-			`${otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`
-		)
-	}
-
-	/**
 	 * @param text {string}
 	 * @param href {string}
 	 * @returns {HTMLAnchorElement}
@@ -38,6 +26,34 @@ export default class MenuLinkWriter {
 		return this.makeLink(text,href,()=>this.sendMessage({
 			action:'initiateNewTabAction',
 			tabAction
+		}))
+	}
+
+	/**
+	 * @param text {string}
+	 * @param href {string}
+	 * @param tabAction {array}
+	 * @returns {HTMLAnchorElement}
+	 */
+	makeCurrentTabActionLink(text,href,tabAction) {
+		return this.makeLink(text,href,()=>this.sendMessage({
+			action:'initiateCurrentTabAction',
+			tabAction,
+			tabId:this.tabId
+		}))
+	}
+
+	/**
+	 * @param text {string}
+	 * @param href {string}
+	 * @param tabAction {array}
+	 * @returns {HTMLAnchorElement}
+	 */
+	makeImmediateCurrentTabActionLink(text,href,tabAction) {
+		return this.makeLink(text,href,()=>this.sendMessage({
+			action:'initiateImmediateCurrentTabAction',
+			tabAction,
+			tabId:this.tabId
 		}))
 	}
 

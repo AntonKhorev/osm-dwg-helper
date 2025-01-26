@@ -1,21 +1,11 @@
 import MenuWriter from './menu-writer.js'
 import MenuLinkWriter from './menu-link-writer.js'
+import OtrsMenuLinkWriter from './otrs-menu-link-writer.js'
 
 /**
  * @returns [global, this tab, this+other tab] actions menu updater functions
  */
 export default (document,closeWindow,createTab,sendMessage)=>{
-	const makeMakeLink=(tabId)=>(href,text,clickHandler=()=>createTab({openerTabId:tabId,url:href}))=>{
-		const $a=document.createElement('a')
-		$a.href=href
-		if (text!=null) $a.textContent=text
-		$a.addEventListener('click',ev=>{
-			ev.preventDefault()
-			clickHandler()
-			closeWindow()
-		})
-		return $a
-	}
 	return [($menu,settings,permissions,tabId)=>{ // global actions
 		const menuWriter=new MenuWriter(document,$menu)
 		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
@@ -94,6 +84,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			}
 		}
 		if (settings.otrs) {
+			const otrsMenuLinkWriter=new OtrsMenuLinkWriter(menuLinkWriter,settings.otrs)
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
 				if (issueData.id!=null) {
@@ -101,10 +92,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						`Search OTRS for issue`
 					])
 					submenuWriter.addActiveEntry(null,makeNumberNote(
-						menuLinkWriter.makeOtrsSearchLink(issueData.id,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink(issueData.id)
 					))
 					submenuWriter.addActiveEntry(null,[
-						menuLinkWriter.makeOtrsSearchLink('issue '+issueData.id,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink('issue '+issueData.id)
 					])
 				}
 				if (issueData.reportedItem?.type=='user') {
@@ -112,10 +103,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						`Search OTRS for reported user`
 					])
 					submenuWriter.addActiveEntry(null,[
-						menuLinkWriter.makeOtrsSearchLink(issueData.reportedItem.name,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink(issueData.reportedItem.name)
 					])
 					submenuWriter.addActiveEntry(null,[
-						menuLinkWriter.makeOtrsSearchLink('user '+issueData.reportedItem.name,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink('user '+issueData.reportedItem.name)
 					])
 				}
 				if (issueData.reportedItem?.type=='note') {
@@ -123,10 +114,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						`Search OTRS for reported note`
 					])
 					submenuWriter.addActiveEntry(null,makeNumberNote(
-						menuLinkWriter.makeOtrsSearchLink(issueData.reportedItem.id,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink(issueData.reportedItem.id)
 					))
 					submenuWriter.addActiveEntry(null,[
-						menuLinkWriter.makeOtrsSearchLink('note '+issueData.reportedItem.id,settings.otrs)
+						otrsMenuLinkWriter.makeSearchLink('note '+issueData.reportedItem.id)
 					])
 				}
 				function makeNumberNote($a) {
@@ -183,9 +174,10 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			}
 		}
 	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
-		const makeLink=makeMakeLink(tabId)
 		const menuWriter=new MenuWriter(document,$menu)
+		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
 		if (permissions.otrs && permissions.osm) {
+			const otrsMenuLinkWriter=new OtrsMenuLinkWriter(menuLinkWriter,settings.otrs)
 			if (tabState.type=='ticket-add' && otherTabState.type=='issue') {
 				// const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
 				const createTicketUrl=`#`
@@ -197,22 +189,18 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				// TODO equivalent of this
 				// if (issueData.reportedItem?.type=='user') {
 				// 	submenuWriter.addActiveEntry(null,[
-				// 		makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
-				// 			action:'initiateNewTabAction',
-				// 			tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
-				// 		}))
+				// 		menuLinkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
+				// 			'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
+				// 		])
 				// 	])
 				// }
 				const submenuWriter=menuWriter.addSubmenu(null,[
 					`Add to new ticket form`
 				])
 				submenuWriter.addActiveEntry(null,[
-					makeLink(createTicketUrl,text,()=>sendMessage({
-						action:'initiateImmediateCurrentTabAction',
-						tabAction:['AddToCreateIssueTicket',otherTabId,issueData],
-						tabId,
-						otherTabId
-					}))
+					menuLinkWriter.makeImmediateCurrentTabActionLink(text,createTicketUrl,[
+						'AddToCreateIssueTicket',otherTabId,issueData
+					])
 				])
 			}
 			if (tabState.type=='ticket' && otherTabState.type=='issue') {
@@ -261,11 +249,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					return s
 				}
 				function makeIssueLink(addAs) {
-					return makeAddToOtrsLink(addAs,ticketData.id,{
-						action:'initiateCurrentTabAction',
-						tabAction:['AddSelectedReportsAndCommentsToTicket',ticketData.id,addAs,issueData,otherTabId],
-						tabId
-					})
+					return otrsMenuLinkWriter.makeAddToTicketLink(addAs,ticketData.id,[
+						'AddSelectedReportsAndCommentsToTicket',ticketData.id,addAs,issueData,otherTabId
+					])
 				}
 			}
 			if (tabState.type=='ticket' && otherTabState.type=='message') {
@@ -281,15 +267,14 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					makeMessageLink('pending')
 				])
 				function makeMessageLink(addAs) {
-					return makeAddToOtrsLink(addAs,ticketData.id,{
-						action:'initiateCurrentTabAction',
-						tabAction:['AddMessageToTicket',ticketData.id,addAs,messageData],
-						tabId
-					})
+					return otrsMenuLinkWriter.makeAddToTicketLink(addAs,ticketData.id,[
+						'AddMessageToTicket',ticketData.id,addAs,messageData
+					])
 				}
 			}
 		}
 		if (permissions.otrs) {
+			const otrsMenuLinkWriter=new OtrsMenuLinkWriter(menuLinkWriter,settings.otrs)
 			if (tabState.type=='ticket' && otherTabState.type=='block') {
 				const blockData=otherTabState.blockData
 				const ticketData=tabState.ticketData
@@ -306,11 +291,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					`"as pending" `,$explanation
 				])
 				function makeBlockLink(addAs) {
-					return makeAddToOtrsLink(addAs,ticketData.id,{
-						action:'initiateCurrentTabAction',
-						tabAction:['AddBlockToTicket',ticketData.id,addAs,blockData],
-						tabId
-					})
+					return otrsMenuLinkWriter.makeAddToTicketLink(addAs,ticketData.id,[
+						'AddBlockToTicket',ticketData.id,addAs,blockData
+					])
 				}
 			}
 		}
@@ -325,12 +308,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 							`Add to quick message to user ${userData.name}`
 						])
 						submenuWriter.addActiveEntry(null,[
-							makeLink('#',userData.name,()=>sendMessage({
-								action:'initiateImmediateCurrentTabAction',
-								tabAction:['AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name],
-								tabId,
-								otherTabId
-							})),
+							menuLinkWriter.makeImmediateCurrentTabActionLink(userData.name,'#',[
+								'AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name
+							]),
 							` - ${formatUserReportCounts(userReportCountsMap.get(userData.name))} selected`
 						])
 						const nOtherUsers=userReportCountsMap.size-1
@@ -342,15 +322,6 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					}
 				}
 			}
-		}
-		function makeAddToOtrsLink(addAs,ticketId,message) {
-			let otrsAction='AgentTicketNote'
-			if (addAs=='pending') otrsAction='AgentTicketPending'
-			return makeLink(
-				`${settings.otrs}otrs/index.pl?Action=${otrsAction};TicketID=${encodeURIComponent(ticketId)}`,
-				'as '+addAs,
-				()=>sendMessage(message)
-			)
 		}
 	}]
 }
