@@ -4,9 +4,6 @@ export default class GlobalMenu extends Menu {
 	update($menu,settings,permissions,tabId) {
 		const writer=this.makeWriter($menu)
 		const linkWriter=this.makeLinkWriter(tabId)
-		writer.addActiveEntry(null,[
-			linkWriter.makePageLink("Read 'dealing with issues' guide",`cookbook.html`)
-		])
 		if (settings.osm) {
 			writer.addActiveEntry('issue',[
 				linkWriter.makePageLink("Go to open OSM issues",`${settings.osm}issues?status=open`)

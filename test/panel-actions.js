@@ -78,7 +78,7 @@ const assertSubItem=($menu,text,subText)=>{
 }
 
 describe("panel-actions-new",()=>{
-	it("writes only the guide link without settings/permissions",()=>{
+	it("writes nothing without settings/permissions",()=>{
 		const [document,$globalMenu,$thisMenu,$otherMenu]=createDocumentAndMenuPlaceholders()
 		const [callbacks,callbackLog]=createCallbacksWithLog()
 		const [writeGlobalActionsMenu,writeThisActionsMenu,writeOtherActionsMenu]=makeActionsMenuWriters(document,...callbacks)
@@ -91,7 +91,7 @@ describe("panel-actions-new",()=>{
 		writeGlobalActionsMenu($globalMenu,settings,permissions,tabId)
 		writeThisActionsMenu($thisMenu,settings,permissions,tabId,tabState)
 		writeOtherActionsMenu($otherMenu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
-		assert.equal($globalMenu.childElementCount,1)
+		assert.equal($globalMenu.childElementCount,0)
 		assert.equal($thisMenu.childElementCount,0)
 		assert.equal($otherMenu.childElementCount,0)
 	})

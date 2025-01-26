@@ -40,7 +40,7 @@ body.panel #granted-permissions-span {
 	text-align: center;
 	color: #888;
 }
-body.panel #extension-version {
+body.panel #granted-permissions-span a {
 	color: #888;
 }
 body.panel h2 {
