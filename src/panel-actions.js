@@ -39,8 +39,8 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 			])
 		}
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
-		const makeLink=makeMakeLink(tabId)
 		const menuWriter=new MenuWriter(document,$menu)
+		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
 		if (permissions.otrs) {
 			const submenuWriter=menuWriter.addSubmenu(null,[
 				`Create ticket`
@@ -54,22 +54,20 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				}
 				if (issueData.reportedItem?.type=='user') {
 					submenuWriter.addActiveEntry(null,[
-						makeLink(createTicketUrl,text+` + scan user id`,()=>sendMessage({
-							action:'initiateNewTabAction',
-							tabAction:['ScrapeReportedItemThenCreateIssueTicket',tabId,issueData]
-						}))
+						menuLinkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
+							'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
+						])
 					])
 				}
 				submenuWriter.addActiveEntry(null,[
-					makeLink(createTicketUrl,text,()=>sendMessage({
-						action:'initiateNewTabAction',
-						tabAction:['CreateIssueTicket',tabId,issueData]
-					}))
+					menuLinkWriter.makeNewTabActionLink(text,createTicketUrl,[
+						'CreateIssueTicket',tabId,issueData
+					])
 				])
 			}
 			{
 				submenuWriter.addActiveEntry(null,[
-					makeLink(createTicketUrl,"empty")
+					menuLinkWriter.makePageLink("empty",createTicketUrl)
 				])
 			}
 		}
@@ -83,10 +81,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 					])
 					for (const [userName,userReportCounts] of userReportCountsMap) {
 						submenuWriter.addActiveEntry(null,[
-							makeLink(getUserMessageUrl(userName),userName,()=>sendMessage({
-								action:'initiateNewTabAction',
-								tabAction:['SendMessageFromIssueReports',tabId,issueData,userName]
-							})),
+							menuLinkWriter.makeNewTabActionLink(userName,getUserMessageUrl(userName),[
+								'SendMessageFromIssueReports',tabId,issueData,userName
+							]),
 							` - ${formatUserReportCounts(userReportCounts)} selected`
 						])
 					}
@@ -99,16 +96,15 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.otrs) {
 			if (tabState.type=='issue') {
 				const issueData=tabState.issueData
-				const numberNote='searching just for a number often yields unrelated results'
 				if (issueData.id!=null) {
 					const submenuWriter=menuWriter.addSubmenu(null,[
 						`Search OTRS for issue`
 					])
+					submenuWriter.addActiveEntry(null,makeNumberNote(
+						menuLinkWriter.makeOtrsSearchLink(issueData.id,settings.otrs)
+					))
 					submenuWriter.addActiveEntry(null,[
-						makeSearchLink(issueData.id,numberNote)
-					])
-					submenuWriter.addActiveEntry(null,[
-						makeSearchLink('issue '+issueData.id)
+						menuLinkWriter.makeOtrsSearchLink('issue '+issueData.id,settings.otrs)
 					])
 				}
 				if (issueData.reportedItem?.type=='user') {
@@ -116,33 +112,26 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						`Search OTRS for reported user`
 					])
 					submenuWriter.addActiveEntry(null,[
-						makeSearchLink(issueData.reportedItem.name)
+						menuLinkWriter.makeOtrsSearchLink(issueData.reportedItem.name,settings.otrs)
 					])
 					submenuWriter.addActiveEntry(null,[
-						makeSearchLink('user '+issueData.reportedItem.name)
+						menuLinkWriter.makeOtrsSearchLink('user '+issueData.reportedItem.name,settings.otrs)
 					])
 				}
 				if (issueData.reportedItem?.type=='note') {
 					const submenuWriter=menuWriter.addSubmenu(null,[
 						`Search OTRS for reported note`
 					])
+					submenuWriter.addActiveEntry(null,makeNumberNote(
+						menuLinkWriter.makeOtrsSearchLink(issueData.reportedItem.id,settings.otrs)
+					))
 					submenuWriter.addActiveEntry(null,[
-						makeSearchLink(issueData.reportedItem.id,numberNote)
-					])
-					submenuWriter.addActiveEntry(null,[
-						makeSearchLink('note '+issueData.reportedItem.id)
+						menuLinkWriter.makeOtrsSearchLink('note '+issueData.reportedItem.id,settings.otrs)
 					])
 				}
-				function makeSearchLink(query,note) {
-					const $a=makeLink(`${settings.otrs}otrs/index.pl?Action=AgentTicketSearch&Subaction=Search&Fulltext=${encodeURIComponent(query)}`)
-					$a.innerText=query
-					if (note!=null) {
-						const $note=document.createElement('span')
-						$note.innerText='(?)'
-						$note.title=note
-						$a.append(' ',$note)
-					}
-					return $a
+				function makeNumberNote($a) {
+					$a.title=`searching just for a number often yields unrelated results`
+					return [$a,` (?)`]
 				}
 			}
 		}
@@ -151,7 +140,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const issueData=tabState.issueData
 				if (issueData.id!=null) {
 					menuWriter.addActiveEntry(null,[
-						makeLink(issueData.url,`Go to ticket issue #${issueData.id}`)
+						menuLinkWriter.makePageLink(`Go to ticket issue #${issueData.id}`,issueData.url)
 					])
 				}
 			}
@@ -170,14 +159,9 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 						makeMessageLink('pending')
 					])
 					function makeMessageLink(addAs) {
-						return makeLink(
-							`${settings.osm}messages/${mailbox}`,
-							'as '+addAs,
-							()=>sendMessage({
-								action:'initiateNewTabAction',
-								tabAction:['GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox]
-							})
-						)
+						return menuLinkWriter.makeNewTabActionLink('as '+addAs,`${settings.osm}messages/${mailbox}`,[
+							'GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox
+						])
 					}
 				}
 			}
@@ -185,7 +169,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 		if (settings.osm) {
 			if (tabState.type=='user' && tabState.userData.id!=null) {
 				menuWriter.addActiveEntry(null,[
-					makeLink(tabState.userData.apiUrl,`Check user id #${tabState.userData.id}`)
+					menuLinkWriter.makePageLink(`Check user id #${tabState.userData.id}`,tabState.userData.apiUrl)
 				])
 			}
 		}
@@ -194,7 +178,7 @@ export default (document,closeWindow,createTab,sendMessage)=>{
 				const text=tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n') // TODO remove tags?
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 				menuWriter.addActiveEntry(null,[
-					makeLink(googleTranslateUrl,'translate issue text')
+					menuLinkWriter.makePageLink('Translate issue text',googleTranslateUrl)
 				])
 			}
 		}
