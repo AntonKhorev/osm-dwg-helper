@@ -136,7 +136,7 @@ export default class OtherMenu extends Menu {
 						const submenuWriter=writer.addSubmenu('issue-add',[
 							`Add to quick message to user ${userData.name}`
 						])
-						submenuWriter.addActiveEntry(null,[
+						submenuWriter.addActiveEntry({url:reportCounter.getUserAvatarUrl(userData.name)},[
 							linkWriter.makeImmediateCurrentTabActionLink(userData.name,'#',[
 								'AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name
 							]),

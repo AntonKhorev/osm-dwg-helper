@@ -45,7 +45,7 @@ export default class ReportCounter {
 	}
 
 	formatOtherUsersCount() {
-		const nOtherUsers=reportCounter.nUsers-1
+		const nOtherUsers=this.nUsers-1
 		return `${nOtherUsers} other ${plural(`user`,nOtherUsers)}`
 	}
 
