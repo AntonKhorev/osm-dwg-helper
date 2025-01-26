@@ -10,11 +10,23 @@ import iconData, * as icon from './src/icon.js'
 await fs.rm('dist',{recursive:true,force:true})
 await fs.mkdir('dist')
 for (const entry of await fs.readdir('src',{withFileTypes:true})) {
-	if (entry.isDirectory()) continue
-	await fs.copyFile(
-		path.join('src',entry.name),
-		path.join('dist',entry.name)
-	)
+	const srcPath=path.join('src',entry.name)
+	const dstPath=path.join('dist',entry.name)
+	if (entry.isDirectory()) {
+		if (entry.name=='content') continue
+		await fs.mkdir(dstPath)
+		for (const subEntry of await fs.readdir(srcPath,{withFileTypes:true})) {
+			const srcSubPath=path.join(srcPath,subEntry.name)
+			const dstSubPath=path.join(dstPath,subEntry.name)
+			if (subEntry.isDirectory()) {
+				continue
+			} else {
+				await fs.copyFile(srcSubPath,dstSubPath)
+			}
+		}
+	} else {
+		await fs.copyFile(srcPath,dstPath)
+	}
 }
 await fs.copyFile('node_modules/webextension-polyfill/dist/browser-polyfill.js','dist/browser-polyfill.js')
 

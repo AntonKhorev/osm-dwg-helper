@@ -1,3 +1,5 @@
+import GlobalMenu from './menu/global.js'
+
 import MenuWriter from './menu-writer.js'
 import MenuLinkWriter from './menu-link-writer.js'
 import OtrsMenuLinkWriter from './otrs-menu-link-writer.js'
@@ -7,28 +9,9 @@ import ReportCounter from './report-counter.js'
  * @returns [global, this tab, this+other tab] actions menu updater functions
  */
 export default (document,closeWindow,createTab,sendMessage)=>{
-	return [($menu,settings,permissions,tabId)=>{ // global actions
-		const menuWriter=new MenuWriter(document,$menu)
-		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
-		menuWriter.addActiveEntry(null,[
-			menuLinkWriter.makePageLink("Read 'dealing with issues' guide",`cookbook.html`)
-		])
-		if (settings.osm) {
-			menuWriter.addActiveEntry(null,[
-				menuLinkWriter.makePageLink("Go to open OSM issues",`${settings.osm}issues?status=open`)
-			])
-			menuWriter.addActiveEntry(null,[
-				menuLinkWriter.makePageLink("Go to blocks list",`${settings.osm}user_blocks`)
-			])
-		}
-		if (settings.otrs) {
-			const $icon=document.createElement('img')
-			$icon.src='icons/ticket.svg'
-			$icon.alt=''
-			menuWriter.addActiveEntry($icon,[
-				menuLinkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
-			])
-		}
+	const globalMenu=new GlobalMenu(document,closeWindow,createTab,sendMessage)
+	return [($menu,settings,permissions,tabId)=>{
+		globalMenu.update($menu,settings,permissions,tabId)
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
 		const menuWriter=new MenuWriter(document,$menu)
 		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
