@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','user','block','block-add','ticket','ticket-add','search']
+export const symbols=['void','message','message-add','issue','issue-add','user','block','block-add','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -23,6 +23,7 @@ export function svg(symbol,modifier) {
 	if (symbol=='ticket' || symbol=='ticket-add') content+=ticket()
 	if (symbol=='ticket-add' || symbol=='message-add' || symbol=='issue-add' || symbol=='block-add') content+=add()
 	if (symbol=='search') content+=search()
+	if (symbol=='translate') content+=translate()
 	if (symbol=='closed') content+=closedMarker()
 	if (symbol=='open') content+=openMarker()
 	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
@@ -95,6 +96,10 @@ function search() {
 		`<circle cx='${-s}' cy='${-s}' r='${r}' stroke='#755' fill='#44C4' />`+
 		`<line x1='${h}' y1='${h}' x2='14' y2='14' stroke='#755' stroke-width='4' />`
 	)
+}
+
+function translate() {
+	return `<path d='M-14,-11 H4 M-5,-11 V-14 M1,-11 Q0,0 -14,3 M-11,-11 Q-10,0 4,3 M-2,14 L4,0 C6,-4 6,-4 8,0 L14,14 M1,7 H11' stroke='#888' fill='none' />`
 }
 
 function closedMarker() {

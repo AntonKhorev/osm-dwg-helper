@@ -154,7 +154,7 @@ export default class ThisMenu extends Menu {
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=en&q=`+encodeURIComponent(text)
 				if (text.length>0) {
-					const submenuWriter=writer.addSubmenu(null,[
+					const submenuWriter=writer.addSubmenu('translate',[
 						`Translate `+reportCounter.formatSelectedReportsCount()
 					])
 					submenuWriter.addActiveEntry(null,[
