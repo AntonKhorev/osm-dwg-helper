@@ -1,4 +1,4 @@
-export default class Menu {
+export default class MenuWriter {
 	constructor(document,$menu) {
 		this.document=document
 		this.$menu=$menu
@@ -22,7 +22,7 @@ export default class Menu {
 			this.makeSlice($icon,$elements),
 			$subMenu
 		)
-		return new Menu(this.document,$subMenu)
+		return new MenuWriter(this.document,$subMenu)
 	}
 
 	// private

@@ -1,5 +1,5 @@
 import makeActionsMenuWriters from './panel-actions.js'
-import Menu from './menu.js'
+import MenuWriter from './menu.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
@@ -101,7 +101,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 function updateActionsOngoing(tabActionEntries) {
 	const $actions=document.getElementById('actions-ongoing')
 	$actions.innerHTML=""
-	const menu=new Menu(document,$actions)
+	const menuWriter=new MenuWriter(document,$actions)
 	for (const [tabId,singleTabActionEntries] of tabActionEntries) {
 		for (const [tabActionIndex,menuEntryElements] of singleTabActionEntries.entries()) {
 			const $elements=[]
@@ -132,7 +132,7 @@ function updateActionsOngoing(tabActionEntries) {
 				browser.runtime.sendMessage({action:'cancelTabAction',tabId,tabActionIndex}) // TODO actually use the index
 			})
 			$elements.push(` `,$switchButton,` `,$cancelButton)
-			menu.addPassiveEntry(null,$elements)
+			menuWriter.addPassiveEntry(null,$elements)
 		}
 	}
 }
