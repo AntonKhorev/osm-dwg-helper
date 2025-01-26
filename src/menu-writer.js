@@ -36,9 +36,14 @@ export default class MenuWriter {
 	makeSlice(icon,$elements,sliceClass='slice') {
 		const $sliceIcon=this.document.createElement('div')
 		$sliceIcon.classList.add('slice-icon')
-		if (icon) {
+		if (typeof icon == 'string') {
 			const $icon=this.document.createElement('img')
 			$icon.src=`icons/void/${icon}.svg`
+			$sliceIcon.append($icon)
+		} else if (icon && (typeof icon == 'object') && icon.url) {
+			const $icon=this.document.createElement('img')
+			$icon.width=$icon.height=16
+			$icon.src=icon.url
 			$sliceIcon.append($icon)
 		}
 		const $sliceEntry=this.document.createElement('div')

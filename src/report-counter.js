@@ -8,16 +8,16 @@ export default class ReportCounter {
 				this.nSelectedReports++
 				const userName=report.by
 				if (userName==null) continue
-				let userReportCounts={read:0, unread:0}
+				let userData={read:0, unread:0, avatarUrl:report.avatarUrl}
 				if (this.userMap.has(userName)) {
-					userReportCounts=this.userMap.get(userName)
+					userData=this.userMap.get(userName)
 				} else {
-					this.userMap.set(userName,userReportCounts)
+					this.userMap.set(userName,userData)
 				}
 				if (report.wasRead) {
-					userReportCounts.read++
+					userData.read++
 				} else {
-					userReportCounts.unread++
+					userData.unread++
 				}
 			}
 		}
@@ -36,11 +36,11 @@ export default class ReportCounter {
 	}
 
 	formatUserReportCounts(userName) {
-		const userReportCounts=this.userMap.get(userName)
+		const userData=this.userMap.get(userName)
 		const countTextFragments=[]
-		if (userReportCounts.unread>0) countTextFragments.push(`${userReportCounts.unread} new`)
-		if (userReportCounts.read>0) countTextFragments.push(`${userReportCounts.read} read`)
-		const totalUserReportCount=userReportCounts.unread+userReportCounts.read
+		if (userData.unread>0) countTextFragments.push(`${userData.unread} new`)
+		if (userData.read>0) countTextFragments.push(`${userData.read} read`)
+		const totalUserReportCount=userData.unread+userData.read
 		return countTextFragments.join(` and `)+` `+plural(`report`,totalUserReportCount)
 	}
 
@@ -51,6 +51,11 @@ export default class ReportCounter {
 
 	formatSelectedReportsCount() {
 		return `${this.nSelectedReports} selected `+plural(`report`,this.nSelectedReports)
+	}
+
+	getUserAvatarUrl(userName) {
+		const userData=this.userMap.get(userName)
+		if (userData) return userData.avatarUrl
 	}
 }
 

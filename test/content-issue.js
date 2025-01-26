@@ -152,7 +152,8 @@ describe("issue report module",()=>{
 			selected: false,
 			category: 'vandal',
 			by: 'fred',
-			byUrl: '/user/fred'
+			byUrl: '/user/fred',
+			avatarUrl: 'https://example.com/avatar.png'
 		})
 	})
 	it("processes lead with marked category and time",()=>{
@@ -176,7 +177,8 @@ describe("issue report module",()=>{
 			selected: false,
 			category: 'other',
 			by: 'fred',
-			byUrl: '/user/fred'
+			byUrl: '/user/fred',
+			avatarUrl: 'https://example.com/avatar.png'
 		})
 	})
 })
@@ -192,7 +194,7 @@ function prepareDocumentAndReport(lead,text,reportBlockClasses) {
 		<h4>New Reports</h4>
 		<div class="row">
 			<div class="col-auto">
-				<a href="/user/testuser"><img class="user_thumbnail border border-grey" alt="" width="50" height="50" src="/assets/avatar_small-d6bb1741f052ec0a1e536f01ad31c551aa25e42f35194bdc037e084382f0f278.png" /></a>
+				<a href="/user/testuser"><img class="user_thumbnail border border-grey" alt="" width="50" height="50" src="https://example.com/avatar.png" /></a>
 			</div>
 			<div class="col">
 				<p class="text-muted">
@@ -230,6 +232,7 @@ function assertReportTextWithUnmarkedLead(result,text) {
 		selected: false,
 		category: 'spam',
 		by: 'testuser',
-		byUrl: '/user/testuser'
+		byUrl: '/user/testuser',
+		avatarUrl: 'https://example.com/avatar.png'
 	})
 }

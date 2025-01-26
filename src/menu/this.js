@@ -44,7 +44,7 @@ export default class ThisMenu extends Menu {
 						`Quick message reporting user of issue #${issueData.id}`
 					])
 					for (const userName of reportCounter.userNames()) {
-						submenuWriter.addActiveEntry(null,[
+						submenuWriter.addActiveEntry({url:reportCounter.getUserAvatarUrl(userName)},[
 							linkWriter.makeNewTabActionLink(userName,getUserMessageUrl(userName),[
 								'SendMessageFromIssueReports',tabId,issueData,userName
 							]),

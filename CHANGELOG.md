@@ -2,6 +2,8 @@
 
 ## 0.7.0
 
+- Redesign menu with larger click areas and icons
+- User avatars in menu
 - Add LibreTranslate
 - Translate only selected reports
 

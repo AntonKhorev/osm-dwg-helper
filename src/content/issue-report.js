@@ -17,6 +17,8 @@ export default function processReport(document,$report,selected=false) {
 		text:'',
 		selected:$reportAvatarColumn.querySelector('.osm-dwg-helper-report-checkbox').checked
 	}
+	const $avatarImage=$reportAvatarColumn.querySelector('img')
+	if ($avatarImage) report.avatarUrl=$avatarImage.src
 	let firstParagraph=true
 	let lastTextParagraphWasEmpty=false
 	for (const $child of $reportMainColumn.children) {
