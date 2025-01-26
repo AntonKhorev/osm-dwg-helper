@@ -1,5 +1,5 @@
-export default function(type) {
-	const data=svg(type)
+export default function(symbol,modifier='void') {
+	const data=svg(symbol,modifier)
 	const encodedData=(typeof btoa !== 'undefined'
 		? btoa(data) // browser
 		: Buffer.from(data).toString('base64') // node.js
@@ -7,20 +7,23 @@ export default function(type) {
 	return "data:image/svg+xml;charset=utf-8;base64,"+encodedData
 }
 
-export const types=['message','message-add','issue','user','block','ticket','ticket-add']
+export const modifiers=['void','branded']
+
+export const symbols=['void','message','message-add','issue','user','block','ticket','ticket-add']
 
 export const uiBrandings=['closed','open','ticket']
 
-export function svg(type) {
-	let content=tabs()
-	if (type=='message' || type=='message-add') content+=envelope()
-	if (type=='issue') content+=flag()
-	if (type=='user' || type=='block') content+=avatar()
-	if (type=='block') content+=cross()
-	if (type=='ticket' || type=='ticket-add') content+=ticket()
-	if (type=='ticket-add' || type=='message-add') content+=add()
-	if (type=='closed') content+=closedMarker()
-	if (type=='open') content+=openMarker()
+export function svg(symbol,modifier) {
+	let content=''
+	if (modifier=='branded') content+=tabs()
+	if (symbol=='message' || symbol=='message-add') content+=envelope()
+	if (symbol=='issue') content+=flag()
+	if (symbol=='user' || symbol=='block') content+=avatar()
+	if (symbol=='block') content+=cross()
+	if (symbol=='ticket' || symbol=='ticket-add') content+=ticket()
+	if (symbol=='ticket-add' || symbol=='message-add') content+=add()
+	if (symbol=='closed') content+=closedMarker()
+	if (symbol=='open') content+=openMarker()
 	return `<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='-16 -16 32 32' stroke-width='2'>${content}</svg>`
 }
 

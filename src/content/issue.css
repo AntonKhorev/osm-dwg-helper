@@ -13,10 +13,10 @@
 	max-width: 960px;
 	padding: var(--pane-border-width) 20px;
 	margin: auto;
-	background: no-repeat left url(/icons/closed.svg);
+	background: no-repeat left url(/icons/branded/closed.svg);
 }
 .osm-dwg-helper-pane[open] > summary > span {
-	background-image: url(/icons/open.svg);
+	background-image: url(/icons/branded/open.svg);
 }
 .osm-dwg-helper-pane > div {
 	overflow: auto;
@@ -50,6 +50,6 @@
 	border: solid 1px #CCC;
 	border-top: none;
 	padding: 3px 3px 3px 19px;
-	background: no-repeat top 50% left 3px url(/icons/ticket.svg) #DDD;
+	background: no-repeat top 50% left 3px url(/icons/branded/ticket.svg) #DDD;
 	text-align: center;
 }

@@ -17,7 +17,7 @@ export default class GlobalMenu extends Menu {
 		}
 		if (settings.otrs) {
 			const $icon=this.document.createElement('img')
-			$icon.src='icons/ticket.svg'
+			$icon.src='icons/void/ticket.svg'
 			$icon.alt=''
 			writer.addActiveEntry($icon,[
 				linkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
