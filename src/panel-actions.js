@@ -1,4 +1,5 @@
 import GlobalMenu from './menu/global.js'
+import ThisMenu from './menu/this.js'
 
 import MenuWriter from './menu-writer.js'
 import MenuLinkWriter from './menu-link-writer.js'
@@ -10,153 +11,11 @@ import ReportCounter from './report-counter.js'
  */
 export default (document,closeWindow,createTab,sendMessage)=>{
 	const globalMenu=new GlobalMenu(document,closeWindow,createTab,sendMessage)
+	const thisMenu=new ThisMenu(document,closeWindow,createTab,sendMessage)
 	return [($menu,settings,permissions,tabId)=>{
 		globalMenu.update($menu,settings,permissions,tabId)
 	},($menu,settings,permissions,tabId,tabState)=>{ // this tab actions
-		const menuWriter=new MenuWriter(document,$menu)
-		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
-		if (permissions.otrs) {
-			const submenuWriter=menuWriter.addSubmenu(null,[
-				`Create ticket`
-			])
-			const createTicketUrl=`${settings.otrs}otrs/index.pl?Action=AgentTicketPhone`
-			if (tabState.type=='issue') {
-				const issueData=tabState.issueData
-				let text=`issue #${issueData.id}`
-				if (issueData.reportedItem) {
-					text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
-				}
-				if (issueData.reportedItem?.type=='user') {
-					submenuWriter.addActiveEntry(null,[
-						menuLinkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
-							'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
-						])
-					])
-				}
-				submenuWriter.addActiveEntry(null,[
-					menuLinkWriter.makeNewTabActionLink(text,createTicketUrl,[
-						'CreateIssueTicket',tabId,issueData
-					])
-				])
-			}
-			{
-				submenuWriter.addActiveEntry(null,[
-					menuLinkWriter.makePageLink("empty",createTicketUrl)
-				])
-			}
-		}
-		if (settings.osm) {
-			if (tabState.type=='issue') {
-				const issueData=tabState.issueData
-				const reportCounter=new ReportCounter(issueData)
-				if (reportCounter.nUsers>0) {
-					const submenuWriter=menuWriter.addSubmenu(null,[
-						`Quick message reporting user of issue #${issueData.id}`
-					])
-					for (const userName of reportCounter.userNames()) {
-						submenuWriter.addActiveEntry(null,[
-							menuLinkWriter.makeNewTabActionLink(userName,getUserMessageUrl(userName),[
-								'SendMessageFromIssueReports',tabId,issueData,userName
-							]),
-							` - ${reportCounter.formatUserReportCounts(userName)} selected`
-						])
-					}
-				}
-				function getUserMessageUrl(userName) {
-					return settings.osm+'message/new/'+encodeURIComponent(userName)
-				}
-			}
-		}
-		if (settings.otrs) {
-			const otrsMenuLinkWriter=new OtrsMenuLinkWriter(menuLinkWriter,settings.otrs)
-			if (tabState.type=='issue') {
-				const issueData=tabState.issueData
-				if (issueData.id!=null) {
-					const submenuWriter=menuWriter.addSubmenu(null,[
-						`Search OTRS for issue`
-					])
-					submenuWriter.addActiveEntry(null,makeNumberNote(
-						otrsMenuLinkWriter.makeSearchLink(issueData.id)
-					))
-					submenuWriter.addActiveEntry(null,[
-						otrsMenuLinkWriter.makeSearchLink('issue '+issueData.id)
-					])
-				}
-				if (issueData.reportedItem?.type=='user') {
-					const submenuWriter=menuWriter.addSubmenu(null,[
-						`Search OTRS for reported user`
-					])
-					submenuWriter.addActiveEntry(null,[
-						otrsMenuLinkWriter.makeSearchLink(issueData.reportedItem.name)
-					])
-					submenuWriter.addActiveEntry(null,[
-						otrsMenuLinkWriter.makeSearchLink('user '+issueData.reportedItem.name)
-					])
-				}
-				if (issueData.reportedItem?.type=='note') {
-					const submenuWriter=menuWriter.addSubmenu(null,[
-						`Search OTRS for reported note`
-					])
-					submenuWriter.addActiveEntry(null,makeNumberNote(
-						otrsMenuLinkWriter.makeSearchLink(issueData.reportedItem.id)
-					))
-					submenuWriter.addActiveEntry(null,[
-						otrsMenuLinkWriter.makeSearchLink('note '+issueData.reportedItem.id)
-					])
-				}
-				function makeNumberNote($a) {
-					$a.title=`searching just for a number often yields unrelated results`
-					return [$a,` (?)`]
-				}
-			}
-		}
-		if (settings.osm) {
-			if (tabState.type=='ticket' && tabState.issueData) {
-				const issueData=tabState.issueData
-				if (issueData.id!=null) {
-					menuWriter.addActiveEntry(null,[
-						menuLinkWriter.makePageLink(`Go to ticket issue #${issueData.id}`,issueData.url)
-					])
-				}
-			}
-		}
-		if (permissions.otrs && permissions.osm) {
-			if (tabState.type=='ticket') {
-				for (const mailbox of ['outbox','inbox']) {
-					const ticketData=tabState.ticketData
-					const submenuWriter=menuWriter.addSubmenu(null,[
-						`Add last ${mailbox} message to ticket`
-					])
-					submenuWriter.addActiveEntry(null,[
-						makeMessageLink('note')
-					])
-					submenuWriter.addActiveEntry(null,[
-						makeMessageLink('pending')
-					])
-					function makeMessageLink(addAs) {
-						return menuLinkWriter.makeNewTabActionLink('as '+addAs,`${settings.osm}messages/${mailbox}`,[
-							'GoToLastMessageThenAddMessageToTicket',tabId,ticketData.id,addAs,mailbox
-						])
-					}
-				}
-			}
-		}
-		if (settings.osm) {
-			if (tabState.type=='user' && tabState.userData.id!=null) {
-				menuWriter.addActiveEntry(null,[
-					menuLinkWriter.makePageLink(`Check user id #${tabState.userData.id}`,tabState.userData.apiUrl)
-				])
-			}
-		}
-		{
-			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
-				const text=tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n') // TODO remove tags?
-				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
-				menuWriter.addActiveEntry(null,[
-					menuLinkWriter.makePageLink('Translate issue text',googleTranslateUrl)
-				])
-			}
-		}
+		thisMenu.update($menu,settings,permissions,tabId,tabState)
 	},($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)=>{ // this+other tab actions
 		const menuWriter=new MenuWriter(document,$menu)
 		const menuLinkWriter=new MenuLinkWriter(document,closeWindow,createTab,sendMessage,tabId)
