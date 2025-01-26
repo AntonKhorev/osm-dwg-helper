@@ -74,6 +74,7 @@ body.panel ul.actions .passive-slice {
 	position: relative;
 	padding: .25rem .5rem;
 	gap: .25rem;
+	line-height: 16px;
 }
 body.panel ul.actions .slice .slice-icon, 
 body.panel ul.actions .passive-slice .slice-icon {
