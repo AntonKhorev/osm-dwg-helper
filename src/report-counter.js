@@ -1,9 +1,11 @@
 export default class ReportCounter {
 	constructor(issueData) {
+		this.nSelectedReports=0
 		this.userMap=new Map()
 		if (issueData.reports) {
 			for (const report of issueData.reports) {
 				if (!report.selected) continue
+				this.nSelectedReports++
 				const userName=report.by
 				if (userName==null) continue
 				let userReportCounts={read:0, unread:0}
@@ -45,6 +47,10 @@ export default class ReportCounter {
 	formatOtherUsersCount() {
 		const nOtherUsers=reportCounter.nUsers-1
 		return `${nOtherUsers} other ${plural(`user`,nOtherUsers)}`
+	}
+
+	formatSelectedReportsCount() {
+		return `${this.nSelectedReports} selected `+plural(`report`,this.nSelectedReports)
 	}
 }
 

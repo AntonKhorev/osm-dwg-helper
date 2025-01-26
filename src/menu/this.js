@@ -140,11 +140,11 @@ export default class ThisMenu extends Menu {
 		}
 		{
 			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
-				let selectedReports=0
+				const issueData=tabState.issueData
+				const reportCounter=new ReportCounter(issueData)
 				const inputReportTexts=[]
-				for (const report of tabState.issueData.reports) {
+				for (const report of issueData.reports) {
 					if (!report.selected) continue
-					selectedReports++
 					const doc=new DOMParser().parseFromString(report.text,'text/html')
 					const strippedReportText=doc.body.textContent||''
 					if (strippedReportText.length==0) continue
@@ -153,9 +153,9 @@ export default class ThisMenu extends Menu {
 				const text=inputReportTexts.join('\n\n---\n\n')
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=en&q=`+encodeURIComponent(text)
-				if (selectedReports>0) {
+				if (text.length>0) {
 					const submenuWriter=writer.addSubmenu(null,[
-						`Translate ${selectedReports} selected report(s)`
+						`Translate `+reportCounter.formatSelectedReportsCount()
 					])
 					submenuWriter.addActiveEntry(null,[
 						linkWriter.makePageLink(`with Google Translate`,googleTranslateUrl)
