@@ -80,6 +80,7 @@ body.panel ul.actions .slice .slice-icon,
 body.panel ul.actions .passive-slice .slice-icon {
 	width: 16px;
 	height: 16px;
+	flex-shrink: 0;
 }
 body.panel ul.actions ul .slice,
 body.panel ul.actions ul .passive-slice {
