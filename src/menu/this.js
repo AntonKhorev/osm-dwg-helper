@@ -143,7 +143,7 @@ export default class ThisMenu extends Menu {
 				const doc = new DOMParser().parseFromString(tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n'), 'text/html')
 				const text=doc.body.textContent || ''
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
-				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=de&q=`+encodeURIComponent(text)
+				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=en&q=`+encodeURIComponent(text)
 				writer.addActiveEntry(null,[
 					linkWriter.makePageLink('Translate issue text (Google)',googleTranslateUrl)
 				])
