@@ -140,16 +140,30 @@ export default class ThisMenu extends Menu {
 		}
 		{
 			if (tabState.type=='issue' && tabState.issueData?.reports && tabState.issueData.reports.length>0) {
-				const doc = new DOMParser().parseFromString(tabState.issueData.reports.map(report=>report.text).join('\n\n---\n\n'), 'text/html')
-				const text=doc.body.textContent || ''
+				let selectedReports=0
+				const inputReportTexts=[]
+				for (const report of tabState.issueData.reports) {
+					if (!report.selected) continue
+					selectedReports++
+					const doc=new DOMParser().parseFromString(report.text,'text/html')
+					const strippedReportText=doc.body.textContent||''
+					if (strippedReportText.length==0) continue
+					inputReportTexts.push(strippedReportText)
+				}
+				const text=inputReportTexts.join('\n\n---\n\n')
 				const googleTranslateUrl=`https://translate.google.com/?sl=auto&tl=en&op=translate&text=`+encodeURIComponent(text)
 				const libreTranslateUrl=`https://libretranslate.com/?source=auto&target=en&q=`+encodeURIComponent(text)
-				writer.addActiveEntry(null,[
-					linkWriter.makePageLink('Translate issue text (Google)',googleTranslateUrl)
-				])
-				writer.addActiveEntry(null,[
-					linkWriter.makePageLink('Translate issue text (LibreTranslate)',libreTranslateUrl)
-				])
+				if (selectedReports>0) {
+					const submenuWriter=writer.addSubmenu(null,[
+						`Translate ${selectedReports} selected report(s)`
+					])
+					submenuWriter.addActiveEntry(null,[
+						linkWriter.makePageLink(`with Google Translate`,googleTranslateUrl)
+					])
+					submenuWriter.addActiveEntry(null,[
+						linkWriter.makePageLink(`with LibreTranslate`,libreTranslateUrl)
+					])
+				}
 			}
 		}
 	}

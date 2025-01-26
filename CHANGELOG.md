@@ -2,6 +2,9 @@
 
 ## 0.7.0
 
+- Add LibreTranslate
+- Translate only selected reports
+
 ## 0.6.12
 
 - Fix *Quick message* not proceeding to issue comment after landing on `/messages/outbox`
