@@ -10,6 +10,10 @@
 		color: #CAC;
 	}
 }
+ul.with-none:empty::before {
+	content: "(none)";
+	color: #888;
+}
 
 body.panel {
 	min-width: 15rem;
@@ -112,10 +116,6 @@ body.panel span[title] {
 	text-decoration: underline dashed;
 }
 
-ul:empty::before {
-	content: "(none)";
-	color: gray;
-}
 #warning:not(:empty) {
 	margin: .5em 0;
 	padding: 1em;
