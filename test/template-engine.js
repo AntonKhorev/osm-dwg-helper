@@ -23,3 +23,14 @@ describe("template engine / evaluateHtml()",()=>{
 		assert.equal(result,"before(1357)after\n")
 	})
 })
+
+describe("template engine / evaluateMarkdown()",()=>{
+	it("escapes brackets",()=>{
+		const result=templateEngine.evaluateKramdown("User [${user.name}](${user.url})",{user:{name:"Bobby ] Brackets",url:"https://example.com/bobby_brackets"}})
+		assert.equal(result,"User [Bobby \\] Brackets](https://example.com/bobby_brackets)\n")
+	})
+	it("escapes multiple brackets",()=>{
+		const result=templateEngine.evaluateKramdown("User [${user.name}](${user.url})",{user:{name:"Bobby [[ Lotsa ]] Brackets",url:"https://example.com/bobby_brackets"}})
+		assert.equal(result,"User [Bobby \\[\\[ Lotsa \\]\\] Brackets](https://example.com/bobby_brackets)\n")
+	})
+})

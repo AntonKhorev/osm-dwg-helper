@@ -33,3 +33,11 @@ export function evaluate(template,values,escapeFn=s=>s) {
 export function evaluateHtml(template,values) {
 	return evaluate(template,values,escapeHtml)+'\n'
 }
+
+/**
+ * @param template {string} - Template string with js-like placeholders ${keypath}; keypath is usually something like object.property
+ * @param values {Object} - Object with possible values to substitute; this function escapes all values before substituting
+ */
+export function evaluateKramdown(template,values) {
+	return evaluate(template,values,s=>escapeHtml(s.replaceAll('[','\\[').replaceAll(']','\\]')))+'\n'
+}

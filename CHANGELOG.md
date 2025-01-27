@@ -2,6 +2,8 @@
 
 ## 0.7.1
 
+- Support usernames with `[`/`]` brackets in quick messages
+
 ## 0.7.0
 
 - Redesign menu with larger click areas and icons

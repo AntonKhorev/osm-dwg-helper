@@ -33,11 +33,11 @@ export function getUserMessageBody(settings,issueData,userName) {
 	if (!issueData.reports) return ''
 	let itemLead
 	if (issueData.reportedItem?.type=='user') {
-		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item_user,{user:issueData.reportedItem})
+		itemLead=templateEngine.evaluateKramdown(settings.issue_message_body_item_user,{user:issueData.reportedItem})
 	} else if (issueData.reportedItem?.type=='note') {
-		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item_note,{note:issueData.reportedItem})
+		itemLead=templateEngine.evaluateKramdown(settings.issue_message_body_item_note,{note:issueData.reportedItem})
 	} else {
-		itemLead=templateEngine.evaluateHtml(settings.issue_message_body_item,{item:issueData.reportedItem})
+		itemLead=templateEngine.evaluateKramdown(settings.issue_message_body_item,{item:issueData.reportedItem})
 	}
 	let body=''
 	for (const report of issueData.reports) {
