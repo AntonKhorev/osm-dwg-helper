@@ -72,29 +72,25 @@ body.panel ul.actions li {
 body.panel ul.actions li ul li:last-child {
 	border-bottom: none;
 }
-body.panel ul.actions .slice,
-body.panel ul.actions .passive-slice {
+body.panel ul.actions .slice {
 	display: flex;
 	position: relative;
 	padding: .25rem .5rem;
 	gap: .25rem;
 	line-height: 16px;
 }
-body.panel ul.actions .slice .slice-icon,
-body.panel ul.actions .passive-slice .slice-icon {
+body.panel ul.actions .slice .slice-icon {
 	width: 16px;
 	height: 16px;
 	flex-shrink: 0;
 }
-body.panel ul.actions .slice .slice-icon img,
-body.panel ul.actions .passive-slice .slice-icon img {
+body.panel ul.actions .slice .slice-icon img {
 	object-fit: contain;
 }
-body.panel ul.actions ul .slice,
-body.panel ul.actions ul .passive-slice {
+body.panel ul.actions ul .slice {
 	padding-inline-start: calc(.5rem + 16px + .25rem);
 }
-body.panel ul.actions .slice:hover {
+body.panel ul.actions .slice:has(a:hover) {
 	background: #8882;
 }
 body.panel ul.actions .slice a::after {

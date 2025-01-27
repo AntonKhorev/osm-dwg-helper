@@ -12,14 +12,14 @@ export default class MenuWriter {
 
 	addPassiveEntry(icon,$elements) {
 		this.addItems(
-			this.makeSlice(icon,$elements,'passive-slice')
+			this.makeSlice(icon,$elements)
 		)
 	}
 
 	addSubmenu(icon,$elements) {
 		const $subMenu=this.document.createElement('ul')
 		this.addItems(
-			this.makeSlice(icon,$elements,'passive-slice'),
+			this.makeSlice(icon,$elements),
 			$subMenu
 		)
 		return new MenuWriter(this.document,$subMenu)
@@ -33,7 +33,7 @@ export default class MenuWriter {
 		this.$menu.append($li)
 	}
 
-	makeSlice(icon,$elements,sliceClass='slice') {
+	makeSlice(icon,$elements) {
 		const $sliceIcon=this.document.createElement('div')
 		$sliceIcon.classList.add('slice-icon')
 		const iconSrc=getIconSrc(icon)
@@ -47,7 +47,7 @@ export default class MenuWriter {
 		$sliceEntry.classList.add('slice-entry')
 		$sliceEntry.append(...$elements)
 		const $slice=this.document.createElement('div')
-		$slice.classList.add(sliceClass)
+		$slice.classList.add('slice')
 		$slice.append($sliceIcon,$sliceEntry)
 		return $slice
 	}

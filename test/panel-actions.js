@@ -39,10 +39,7 @@ const getSliceLink=($slice)=>{
 const getItemSlice=($li)=>{
 	const $slice=$li.firstElementChild
 	if (!$slice) return
-	if (
-		!$slice.classList.contains('slice') &&
-		!$slice.classList.contains('passive-slice')
-	) return
+	if (!$slice.classList.contains('slice')) return
 	return $slice
 }
 const getItemLink=($li)=>{
