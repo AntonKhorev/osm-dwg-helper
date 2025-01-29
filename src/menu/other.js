@@ -150,6 +150,18 @@ export default class OtherMenu extends Menu {
 					}
 				}
 			}
+			if (tabState.type=='block-add' && otherTabState.type=='ticket') {
+				const ticketData=otherTabState.ticketData
+				const subject=`[Ticket#${ticketData.number}]`
+				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`
+				writer.addActiveEntry('ticket-add',[
+					linkWriter.makePageLink(
+						`Add ticket email`,
+						url
+					)
+				])
+				// TODO navigator.clipboard.writeText()
+			}
 		}
 	}
 }

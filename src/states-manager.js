@@ -203,9 +203,11 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 	if (settings.otrs) {
 		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
 		if (ticketId!=null) {
+			const [number]=tab.title.match(/^\d+/)
 			tabState.type='ticket'
 			tabState.ticketData={
 				id:ticketId,
+				number,
 				url:tab.url
 			}
 			tabState.issueData={}
