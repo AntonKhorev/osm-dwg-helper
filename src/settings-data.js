@@ -1,6 +1,7 @@
 export default [
 	"Main settings",
 	['otrs','https://otrs.openstreetmap.org/',"OTRS root URL",{type:'url',state:true,origin:true}],
+	['otrs_email','data@otrs.openstreetmap.org',"Inbound email for OTRS tickets"],
 	['osm','https://www.openstreetmap.org/',"OpenStreetMap root URL",{type:'url',state:true,origin:true}],
 	['osm_api','https://api.openstreetmap.org/',"OpenStreetMap API root URL",{type:'url',state:true,note:"to make a link to user id"}],
 	['osmcha','https://osmcha.org/',"OSMCha root URL",{type:'url',state:true,origin:true,note:"for frame embeds on issue page"}],
