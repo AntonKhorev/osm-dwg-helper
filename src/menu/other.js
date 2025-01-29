@@ -154,13 +154,14 @@ export default class OtherMenu extends Menu {
 				const ticketData=otherTabState.ticketData
 				const subject=`[Ticket#${ticketData.number}]`
 				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`
+				const mailKramdown=`[${settings.otrs_email}](${url})`
 				writer.addActiveEntry('ticket-add',[
-					linkWriter.makePageLink(
-						`Add ticket email`,
-						url
+					linkWriter.makeLink(
+						`Copy ticket email link to clipboard`,
+						url,
+						()=>navigator.clipboard.writeText(mailKramdown)
 					)
 				])
-				// TODO navigator.clipboard.writeText()
 			}
 		}
 	}
