@@ -15,6 +15,11 @@ export function getOsmBlockIdFromUrl(osmRoot,url) {
 	return getIdFromUrl(osmRoot+'user_blocks/',url)
 }
 
+export function isOsmNewBlockUrl(osmRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'user_blocks/new/'))
+	return !!match
+}
+
 export function isOsmUserUrl(osmRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(osmRoot)+'user/[^/]+$'))
 	return !!match
