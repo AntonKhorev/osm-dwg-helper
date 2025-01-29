@@ -153,8 +153,10 @@ export default class OtherMenu extends Menu {
 			if (tabState.type=='block-add' && otherTabState.type=='ticket') {
 				const ticketData=otherTabState.ticketData
 				const subject=`[Ticket#${ticketData.number}]`
+				const [_,angledEmailPart]=settings.otrs_email.match(/<(.+)>/)
+				const plainEmail=angledEmailPart||settings.otrs_email
 				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`
-				const mailKramdown=`[${settings.otrs_email}](${url})`
+				const mailKramdown=`[${plainEmail}](${url})`
 				writer.addActiveEntry('ticket-add',[
 					linkWriter.makeLink(
 						`Copy ticket email link to clipboard`,
