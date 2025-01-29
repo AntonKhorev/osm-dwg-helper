@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "OSM DWG Helper",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "Tools for OSM issues and OTRS tickets",
 	"homepage_url": "https://github.com/AntonKhorev/osm-dwg-helper",
 	"author": "Anton Khorev",

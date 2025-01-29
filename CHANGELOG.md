@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.2
+
 ## 0.7.1
 
 - Support usernames with `[`/`]` brackets in quick messages
