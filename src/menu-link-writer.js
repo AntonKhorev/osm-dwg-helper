@@ -69,7 +69,7 @@ export default class MenuLinkWriter {
 		$a.href=href
 		$a.addEventListener('click',ev=>{
 			ev.preventDefault()
-			clickHandler()
+			clickHandler(ev)
 			this.closeWindow()
 		})
 		return $a

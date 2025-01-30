@@ -164,7 +164,10 @@ export default class OtherMenu extends Menu {
 					linkWriter.makeLink(
 						`Copy ticket email link to clipboard`,
 						url,
-						()=>navigator.clipboard.writeText(mailKramdown)
+						async(ev)=>{
+							await navigator.clipboard.writeText(mailKramdown)
+							ev.target.textContent=`Copied ticket email link ✓`
+						}
 					)
 				])
 			}
