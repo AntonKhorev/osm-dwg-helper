@@ -1,10 +1,12 @@
 export default [
 	"Main settings",
 	['otrs','https://otrs.openstreetmap.org/',"OTRS root URL",{type:'url',state:true,origin:true}],
-	['otrs_email','Data Working Group <data@otrs.openstreetmap.org>',"Inbound email for OTRS tickets"],
 	['osm','https://www.openstreetmap.org/',"OpenStreetMap root URL",{type:'url',state:true,origin:true}],
 	['osm_api','https://api.openstreetmap.org/',"OpenStreetMap API root URL",{type:'url',state:true,note:"to make a link to user id"}],
 	['osmcha','https://osmcha.org/',"OSMCha root URL",{type:'url',state:true,origin:true,note:"for frame embeds on issue page"}],
+	"OTRS email link generation",
+	['otrs_email','Data Working Group <data@otrs.openstreetmap.org>',"Inbound email for OTRS tickets"],
+	['otrs_email_block_subject',`[Ticket#\${ticket.number}] "\${user.name}" account block`,"Subject template for email link offered to blocked users"],
 	"OTRS ticket creation from OSM issues",
 	['ticket_customer',`\${user.name} <fwd@dwgmail.info>`,"Customer template",{note:"usually needs to be email-like for OTRS not to complain"}],
 	['ticket_subject',`Issue #\${issue.id}`,"Subject template for generic reported item"],

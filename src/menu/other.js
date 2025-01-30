@@ -1,5 +1,6 @@
 import Menu from './base.js'
 import ReportCounter from '../report-counter.js'
+import * as templateEngine from '../template-engine.js'
 
 export default class OtherMenu extends Menu {
 	update($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState) {
@@ -151,8 +152,10 @@ export default class OtherMenu extends Menu {
 				}
 			}
 			if (tabState.type=='block-add' && otherTabState.type=='ticket') {
+				const userData=tabState.userData
 				const ticketData=otherTabState.ticketData
-				const subject=`[Ticket#${ticketData.number}]`
+				const templateValues={ticket:ticketData,user:userData}
+				const subject=templateEngine.evaluate(settings.otrs_email_block_subject,templateValues)
 				const [_,angledEmailPart]=settings.otrs_email.match(/<(.+)>/)
 				const plainEmail=angledEmailPart||settings.otrs_email
 				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`

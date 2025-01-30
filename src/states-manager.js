@@ -6,7 +6,7 @@ import {
 	getOsmIssueIdFromUrl,
 	isOsmUserUrl,
 	getOsmBlockIdFromUrl,
-	isOsmNewBlockUrl,
+	getOsmNewBlockUserNameFromUrl,
 	getOtrsTicketId,
 	isOtrsActionUrl
 } from './utils.js'
@@ -195,9 +195,12 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 		}
 	}
 	if (settings.osm) {
-		if (isOsmNewBlockUrl(settings.osm,tab.url)) {
+		const userName=getOsmNewBlockUserNameFromUrl(settings.osm,tab.url)
+		if (userName!=null) {
 			tabState.type='block-add'
-			tabState.userData={}
+			tabState.userData={
+				name:userName
+			}
 		}
 	}
 	if (settings.otrs) {
