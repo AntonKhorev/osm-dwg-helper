@@ -118,4 +118,75 @@ describe("StatesManager",()=>{
 			assert.equal(tabStates[23].type,'message')
 		}
 	})
+	it("doesn't set other tab to previous when activating the same tab",async()=>{
+		const settings={
+			osm: `https://myosm.org/`,
+		}
+		const permissions={}
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
+		{
+			const tab={id:12, url:`http://example.com/`, active:true}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,undefined)
+		}
+		{
+			const tab={id:12, url:`http://example.com/`, active:true}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,undefined)
+		}
+	})
+	it("clears other tab when removing highlight",async()=>{
+		const settings={
+			osm: `https://myosm.org/`,
+		}
+		const permissions={}
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
+		{
+			const tab={id:12, url:`http://example.com/`, active:true}
+			const otherTab={id:23, url:`https://myosm.org/messages/321`, active:true}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,otherTab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,23)
+			assert.equal(tabStates[23].type,'message')
+		}
+		{
+			const tab={id:12, url:`http://example.com/`, active:true}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,undefined)
+		}
+	})
+	it("sets tab to previous activated when removing highlight and activating new tab",async()=>{
+		const settings={
+			osm: `https://myosm.org/`,
+		}
+		const permissions={}
+		const [tabMessenger,testAfterTabMessenger]=makeMessageTabTest()
+		const statesManager=new StatesManager(tabMessenger)
+		{
+			const tab={id:12, url:`http://example.com/`, active:true}
+			const otherTab={id:23, url:`https://myosm.org/messages/321`, active:false}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,otherTab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[12])
+			assert.equal(otherTabId,23)
+			assert.equal(tabStates[23].type,'message')
+		}
+		{
+			const tab={id:42, url:`https://myosm.org/issues/654`, active:true}
+			const [tabIds,otherTabId,tabStates]=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
+			testAfterTabMessenger()
+			assert.deepEqual(tabIds,[42])
+			assert.equal(otherTabId,12)
+			assert.equal(tabStates[42].type,'issue')
+		}
+	})
 })
