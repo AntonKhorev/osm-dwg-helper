@@ -1,3 +1,4 @@
+import goToTicketParser from './go-to-ticket-parser.js'
 import {makeOtrsTicketUrlFromId, makeOtrsTicketUrlFromNumber} from './utils.js'
 
 export default function ($form,settings,tabId,closeWindow,createTab) {
@@ -5,15 +6,16 @@ export default function ($form,settings,tabId,closeWindow,createTab) {
 		$form.hidden=false
 		$form.onsubmit=(ev)=>{
 			ev.preventDefault()
-			const sampleTicketNumber="2025012910000012"
-			const value=ev.target.ticket.value
+			const parsedValue=goToTicketParser(ev.target.ticket.value)
 			let url
-			if (value.length<sampleTicketNumber.length) {
-				url=makeOtrsTicketUrlFromId(settings.otrs,value)
-			} else {
-				url=makeOtrsTicketUrlFromNumber(settings.otrs,value)
+			if (parsedValue.id) {
+				url=makeOtrsTicketUrlFromId(settings.otrs,parsedValue.id)
+			} else if (parsedValue.number) {
+				url=makeOtrsTicketUrlFromNumber(settings.otrs,parsedValue.number)
 			}
-			createTab({openerTabId:tabId,url})
+			if (url) {
+				createTab({openerTabId:tabId,url})
+			}
 			closeWindow()
 		}
 	} else {
