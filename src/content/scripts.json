@@ -24,6 +24,7 @@
 		"addMessageSubjectAndBody":["subject","body"]
 	},
 	"ticket":{
+		"getTicketId":[],
 		"getIssueId":[]
 	},
 	"ticket-article":{

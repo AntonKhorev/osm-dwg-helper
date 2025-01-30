@@ -1,3 +1,7 @@
+export function getTicketId(document) {
+	return document.querySelector("ul.Actions form")?.TicketID?.value
+}
+
 export function getIssueId(document) {
 	const $h1=document.querySelector('h1')
 	if (!$h1) return

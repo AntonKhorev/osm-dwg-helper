@@ -7,7 +7,7 @@ import {
 	isOsmUserUrl,
 	getOsmBlockIdFromUrl,
 	getOsmNewBlockUserNameFromUrl,
-	getOtrsTicketId,
+	isOtrsTicketUrl, getOtrsTicketId,
 	isOtrsActionUrl
 } from './utils.js'
 
@@ -219,22 +219,27 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 		}
 	}
 	if (settings.otrs) {
-		const ticketId=getOtrsTicketId(settings.otrs,tab.url)
-		if (ticketId!=null) {
-			const [number]=tab.title.match(/^\d+/)
-			tabState.type='ticket'
-			tabState.ticketData={
-				id:ticketId,
-				number,
-				url:tab.url
+		if (isOtrsTicketUrl(settings.otrs,tab.url)) {
+			let ticketId=getOtrsTicketId(settings.otrs,tab.url)
+			if (!ticketId && permissions.otrs) {
+				ticketId=await messageTab(tab.id,'ticket',{action:'getTicketId'})
 			}
-			tabState.issueData={}
-			if (settings.osm && permissions.otrs) {
-				const contentIssueId=await messageTab(tab.id,'ticket',{action:'getIssueId'})
-				if (contentIssueId!=null) {
-					tabState.issueData={
-						id:contentIssueId,
-						url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+			if (ticketId) {
+				tabState.type='ticket'
+				const [ticketNumber]=tab.title.match(/^\d+/)
+				tabState.ticketData={
+					id:ticketId,
+					number:ticketNumber,
+					url:tab.url
+				}
+				tabState.issueData={}
+				if (settings.osm && permissions.otrs) {
+					const contentIssueId=await messageTab(tab.id,'ticket',{action:'getIssueId'})
+					if (contentIssueId!=null) {
+						tabState.issueData={
+							id:contentIssueId,
+							url:`${settings.osm}issues/${encodeURIComponent(contentIssueId)}`
+						}
 					}
 				}
 			}

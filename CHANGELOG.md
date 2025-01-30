@@ -3,6 +3,7 @@
 ## 0.7.3
 
 - Select other tab using browser tab highlight (Ctrl/Shift+click)
+- Support `TicketNumber` OTRS ticket urls
 
 ## 0.7.2
 
