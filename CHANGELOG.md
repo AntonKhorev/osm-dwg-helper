@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.4
+
 ## 0.7.3
 
 - Select other tab using browser tab highlight (Ctrl/Shift+click)
