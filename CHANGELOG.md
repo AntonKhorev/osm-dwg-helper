@@ -2,6 +2,8 @@
 
 ## 0.7.3
 
+- Select other tab using browser tab highlight (Ctrl/Shift+click)
+
 ## 0.7.2
 
 - Copy OTRS reply email address when creating new blocks
