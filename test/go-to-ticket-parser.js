@@ -3,6 +3,18 @@ import {strict as assert} from 'assert'
 import goToTicketParser from '../src/go-to-ticket-parser.js'
 
 describe("goToTicketParser()",()=>{
+	it("parses empty string",()=>{
+		assert.deepEqual(
+			goToTicketParser(""),
+			{}
+		)
+	})
+	it("parses string without number",()=>{
+		assert.deepEqual(
+			goToTicketParser("foo"),
+			{}
+		)
+	})
 	it("parses pure id",()=>{
 		assert.deepEqual(
 			goToTicketParser("123"),

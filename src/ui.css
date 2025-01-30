@@ -50,6 +50,9 @@ body.panel #granted-permissions-span {
 body.panel #granted-permissions-span a {
 	color: #888;
 }
+body.panel #go-to-ticket input:invalid {
+	box-shadow: 0 0 0 4px #F008;
+}
 body.panel h2 {
 	margin: .5rem;
 	margin-inline-start: calc(.5rem + 16px + .25rem);

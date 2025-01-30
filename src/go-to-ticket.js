@@ -4,9 +4,19 @@ import {makeOtrsTicketUrlFromId, makeOtrsTicketUrlFromNumber} from './utils.js'
 export default function ($form,settings,tabId,closeWindow,createTab) {
 	if (settings.otrs) {
 		$form.hidden=false
+		$form.ticket.oninput=()=>{
+			const value=$form.ticket.value
+			const parsedValue=goToTicketParser(value)
+			if (value=="" || parsedValue.id || parsedValue.number) {
+				$form.ticket.setCustomValidity("")
+			} else {
+				$form.ticket.setCustomValidity("ticket id or number required")
+			}
+		}
 		$form.onsubmit=(ev)=>{
 			ev.preventDefault()
-			const parsedValue=goToTicketParser(ev.target.ticket.value)
+			const value=$form.ticket.value
+			const parsedValue=goToTicketParser(value)
 			let url
 			if (parsedValue.id) {
 				url=makeOtrsTicketUrlFromId(settings.otrs,parsedValue.id)
@@ -15,11 +25,12 @@ export default function ($form,settings,tabId,closeWindow,createTab) {
 			}
 			if (url) {
 				createTab({openerTabId:tabId,url})
+				closeWindow()
 			}
-			closeWindow()
 		}
 	} else {
 		$form.hidden=true
+		$form.ticket.oninput=undefined
 		$form.onsubmit=(ev)=>{
 			ev.preventDefault()
 		}
