@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.3
+
 ## 0.7.2
 
 - Copy OTRS reply email address when creating new blocks
