@@ -18,15 +18,18 @@ ul.with-none:empty::before {
 body.panel {
 	min-width: 15rem;
 }
-body.panel #lead-slice {
+body.panel .lead-slice:not([hidden]) {
 	display: flex;
 	padding: .5rem;
 	gap: .5rem;
 }
-body.panel #lead-slice button {
+body.panel .lead-slice button {
 	min-height: 2.5rem;
 	padding: 0 .5rem;
 	text-align: center;
+}
+body.panel .lead-slice input {
+	width: 100%;
 }
 body.panel #granted-permissions-span,
 body.panel #permissions-button {

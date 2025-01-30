@@ -1,9 +1,15 @@
 import makeActionsMenuWriters from './panel-actions.js'
 import MenuWriter from './menu-writer.js'
+import updateGoToTicketForm from './go-to-ticket.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
 const scheduleUpdatePermissions=setupUpdateScheduler(updatePermissions)
+
+const closeWindow=(location.href.endsWith("/popup.html")
+	? ()=>window.close()
+	: ()=>{}
+)
 
 browser.runtime.onMessage.addListener(message=>{
 	if (message.action=='updatePermissions') {
@@ -79,12 +85,7 @@ async function updateActionsNewFilter(settings,permissions,tabIds,otherTabId,tab
 }
 
 const actionsMenuWriters=makeActionsMenuWriters(
-	document,
-	()=>{
-		if (location.href.endsWith("/popup.html")) {
-			window.close()
-		}
-	},
+	document,closeWindow,
 	(createProperties)=>browser.tabs.create(createProperties),
 	(message)=>browser.runtime.sendMessage(message)
 )
@@ -96,6 +97,12 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		$menu.innerHTML=""
 		writer($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
 	}
+	updateGoToTicketForm(
+		document.getElementById('go-to-ticket'),
+		settings,tabId,
+		closeWindow,
+		(createProperties)=>browser.tabs.create(createProperties)
+	)
 }
 
 function updateActionsOngoing(tabActionEntries) {

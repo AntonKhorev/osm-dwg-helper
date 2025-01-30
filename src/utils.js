@@ -38,18 +38,23 @@ export function isOsmBlockUrl(osmRoot,url) {
 	return !!match
 }
 
-export function isOtrsTicketUrl(otrsRoot,url) {
-	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
-	return !!match
-}
-
 export function isOtrsActionUrl(otrsRoot,action,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+`otrs/index.pl?Action=${action}`)))
 	return !!match
 }
 
+export function isOtrsTicketUrl(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;')))
+	return !!match
+}
 export function getOtrsTicketId(otrsRoot,url) {
 	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=',url)
+}
+export function makeOtrsTicketUrlFromId(otrsRoot,id) {
+	return otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID='+encodeURIComponent(id)
+}
+export function makeOtrsTicketUrlFromNumber(otrsRoot,number) {
+	return otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketNumber='+encodeURIComponent(number)
 }
 
 export function getOtrsCreatedTicketIdAndAction(otrsRoot,url) {

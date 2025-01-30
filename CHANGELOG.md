@@ -4,6 +4,7 @@
 
 - Select other tab using browser tab highlight (Ctrl/Shift+click)
 - Support `TicketNumber` OTRS ticket urls
+- Go to ticket input
 
 ## 0.7.2
 
