@@ -156,10 +156,13 @@ export default class OtherMenu extends Menu {
 				const ticketData=otherTabState.ticketData
 				const templateValues={ticket:ticketData,user:userData}
 				const subject=templateEngine.evaluate(settings.otrs_email_block_subject,templateValues)
-				const [_,angledEmailPart]=settings.otrs_email.match(/<(.+)>/)
-				const plainEmail=angledEmailPart||settings.otrs_email
+				// email specs have been flip-flopping between allowing addr-spec and mailbox - https://stackoverflow.com/questions/8147805/the-mailto-setting-a-proper-name-on-the-recipient
+				// currently specs require addr-spec - https://datatracker.ietf.org/doc/html/rfc6068#section-2
+				// trying to support mailbox here - https://datatracker.ietf.org/doc/html/rfc5322#section-3.4
+				const [_,emailAngleAddrPart]=settings.otrs_email.match(/<(.+)>/)
+				const emailAddrSpec=emailAngleAddrPart||settings.otrs_email
 				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`
-				const mailKramdown=`[${plainEmail}](${url})`
+				const mailKramdown=`[${emailAddrSpec}](${url})`
 				writer.addEntry('ticket-add',[
 					linkWriter.makeLink(
 						`Copy ticket email link to clipboard`,
