@@ -2,9 +2,9 @@ import {strict as assert} from 'assert'
 import * as fs from 'fs/promises'
 import {JSDOM} from 'jsdom'
 
-import * as contentScript from '../src/content/issue.js'
+import * as contentScript from '../../src/content/issue.js'
 
-import processReport from '../src/content/issue-report.js'
+import processReport from '../../src/content/issue-report.js'
 
 const issuePageTemplate=String(await fs.readFile('test/issue.html'))
 

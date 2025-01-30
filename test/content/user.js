@@ -1,7 +1,7 @@
 import {strict as assert} from 'assert'
 import {JSDOM} from 'jsdom'
 
-import * as contentScript from '../src/content/user.js'
+import * as contentScript from '../../src/content/user.js'
 
 describe("user content script",()=>{
 	it("scrapes the webpage",async()=>{

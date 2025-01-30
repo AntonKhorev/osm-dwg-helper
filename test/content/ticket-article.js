@@ -1,7 +1,7 @@
 import {strict as assert} from 'assert'
 import {JSDOM} from 'jsdom'
 
-import * as contentScript from '../src/content/ticket-article.js'
+import * as contentScript from '../../src/content/ticket-article.js'
 
 const otrsPageHtml = (
 	`<!DOCTYPE html>`+
