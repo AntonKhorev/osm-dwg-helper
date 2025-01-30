@@ -17,20 +17,20 @@ export default class ThisMenu extends Menu {
 					text+=` - ${issueData.reportedItem.type} ${issueData.reportedItem.ref}`
 				}
 				if (issueData.reportedItem?.type=='user') {
-					submenuWriter.addActiveEntry('user',[
+					submenuWriter.addEntry('user',[
 						linkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
 							'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
 						])
 					])
 				}
-				submenuWriter.addActiveEntry({item:issueData.reportedItem?.type},[
+				submenuWriter.addEntry({item:issueData.reportedItem?.type},[
 					linkWriter.makeNewTabActionLink(text,createTicketUrl,[
 						'CreateIssueTicket',tabId,issueData
 					])
 				])
 			}
 			{
-				submenuWriter.addActiveEntry(null,[
+				submenuWriter.addEntry(null,[
 					linkWriter.makePageLink("empty",createTicketUrl)
 				])
 			}
@@ -44,7 +44,7 @@ export default class ThisMenu extends Menu {
 						`Quick message reporting user of issue #${issueData.id}`
 					])
 					for (const userName of reportCounter.userNames()) {
-						submenuWriter.addActiveEntry({url:reportCounter.getUserAvatarUrl(userName)},[
+						submenuWriter.addEntry({url:reportCounter.getUserAvatarUrl(userName)},[
 							linkWriter.makeNewTabActionLink(userName,getUserMessageUrl(userName),[
 								'SendMessageFromIssueReports',tabId,issueData,userName
 							]),
@@ -65,10 +65,10 @@ export default class ThisMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for issue`
 					])
-					submenuWriter.addActiveEntry(null,makeNumberNote(
+					submenuWriter.addEntry(null,makeNumberNote(
 						otrsLinkWriter.makeSearchLink(issueData.id)
 					))
-					submenuWriter.addActiveEntry('issue',[
+					submenuWriter.addEntry('issue',[
 						otrsLinkWriter.makeSearchLink('issue '+issueData.id)
 					])
 				}
@@ -76,10 +76,10 @@ export default class ThisMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for reported user`
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						otrsLinkWriter.makeSearchLink(issueData.reportedItem.name)
 					])
-					submenuWriter.addActiveEntry('user',[
+					submenuWriter.addEntry('user',[
 						otrsLinkWriter.makeSearchLink('user '+issueData.reportedItem.name)
 					])
 				}
@@ -87,10 +87,10 @@ export default class ThisMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('search',[
 						`Search OTRS for reported note`
 					])
-					submenuWriter.addActiveEntry(null,makeNumberNote(
+					submenuWriter.addEntry(null,makeNumberNote(
 						otrsLinkWriter.makeSearchLink(issueData.reportedItem.id)
 					))
-					submenuWriter.addActiveEntry('note',[
+					submenuWriter.addEntry('note',[
 						otrsLinkWriter.makeSearchLink('note '+issueData.reportedItem.id)
 					])
 				}
@@ -104,7 +104,7 @@ export default class ThisMenu extends Menu {
 			if (tabState.type=='ticket' && tabState.issueData) {
 				const issueData=tabState.issueData
 				if (issueData.id!=null) {
-					writer.addActiveEntry('issue',[
+					writer.addEntry('issue',[
 						linkWriter.makePageLink(`Go to ticket issue #${issueData.id}`,issueData.url)
 					])
 				}
@@ -117,10 +117,10 @@ export default class ThisMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('message-add',[
 						`Add last ${mailbox} message to ticket`
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						makeMessageLink('note')
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						makeMessageLink('pending')
 					])
 					function makeMessageLink(addAs) {
@@ -133,7 +133,7 @@ export default class ThisMenu extends Menu {
 		}
 		if (settings.osm) {
 			if (tabState.type=='user' && tabState.userData.id!=null) {
-				writer.addActiveEntry('user',[
+				writer.addEntry('user',[
 					linkWriter.makePageLink(`Check user id #${tabState.userData.id}`,tabState.userData.apiUrl)
 				])
 			}
@@ -157,10 +157,10 @@ export default class ThisMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('translate',[
 						`Translate `+reportCounter.formatSelectedReportsCount()
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						linkWriter.makePageLink(`with Google Translate`,googleTranslateUrl)
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						linkWriter.makePageLink(`with LibreTranslate`,libreTranslateUrl)
 					])
 				}

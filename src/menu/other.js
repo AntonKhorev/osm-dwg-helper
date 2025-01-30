@@ -18,7 +18,7 @@ export default class OtherMenu extends Menu {
 				}
 				// TODO equivalent of this
 				// if (issueData.reportedItem?.type=='user') {
-				// 	submenuWriter.addActiveEntry(null,[
+				// 	submenuWriter.addEntry(null,[
 				// 		linkWriter.makeNewTabActionLink(text+` + scan user id`,createTicketUrl,[
 				// 			'ScrapeReportedItemThenCreateIssueTicket',tabId,issueData
 				// 		])
@@ -27,7 +27,7 @@ export default class OtherMenu extends Menu {
 				const submenuWriter=writer.addSubmenu('ticket-add',[
 					`Add to new ticket form`
 				])
-				submenuWriter.addActiveEntry({item:issueData.reportedItem?.type},[
+				submenuWriter.addEntry({item:issueData.reportedItem?.type},[
 					linkWriter.makeImmediateCurrentTabActionLink(text,createTicketUrl,[
 						'AddToCreateIssueTicket',otherTabId,issueData
 					])
@@ -46,10 +46,10 @@ export default class OtherMenu extends Menu {
 					const submenuWriter=writer.addSubmenu('issue-add',[
 						`Add ${menuTitleRocParts.join(' and ')} ${getMenuTitleIssuePart()}`
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						makeIssueLink('note')
 					])
-					submenuWriter.addActiveEntry(null,[
+					submenuWriter.addEntry(null,[
 						makeIssueLink('pending')
 					])
 				}
@@ -90,10 +90,10 @@ export default class OtherMenu extends Menu {
 				const submenuWriter=writer.addSubmenu('message-add',[
 					`Add message ${messageData.isInbound?'from':'to'} ${messageData.user} to ticket`
 				])
-				submenuWriter.addActiveEntry(null,[
+				submenuWriter.addEntry(null,[
 					makeMessageLink('note')
 				])
-				submenuWriter.addActiveEntry(null,[
+				submenuWriter.addEntry(null,[
 					makeMessageLink('pending')
 				])
 				function makeMessageLink(addAs) {
@@ -111,13 +111,13 @@ export default class OtherMenu extends Menu {
 				const submenuWriter=writer.addSubmenu('block-add',[
 					`Add user ${blockData.user} block record to ticket`
 				])
-				submenuWriter.addActiveEntry(null,[
+				submenuWriter.addEntry(null,[
 					makeBlockLink('note')
 				])
 				const $explanation=this.document.createElement('span')
 				$explanation.textContent=`won't fully work`
 				$explanation.title=`Normally, DWG Action field is updated to have "block issued" action added. This field is not present in the "pending" form and thus can't be changed in this manner. The "pending" menu entry is removed to avoid unexpectedly leaving out "block issued" actions.`
-				submenuWriter.addPassiveEntry(null,[
+				submenuWriter.addEntry(null,[
 					`"as pending" `,$explanation
 				])
 				function makeBlockLink(addAs) {
@@ -137,14 +137,14 @@ export default class OtherMenu extends Menu {
 						const submenuWriter=writer.addSubmenu('issue-add',[
 							`Add to quick message to user ${userData.name}`
 						])
-						submenuWriter.addActiveEntry({url:reportCounter.getUserAvatarUrl(userData.name)},[
+						submenuWriter.addEntry({url:reportCounter.getUserAvatarUrl(userData.name)},[
 							linkWriter.makeImmediateCurrentTabActionLink(userData.name,'#',[
 								'AddToSendMessageFromIssueReports',otherTabId,issueData,userData.name
 							]),
 							` - ${reportCounter.formatUserReportCounts(userData.name)} selected`
 						])
 						if (reportCounter.nUsers>1) {
-							submenuWriter.addPassiveEntry(null,[
+							submenuWriter.addEntry(null,[
 								`won't add selected reports from ${reportCounter.formatOtherUsersCount()}`
 							])
 						}
@@ -160,7 +160,7 @@ export default class OtherMenu extends Menu {
 				const plainEmail=angledEmailPart||settings.otrs_email
 				const url=`mailto:${settings.otrs_email}?subject=${encodeURIComponent(subject)}`
 				const mailKramdown=`[${plainEmail}](${url})`
-				writer.addActiveEntry('ticket-add',[
+				writer.addEntry('ticket-add',[
 					linkWriter.makeLink(
 						`Copy ticket email link to clipboard`,
 						url,

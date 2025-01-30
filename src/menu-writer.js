@@ -4,13 +4,7 @@ export default class MenuWriter {
 		this.$menu=$menu
 	}
 
-	addActiveEntry(icon,$elements) {
-		this.addItems(
-			this.makeSlice(icon,$elements)
-		)
-	}
-
-	addPassiveEntry(icon,$elements) {
+	addEntry(icon,$elements) {
 		this.addItems(
 			this.makeSlice(icon,$elements)
 		)

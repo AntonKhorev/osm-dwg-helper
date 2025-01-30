@@ -132,7 +132,7 @@ function updateActionsOngoing(tabActionEntries) {
 				browser.runtime.sendMessage({action:'cancelTabAction',tabId,tabActionIndex}) // TODO actually use the index
 			})
 			$elements.push(` `,$switchButton,` `,$cancelButton)
-			menuWriter.addPassiveEntry(null,$elements)
+			menuWriter.addEntry(null,$elements)
 		}
 	}
 }

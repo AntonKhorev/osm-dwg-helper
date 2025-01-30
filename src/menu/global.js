@@ -5,15 +5,15 @@ export default class GlobalMenu extends Menu {
 		const writer=this.makeWriter($menu)
 		const linkWriter=this.makeLinkWriter(tabId)
 		if (settings.osm) {
-			writer.addActiveEntry('issue',[
+			writer.addEntry('issue',[
 				linkWriter.makePageLink("Go to open OSM issues",`${settings.osm}issues?status=open`)
 			])
-			writer.addActiveEntry('block',[
+			writer.addEntry('block',[
 				linkWriter.makePageLink("Go to blocks list",`${settings.osm}user_blocks`)
 			])
 		}
 		if (settings.otrs) {
-			writer.addActiveEntry('ticket',[
+			writer.addEntry('ticket',[
 				linkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
 			])
 		}
