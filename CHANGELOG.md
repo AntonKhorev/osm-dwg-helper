@@ -2,6 +2,8 @@
 
 ## 0.7.2
 
+- Copy OTRS reply email address when creating new blocks
+
 ## 0.7.1
 
 - Support usernames with `[`/`]` brackets in quick messages
