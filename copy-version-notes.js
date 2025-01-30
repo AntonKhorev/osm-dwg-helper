@@ -9,6 +9,7 @@ const lines=await getFileLines('CHANGELOG.md')
 
 let contents=''
 let inList=false
+let entriesLeft=7
 const majorMinorVersionSet=new Set()
 for (const line of lines) {
 	let match
@@ -20,6 +21,7 @@ for (const line of lines) {
 		const [,header,majorMinorVersion]=match
 		majorMinorVersionSet.add(majorMinorVersion)
 		if (majorMinorVersionSet.size>2) break
+		if (entriesLeft--<=0) break
 		contents+=`<strong>${processMarkdown(header)}</strong>\n`
 	} else if (match=line.match(/^-\s+(.*)/)) {
 		if (!inList) {
