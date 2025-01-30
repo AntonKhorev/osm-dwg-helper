@@ -15,4 +15,22 @@ describe("goToTicketParser()",()=>{
 			{number:"2021031415926535"}
 		)
 	})
+	it("parses #number",()=>{
+		assert.deepEqual(
+			goToTicketParser("#2021031415926535"),
+			{number:"2021031415926535"}
+		)
+	})
+	it("parses Ticket#number",()=>{
+		assert.deepEqual(
+			goToTicketParser("Ticket#2021031415926535"),
+			{number:"2021031415926535"}
+		)
+	})
+	it("parses number in email subject",()=>{
+		assert.deepEqual(
+			goToTicketParser("[Ticket#2025012910000423] Locked Ticket Follow-Up: Whatever"),
+			{number:"2025012910000423"}
+		)
+	})
 })
