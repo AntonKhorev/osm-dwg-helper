@@ -55,13 +55,25 @@ browser.runtime.onMessage.addListener(message=>{
 })
 
 //browser.tabs.onActivated.addListener(async({previousTabId,tabId})=>{ // no previousTabId on Chrome
-browser.tabs.onActivated.addListener(async({tabId})=>{
+browser.tabs.onActivated.addListener(handleTabActivationOrHighlight)
+browser.tabs.onHighlighted.addListener(handleTabActivationOrHighlight)
+
+async function handleTabActivationOrHighlight() {
 	const [settings,permissions]=await settingsAndPermissionsReader.read()
-	const tab=await browser.tabs.get(tabId)
-	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab)
+	const [tab]=await browser.tabs.query({active:true,currentWindow:true})
+	const highlightedTabs=await browser.tabs.query({highlighted:true,currentWindow:true})
+	let otherTab
+	if (highlightedTabs.length==2) {
+		if (tab.id==highlightedTabs[0].id) {
+			otherTab=highlightedTabs[1]
+		} else if (tab.id==highlightedTabs[1].id) {
+			otherTab=highlightedTabs[0]
+		}
+	}
+	const messageData=await statesManager.updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,otherTab)
 	setIconOnTab(tab)
 	sendUpdateActionsMessage(settings,permissions,...messageData)
-})
+}
 
 browser.tabs.onUpdated.addListener(async(tabId,changeInfo,tab)=>{
 	if (tab.url=='about:blank') return // bail on about:blank, when opening new tabs it gets complete status before supplied url is opened

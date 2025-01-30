@@ -20,7 +20,7 @@ export default class StatesManager {
 		this.messageTab=messageTab
 		this.injectCssIntoTab=injectCssIntoTab
 		this.tabStates=new Map()
-		this.previousTab=undefined
+		this.previousTab=undefined // TODO rename to other tab
 		this.activatedTab=undefined // to set value for this.previousTab when another tab activated
 	}
 	clearTabs() {
@@ -55,8 +55,12 @@ export default class StatesManager {
 		}
 		return this.getMessageArgs(messagedTabIds)
 	}
-	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab) {
-		this.previousTab=this.activatedTab
+	async updateTabStatesBecauseBrowserTabActivated(settings,permissions,tab,otherTab) {
+		if (otherTab) {
+			this.previousTab=otherTab
+		} else if (tab.id!=this.activatedTab?.id) {
+			this.previousTab=this.activatedTab
+		}
 		this.activatedTab=tab
 		if (this.previousTab!=null && !this.tabStates.get(this.previousTab.id)) {
 			const previousTabState=await getTabState(settings,permissions,this.previousTab,this.messageTab,this.injectCssIntoTab)
