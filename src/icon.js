@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','note','user','block','block-add','ticket','ticket-add','search','translate']
+export const symbols=['void','message','message-add','issue','issue-add','note','user','block','block-add','redaction','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -21,6 +21,7 @@ export function svg(symbol,modifier) {
 	if (symbol=='note') content+=note()
 	if (symbol=='user' || symbol=='block' || symbol=='block-add') content+=avatar()
 	if (symbol=='block' || symbol=='block-add') content+=cross()
+	if (symbol=='redaction') content+=redaction()
 	if (symbol=='ticket' || symbol=='ticket-add') content+=ticket()
 	if (symbol=='ticket-add' || symbol=='message-add' || symbol=='issue-add' || symbol=='block-add') content+=add()
 	if (symbol=='search') content+=search()
@@ -72,6 +73,16 @@ function cross() {
 	return (
 		`<line x1='-${size}' y1='-${size}' x2='${size}' y2='${size}' stroke='#F00' stroke-width='6' />`+
 		`<line x1='-${size}' y1='${size}' x2='${size}' y2='-${size}' stroke='#F00' stroke-width='6' />`
+	)
+}
+
+function redaction() {
+	return (
+		`<rect x="-15" y="-9" width="30" height="18" fill="#000" stroke="#444" />`+
+		`<path d="M-8,-5 h-3 v10 h3 M8,-5 h3 v10 h-3" fill="none" stroke="#CCC" />`+
+		`<circle r="2" fill="#CCC" />`+
+		`<circle r="2" fill="#CCC" cx="-6" />`+
+		`<circle r="2" fill="#CCC" cx="6" />`
 	)
 }
 

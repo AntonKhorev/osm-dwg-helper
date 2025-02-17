@@ -2,11 +2,13 @@
 
 ## 0.7.4
 
+- Add *Go to redactions list* action
+
 ## 0.7.3
 
 - Select other tab using browser tab highlight (Ctrl/Shift+click)
 - Support `TicketNumber` OTRS ticket urls
-- Go to ticket input
+- Add *Go to ticket* input
 
 ## 0.7.2
 

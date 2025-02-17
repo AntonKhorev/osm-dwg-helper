@@ -11,6 +11,9 @@ export default class GlobalMenu extends Menu {
 			writer.addEntry('block',[
 				linkWriter.makePageLink("Go to blocks list",`${settings.osm}user_blocks`)
 			])
+			writer.addEntry('redaction',[
+				linkWriter.makePageLink("Go to redactions list",`${settings.osm}redactions`)
+			])
 		}
 		if (settings.otrs) {
 			writer.addEntry('ticket',[
