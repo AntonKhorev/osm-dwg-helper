@@ -14,21 +14,7 @@ export default function(value) {
 	const sampleTicketNumber="2025012910000012"
 	let match
 
-	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
-		let [name]=match
-		name=name.toLowerCase()
-		if (name=="tickets") {
-			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
-		} else if (name=="issues") {
-			return {site:"osm", path:"issues?status=open"}
-		} else if (name=="blocks") {
-			return {site:"osm", path:"user_blocks"}
-		} else if (name=="redactions") {
-			return {site:"osm", path:"redactions"}
-		}
-	}
-
-	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|cs|c|node|n|way|w|relation|rel|r)\s*#?(\d+)/i)) {
+	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|c)(?:s?\/|\s*)#?(\d+)/i)) {
 		let [,name,number]=match
 		name=name.toLowerCase()
 		if (name[0]=='t') {
@@ -48,7 +34,7 @@ export default function(value) {
 		}
 	}
 
-	if (match=value.match(/\b(node|n|way|w|relation|rel|r)\s*#?(\d+)(?:v(\d+))?/i)) {
+	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:v(\d+))?/i)) {
 		let [,name,number,version]=match
 		name=name.toLowerCase()
 		let subpath=number
@@ -59,6 +45,20 @@ export default function(value) {
 			return {site:"osm", path:"way/"+subpath}
 		} else if (name[0]=='r') {
 			return {site:"osm", path:"relation/"+subpath}
+		}
+	}
+
+	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
+		let [name]=match
+		name=name.toLowerCase()
+		if (name=="tickets") {
+			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
+		} else if (name=="issues") {
+			return {site:"osm", path:"issues?status=open"}
+		} else if (name=="blocks") {
+			return {site:"osm", path:"user_blocks"}
+		} else if (name=="redactions") {
+			return {site:"osm", path:"redactions"}
 		}
 	}
 

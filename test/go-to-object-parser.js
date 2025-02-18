@@ -95,6 +95,18 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"changeset/1234567"}
 		)
 	})
+	it("parses changesets/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("changesets/1234567"),
+			{site:"osm", path:"changeset/1234567"}
+		)
+	})
+	it("parses changeset/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset/1234567"),
+			{site:"osm", path:"changeset/1234567"}
+		)
+	})
 
 	it("parses node id",()=>{
 		assert.deepEqual(
@@ -105,6 +117,18 @@ describe("goToObjectParser()",()=>{
 	it("parses n+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("n11223344"),
+			{site:"osm", path:"node/11223344"}
+		)
+	})
+	it("parses nodes/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("nodes/11223344"),
+			{site:"osm", path:"node/11223344"}
+		)
+	})
+	it("parses node/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("node/11223344"),
 			{site:"osm", path:"node/11223344"}
 		)
 	})
@@ -123,6 +147,18 @@ describe("goToObjectParser()",()=>{
 	it("parses w+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("w11223344"),
+			{site:"osm", path:"way/11223344"}
+		)
+	})
+	it("parses ways/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("ways/11223344"),
+			{site:"osm", path:"way/11223344"}
+		)
+	})
+	it("parses way/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("way/11223344"),
 			{site:"osm", path:"way/11223344"}
 		)
 	})
@@ -147,6 +183,18 @@ describe("goToObjectParser()",()=>{
 	it("parses r+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("r11223344"),
+			{site:"osm", path:"relation/11223344"}
+		)
+	})
+	it("parses relations/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("relations/11223344"),
+			{site:"osm", path:"relation/11223344"}
+		)
+	})
+	it("parses relation/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("relation/11223344"),
 			{site:"osm", path:"relation/11223344"}
 		)
 	})
@@ -180,6 +228,12 @@ describe("goToObjectParser()",()=>{
 		assert.deepEqual(
 			goToObjectParser("block 12"),
 			{site:"osm", path:"user_blocks/12"}
+		)
+	})
+	it("parses blocks/id",()=>{
+		assert.deepEqual(
+			goToObjectParser("blocks/13"),
+			{site:"osm", path:"user_blocks/13"}
 		)
 	})
 
