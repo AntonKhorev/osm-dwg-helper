@@ -95,4 +95,47 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"changeset/1234567"}
 		)
 	})
+
+	it("parses node id",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 11223344"),
+			{site:"osm", path:"node/11223344"}
+		)
+	})
+	it("parses n+id",()=>{
+		assert.deepEqual(
+			goToObjectParser("n11223344"),
+			{site:"osm", path:"node/11223344"}
+		)
+	})
+	it("parses way id",()=>{
+		assert.deepEqual(
+			goToObjectParser("way 11223344"),
+			{site:"osm", path:"way/11223344"}
+		)
+	})
+	it("parses w+id",()=>{
+		assert.deepEqual(
+			goToObjectParser("w11223344"),
+			{site:"osm", path:"way/11223344"}
+		)
+	})
+	it("parses relation id",()=>{
+		assert.deepEqual(
+			goToObjectParser("relation 11223344"),
+			{site:"osm", path:"relation/11223344"}
+		)
+	})
+	it("parses rel id",()=>{
+		assert.deepEqual(
+			goToObjectParser("rel 11223344"),
+			{site:"osm", path:"relation/11223344"}
+		)
+	})
+	it("parses r+id",()=>{
+		assert.deepEqual(
+			goToObjectParser("r11223344"),
+			{site:"osm", path:"relation/11223344"}
+		)
+	})
 })

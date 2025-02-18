@@ -18,7 +18,7 @@ export default function(value) {
 		return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
 	}
 
-	if (match=value.match(/(ticket|changeset|cset|cs|c)\s*#?(\d+)/i)) {
+	if (match=value.match(/\b(ticket|changeset|cset|cs|c|node|n|way|w|relation|rel|r)\s*#?(\d+)/i)) {
 		let [,name,number]=match
 		name=name.toLowerCase()
 		if (name[0]=='t') {
@@ -29,6 +29,12 @@ export default function(value) {
 			}
 		} else if (name[0]=='c') {
 			return {site:"osm", path:"changeset/"+number}
+		} else if (name[0]=='n') {
+			return {site:"osm", path:"node/"+number}
+		} else if (name[0]=='w') {
+			return {site:"osm", path:"way/"+number}
+		} else if (name[0]=='r') {
+			return {site:"osm", path:"relation/"+number}
 		}
 	}
 
