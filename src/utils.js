@@ -50,12 +50,6 @@ export function isOtrsTicketUrl(otrsRoot,url) {
 export function getOtrsTicketId(otrsRoot,url) {
 	return getIdFromUrl(otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID=',url)
 }
-export function makeOtrsTicketUrlFromId(otrsRoot,id) {
-	return otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketID='+encodeURIComponent(id)
-}
-export function makeOtrsTicketUrlFromNumber(otrsRoot,number) {
-	return otrsRoot+'otrs/index.pl?Action=AgentTicketZoom;TicketNumber='+encodeURIComponent(number)
-}
 
 export function getOtrsCreatedTicketIdAndAction(otrsRoot,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentTicket')+'(Phone|Zoom);Subaction=Created;TicketID=([0-9]+)'))

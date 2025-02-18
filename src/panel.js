@@ -1,6 +1,6 @@
 import makeActionsMenuWriters from './panel-actions.js'
 import MenuWriter from './menu-writer.js'
-import updateGoToTicketForm from './go-to-ticket.js'
+import updateGoToObjectForm from './go-to-object.js'
 
 const scheduleUpdateActionsNew=setupUpdateScheduler(updateActionsNew,updateActionsNewFilter)
 const scheduleUpdateActionsOngoing=setupUpdateScheduler(updateActionsOngoing)
@@ -97,8 +97,8 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 		$menu.innerHTML=""
 		writer($menu,settings,permissions,tabId,tabState,otherTabId,otherTabState)
 	}
-	updateGoToTicketForm(
-		document.getElementById('go-to-ticket'),
+	updateGoToObjectForm(
+		document.getElementById('go-to-object'),
 		settings,tabId,
 		closeWindow,
 		(createProperties)=>browser.tabs.create(createProperties)

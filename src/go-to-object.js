@@ -1,13 +1,12 @@
-import goToTicketParser from './go-to-ticket-parser.js'
-import {makeOtrsTicketUrlFromId, makeOtrsTicketUrlFromNumber} from './utils.js'
+import goToObjectParser from './go-to-object-parser.js'
 
 export default function ($form,settings,tabId,closeWindow,createTab) {
-	if (settings.otrs) {
+	if (settings.otrs || settings.osm) {
 		$form.hidden=false
 		$form.ticket.oninput=()=>{
 			const value=$form.ticket.value
-			const parsedValue=goToTicketParser(value)
-			if (value=="" || parsedValue.id || parsedValue.number) {
+			const parsedValue=goToObjectParser(value)
+			if (value=="" || parsedValue.site && parsedValue.path) {
 				$form.ticket.setCustomValidity("")
 			} else {
 				$form.ticket.setCustomValidity("ticket id or number required")
@@ -16,14 +15,15 @@ export default function ($form,settings,tabId,closeWindow,createTab) {
 		$form.onsubmit=(ev)=>{
 			ev.preventDefault()
 			const value=$form.ticket.value
-			const parsedValue=goToTicketParser(value)
+			const parsedValue=goToObjectParser(value)
 			let url
-			if (parsedValue.id) {
-				url=makeOtrsTicketUrlFromId(settings.otrs,parsedValue.id)
-			} else if (parsedValue.number) {
-				url=makeOtrsTicketUrlFromNumber(settings.otrs,parsedValue.number)
+			if (parsedValue.site=="otrs" && settings.otrs) {
+				url=settings.otrs
+			} else if (parsedValue.site=="osm" && settings.osm) {
+				url=settings.osm
 			}
 			if (url) {
+				url+=parsedValue.path
 				createTab({openerTabId:tabId,url})
 				closeWindow()
 			}

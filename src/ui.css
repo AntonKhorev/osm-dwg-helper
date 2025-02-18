@@ -50,7 +50,7 @@ body.panel #granted-permissions-span {
 body.panel #granted-permissions-span a {
 	color: #888;
 }
-body.panel #go-to-ticket input:invalid {
+body.panel #go-to-object input:invalid {
 	box-shadow: 0 0 0 4px #F008;
 }
 body.panel h2 {
