@@ -21,6 +21,12 @@ describe("goToObjectParser()",()=>{
 			{}
 		)
 	})
+	it("parses tickets",()=>{
+		assert.deepEqual(
+			goToObjectParser("tickets"),
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
+		)
+	})
 	it("parses ticket id",()=>{
 		assert.deepEqual(
 			goToObjectParser("ticket 123"),

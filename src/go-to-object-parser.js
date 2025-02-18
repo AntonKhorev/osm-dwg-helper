@@ -14,6 +14,10 @@ export default function(value) {
 	const sampleTicketNumber="2025012910000012"
 	let match
 
+	if (match=value.match(/^tickets$/i)) {
+		return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
+	}
+
 	if (match=value.match(/ticket\s*#?(\d+)/i)) {
 		const [,number]=match
 		if (number.length==sampleTicketNumber.length) {
