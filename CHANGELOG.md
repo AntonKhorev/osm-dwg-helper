@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.5
+
 ## 0.7.4
 
 - Add *Go to redactions list* action
