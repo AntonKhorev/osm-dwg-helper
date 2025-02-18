@@ -108,6 +108,12 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"node/11223344"}
 		)
 	})
+	it("parses node id with version",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 11223344v7"),
+			{site:"osm", path:"node/11223344/history/7"}
+		)
+	})
 	it("parses way id",()=>{
 		assert.deepEqual(
 			goToObjectParser("way 11223344"),
@@ -118,6 +124,12 @@ describe("goToObjectParser()",()=>{
 		assert.deepEqual(
 			goToObjectParser("w11223344"),
 			{site:"osm", path:"way/11223344"}
+		)
+	})
+	it("parses way id with version",()=>{
+		assert.deepEqual(
+			goToObjectParser("way 11223344v7"),
+			{site:"osm", path:"way/11223344/history/7"}
 		)
 	})
 	it("parses relation id",()=>{
@@ -136,6 +148,12 @@ describe("goToObjectParser()",()=>{
 		assert.deepEqual(
 			goToObjectParser("r11223344"),
 			{site:"osm", path:"relation/11223344"}
+		)
+	})
+	it("parses relation id with version",()=>{
+		assert.deepEqual(
+			goToObjectParser("relation 11223344v7"),
+			{site:"osm", path:"relation/11223344/history/7"}
 		)
 	})
 

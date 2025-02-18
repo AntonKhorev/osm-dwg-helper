@@ -45,12 +45,20 @@ export default function(value) {
 			return {site:"osm", path:"redactions/"+number}
 		} else if (name[0]=='c') {
 			return {site:"osm", path:"changeset/"+number}
-		} else if (name[0]=='n') {
-			return {site:"osm", path:"node/"+number}
+		}
+	}
+
+	if (match=value.match(/\b(node|n|way|w|relation|rel|r)\s*#?(\d+)(?:v(\d+))?/i)) {
+		let [,name,number,version]=match
+		name=name.toLowerCase()
+		let subpath=number
+		if (version) subpath+="/history/"+version
+		if (name[0]=='n') {
+			return {site:"osm", path:"node/"+subpath}
 		} else if (name[0]=='w') {
-			return {site:"osm", path:"way/"+number}
+			return {site:"osm", path:"way/"+subpath}
 		} else if (name[0]=='r') {
-			return {site:"osm", path:"relation/"+number}
+			return {site:"osm", path:"relation/"+subpath}
 		}
 	}
 
