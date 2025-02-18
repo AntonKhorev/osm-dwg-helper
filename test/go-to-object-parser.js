@@ -21,6 +21,7 @@ describe("goToObjectParser()",()=>{
 			{}
 		)
 	})
+
 	it("parses tickets",()=>{
 		assert.deepEqual(
 			goToObjectParser("tickets"),
@@ -67,6 +68,31 @@ describe("goToObjectParser()",()=>{
 		assert.deepEqual(
 			goToObjectParser("[Ticket#2025012910000423] Locked Ticket Follow-Up: Whatever"),
 			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2025012910000423"}
+		)
+	})
+
+	it("parses changeset id",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset 1234567"),
+			{site:"osm", path:"changeset/1234567"}
+		)
+	})
+	it("parses changeset #id",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset #1234567"),
+			{site:"osm", path:"changeset/1234567"}
+		)
+	})
+	it("parses cset id",()=>{
+		assert.deepEqual(
+			goToObjectParser("cset 1234567"),
+			{site:"osm", path:"changeset/1234567"}
+		)
+	})
+	it("parses c+id",()=>{
+		assert.deepEqual(
+			goToObjectParser("c1234567"),
+			{site:"osm", path:"changeset/1234567"}
 		)
 	})
 })

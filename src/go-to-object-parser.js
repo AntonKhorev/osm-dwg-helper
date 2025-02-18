@@ -18,12 +18,17 @@ export default function(value) {
 		return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
 	}
 
-	if (match=value.match(/ticket\s*#?(\d+)/i)) {
-		const [,number]=match
-		if (number.length==sampleTicketNumber.length) {
-			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number}
-		} else {
-			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID="+number}
+	if (match=value.match(/(ticket|changeset|cset|cs|c)\s*#?(\d+)/i)) {
+		let [,name,number]=match
+		name=name.toLowerCase()
+		if (name[0]=='t') {
+			if (number.length==sampleTicketNumber.length) {
+				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number}
+			} else {
+				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID="+number}
+			}
+		} else if (name[0]=='c') {
+			return {site:"osm", path:"changeset/"+number}
 		}
 	}
 
