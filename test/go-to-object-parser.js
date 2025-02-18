@@ -150,6 +150,12 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"node/11223344/history/7", icon:"node"}
 		)
 	})
+	it("parses node id with version (with slash)",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 11223344/7"),
+			{site:"osm", path:"node/11223344/history/7", icon:"node"}
+		)
+	})
 	it("parses node id xml",()=>{
 		assert.deepEqual(
 			goToObjectParser("node 44332211 xml"),

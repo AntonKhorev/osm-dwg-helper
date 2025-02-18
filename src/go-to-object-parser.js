@@ -34,7 +34,7 @@ export default function(value) {
 		}
 	}
 
-	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:\s*(?:v|ver|version)\s*(\d+))?(?:(?:\.|\s*)(xml|json)\b)?/i)) {
+	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:\s*(?:v|ver|version|\/)\s*(\d+))?(?:(?:\.|\s*)(xml|json)\b)?/i)) {
 		let [,name,id,version,format]=match
 		name=name.toLowerCase()
 		let type
