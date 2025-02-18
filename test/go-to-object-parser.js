@@ -164,4 +164,17 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"user_blocks/12"}
 		)
 	})
+
+	it("parses redactions",()=>{
+		assert.deepEqual(
+			goToObjectParser("redactions"),
+			{site:"osm", path:"redactions"}
+		)
+	})
+	it("parses redaction id",()=>{
+		assert.deepEqual(
+			goToObjectParser("redaction 12"),
+			{site:"osm", path:"redactions/12"}
+		)
+	})
 })

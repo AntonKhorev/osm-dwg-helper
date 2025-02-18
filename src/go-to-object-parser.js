@@ -14,7 +14,7 @@ export default function(value) {
 	const sampleTicketNumber="2025012910000012"
 	let match
 
-	if (match=value.match(/^tickets|issues|blocks$/i)) {
+	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
 		let [name]=match
 		name=name.toLowerCase()
 		if (name=="tickets") {
@@ -23,10 +23,12 @@ export default function(value) {
 			return {site:"osm", path:"issues?status=open"}
 		} else if (name=="blocks") {
 			return {site:"osm", path:"user_blocks"}
+		} else if (name=="redactions") {
+			return {site:"osm", path:"redactions"}
 		}
 	}
 
-	if (match=value.match(/\b(ticket|issue|block|changeset|cset|cs|c|node|n|way|w|relation|rel|r)\s*#?(\d+)/i)) {
+	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|cs|c|node|n|way|w|relation|rel|r)\s*#?(\d+)/i)) {
 		let [,name,number]=match
 		name=name.toLowerCase()
 		if (name[0]=='t') {
@@ -39,6 +41,8 @@ export default function(value) {
 			return {site:"osm", path:"issues/"+number}
 		} else if (name[0]=='b') {
 			return {site:"osm", path:"user_blocks/"+number}
+		} else if (name=='redaction') {
+			return {site:"osm", path:"redactions/"+number}
 		} else if (name[0]=='c') {
 			return {site:"osm", path:"changeset/"+number}
 		} else if (name[0]=='n') {
