@@ -14,8 +14,8 @@ export default function(value) {
 	const sampleTicketNumber="2025012910000012"
 	let match
 
-	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|c)(?:s?\/|\s*)#?(\d+)/i)) {
-		let [,name,number]=match
+	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|c)(?:s?\/|\s*)#?(\d+)(?:(?:\.|\s*)(xml|json)\b)?/i)) {
+		let [,name,number,format]=match
 		name=name.toLowerCase()
 		if (name[0]=='t') {
 			if (number.length==sampleTicketNumber.length) {
@@ -30,7 +30,7 @@ export default function(value) {
 		} else if (name=='redaction') {
 			return {site:"osm", path:"redactions/"+number, icon:"redaction"}
 		} else if (name[0]=='c') {
-			return {site:"osm", path:"changeset/"+number, icon:"changeset"}
+			return getInFormat(format,"changeset",number)
 		}
 	}
 
@@ -47,24 +47,7 @@ export default function(value) {
 		} else {
 			return null
 		}
-		let site
-		let path
-		if (format=="xml") {
-			site="osm_api"
-			path="api/0.6/"+type+"/"+id
-			if (version) path+="/"+version
-			path+=".xml"
-		} else if (format=="json") {
-			site="osm_api"
-			path="api/0.6/"+type+"/"+id
-			if (version) path+="/"+version
-			path+=".json"
-		} else {
-			site="osm"
-			path=type+"/"+id
-			if (version) path+="/history/"+version
-		}
-		return {site, path, icon:type}
+		return getInFormat(format,type,id,version)
 	}
 
 	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
@@ -89,4 +72,25 @@ export default function(value) {
 	}
 
 	return null
+}
+
+function getInFormat(format,type,id,version) {
+	let site
+	let path
+	if (format=="xml") {
+		site="osm_api"
+		path="api/0.6/"+type+"/"+id
+		if (version) path+="/"+version
+		path+=".xml"
+	} else if (format=="json") {
+		site="osm_api"
+		path="api/0.6/"+type+"/"+id
+		if (version) path+="/"+version
+		path+=".json"
+	} else {
+		site="osm"
+		path=type+"/"+id
+		if (version) path+="/history/"+version
+	}
+	return {site, path, icon:type}
 }

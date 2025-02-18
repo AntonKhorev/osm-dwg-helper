@@ -107,6 +107,24 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
+	it("parses changeset id xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset 1234567 xml"),
+			{site:"osm_api", path:"api/0.6/changeset/1234567.xml", icon:"changeset"}
+		)
+	})
+	it("parses changeset id.xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset 1234567.xml"),
+			{site:"osm_api", path:"api/0.6/changeset/1234567.xml", icon:"changeset"}
+		)
+	})
+	it("parses changeset id json",()=>{
+		assert.deepEqual(
+			goToObjectParser("changeset 1234567 json"),
+			{site:"osm_api", path:"api/0.6/changeset/1234567.json", icon:"changeset"}
+		)
+	})
 
 	it("parses node id",()=>{
 		assert.deepEqual(
