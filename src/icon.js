@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','note','node','way','user','block','block-add','redaction','ticket','ticket-add','search','translate']
+export const symbols=['void','message','message-add','issue','issue-add','note','node','way','relation','user','block','block-add','redaction','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -19,9 +19,10 @@ export function svg(symbol,modifier) {
 	if (symbol=='message' || symbol=='message-add') content+=envelope()
 	if (symbol=='issue' || symbol=='issue-add') content+=flag()
 	if (symbol=='note') content+=note()
-	if (symbol=='node' || symbol=='way') content+=element()
+	if (symbol=='node' || symbol=='way' || symbol=='relation') content+=element()
 	if (symbol=='node') content+=node()
 	if (symbol=='way') content+=way()
+	if (symbol=='relation') content+=relation()
 	if (symbol=='user' || symbol=='block' || symbol=='block-add') content+=avatar()
 	if (symbol=='block' || symbol=='block-add') content+=cross()
 	if (symbol=='redaction') content+=redaction()
@@ -119,6 +120,20 @@ function way() {
 		`<circle cx="5.125" cy="-8.75" r="3" fill="black"/>`+
 		`<circle cx="-8.875" cy="2.125" r="3" fill="black"/>`+
 		`<circle cx="8.375" cy="8.875" r="3" fill="black"/>`
+	)
+}
+
+function relation() {
+	return (
+		`<path d="M -7.5 -7.5 L 8.5 -8.25" stroke="#888"/>`+
+		`<path d="M -7.5 -7.5 L 8.5 1.75" stroke="#888"/>`+
+		`<path d="M -7.5 -7.5 L -8.25 8.5" stroke="#888"/>`+
+		`<path d="M -7.5 -7.5 L 1.75 8.5" stroke="#888"/>`+
+		`<circle cx="8.5" cy="-8.25" r="3" fill="black"/>`+
+		`<circle cx="8.5" cy="1.75" r="3" fill="black"/>`+
+		`<circle cx="-8.25" cy="8.5" r="3" fill="black"/>`+
+		`<circle cx="1.75" cy="8.5" r="3" fill="black"/>`+
+		`<circle cx="-7" cy="-7" r="4" fill="#bee6be" stroke="black" stroke-width="1.5"/>`
 	)
 }
 

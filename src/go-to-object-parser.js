@@ -44,7 +44,7 @@ export default function(value) {
 		} else if (name[0]=='w') {
 			return {site:"osm", path:"way/"+subpath, icon:"way"}
 		} else if (name[0]=='r') {
-			return {site:"osm", path:"relation/"+subpath}
+			return {site:"osm", path:"relation/"+subpath, icon:"relation"}
 		}
 	}
 

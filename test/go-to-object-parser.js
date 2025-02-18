@@ -171,37 +171,37 @@ describe("goToObjectParser()",()=>{
 	it("parses relation id",()=>{
 		assert.deepEqual(
 			goToObjectParser("relation 11223344"),
-			{site:"osm", path:"relation/11223344"}
+			{site:"osm", path:"relation/11223344", icon:"relation"}
 		)
 	})
 	it("parses rel id",()=>{
 		assert.deepEqual(
 			goToObjectParser("rel 11223344"),
-			{site:"osm", path:"relation/11223344"}
+			{site:"osm", path:"relation/11223344", icon:"relation"}
 		)
 	})
 	it("parses r+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("r11223344"),
-			{site:"osm", path:"relation/11223344"}
+			{site:"osm", path:"relation/11223344", icon:"relation"}
 		)
 	})
 	it("parses relations/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("relations/11223344"),
-			{site:"osm", path:"relation/11223344"}
+			{site:"osm", path:"relation/11223344", icon:"relation"}
 		)
 	})
 	it("parses relation/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("relation/11223344"),
-			{site:"osm", path:"relation/11223344"}
+			{site:"osm", path:"relation/11223344", icon:"relation"}
 		)
 	})
 	it("parses relation id with version",()=>{
 		assert.deepEqual(
 			goToObjectParser("relation 11223344v7"),
-			{site:"osm", path:"relation/11223344/history/7"}
+			{site:"osm", path:"relation/11223344/history/7", icon:"relation"}
 		)
 	})
 
