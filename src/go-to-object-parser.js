@@ -30,7 +30,7 @@ export default function(value) {
 		} else if (name=='redaction') {
 			return {site:"osm", path:"redactions/"+number, icon:"redaction"}
 		} else if (name[0]=='c') {
-			return {site:"osm", path:"changeset/"+number}
+			return {site:"osm", path:"changeset/"+number, icon:"changeset"}
 		}
 	}
 

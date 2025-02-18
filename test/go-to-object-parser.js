@@ -74,37 +74,37 @@ describe("goToObjectParser()",()=>{
 	it("parses changeset id",()=>{
 		assert.deepEqual(
 			goToObjectParser("changeset 1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 	it("parses changeset #id",()=>{
 		assert.deepEqual(
 			goToObjectParser("changeset #1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 	it("parses cset id",()=>{
 		assert.deepEqual(
 			goToObjectParser("cset 1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 	it("parses c+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("c1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 	it("parses changesets/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("changesets/1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 	it("parses changeset/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("changeset/1234567"),
-			{site:"osm", path:"changeset/1234567"}
+			{site:"osm", path:"changeset/1234567", icon:"changeset"}
 		)
 	})
 

@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','note','node','way','relation','user','block','block-add','redaction','ticket','ticket-add','search','translate']
+export const symbols=['void','message','message-add','issue','issue-add','note','changeset','node','way','relation','user','block','block-add','redaction','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -19,6 +19,7 @@ export function svg(symbol,modifier) {
 	if (symbol=='message' || symbol=='message-add') content+=envelope()
 	if (symbol=='issue' || symbol=='issue-add') content+=flag()
 	if (symbol=='note') content+=note()
+	if (symbol=='changeset') content+=changeset()
 	if (symbol=='node' || symbol=='way' || symbol=='relation') content+=element()
 	if (symbol=='node') content+=node()
 	if (symbol=='way') content+=way()
@@ -100,6 +101,16 @@ function ticket() {
 		//return `V ${m}5 A 2 2 0 0 0 ${m}7,${m}9 V ${m}11 H ${m}3 A 3 3 0 0 0 ${p}3,${m}11 H ${p}7 V ${m}9 A 2 2 0 0 0 ${p}7,${m}5 V 0`
 		return `V ${m}3 A 2 2 0 0 0 ${m}7,${m}7 V ${m}11 H ${m}3 A 3 3 0 0 0 ${p}3,${m}11 H ${p}7 V ${m}7 A 2 2 0 0 0 ${p}7,${m}3 V 0`
 	}
+}
+
+function changeset() {
+	return (
+		`<path d="M-15,-9 Q3,-15 15,-11 Q-3,5 -15,-9 Z" fill="#411" stroke="#612" stroke-linejoin="round" />`+
+		`<rect x="-9" y="-11" width="6" height="6" fill="#FFF" stroke="#F22" />`+
+		`<rect x="3" y="-15" width="6" height="6" fill="#FFF" stroke="#F22" />`+
+		`<path d="M-15,-9 Q-6,0 -9,11 Q-5,13 -1,13 Q1,0 -3,-5 Q-7,-5 -15,-9Z" fill="#C44" stroke="#612" stroke-linejoin="round" />`+
+		`<path d="M-1,13 Q1,0 -3,-5 Q6,-4 15,-11 Q9,-3 13,7 Q7,13 -1,13 Z" fill="#A33" stroke="#612" stroke-linejoin="round" />`
+	)
 }
 
 function element() {
