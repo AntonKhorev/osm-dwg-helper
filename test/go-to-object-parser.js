@@ -138,6 +138,24 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"node/11223344/history/7", icon:"node"}
 		)
 	})
+	it("parses node id xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 44332211 xml"),
+			{site:"osm_api", path:"api/0.6/node/44332211.xml", icon:"node"}
+		)
+	})
+	it("parses node id.xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 44332211.xml"),
+			{site:"osm_api", path:"api/0.6/node/44332211.xml", icon:"node"}
+		)
+	})
+	it("parses node id with version xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 44332211v5 xml"),
+			{site:"osm_api", path:"api/0.6/node/44332211/5.xml", icon:"node"}
+		)
+	})
 	it("parses way id",()=>{
 		assert.deepEqual(
 			goToObjectParser("way 11223344"),

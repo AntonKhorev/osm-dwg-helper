@@ -2,6 +2,8 @@
 
 ## 0.7.5
 
+- Add element xml requests to *Go to object*
+
 ## 0.7.4
 
 - Add *Go to redactions list* action

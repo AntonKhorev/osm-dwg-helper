@@ -1,7 +1,7 @@
 import goToObjectParser from './go-to-object-parser.js'
 
 export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) {
-	if (settings.otrs || settings.osm) {
+	if (settings.otrs || settings.osm || settings.osm_api) {
 		$form.hidden=false
 		$form.query.oninput=()=>{
 			const value=$form.query.value
@@ -34,6 +34,8 @@ export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) 
 				url=settings.otrs
 			} else if (parsedValue.site=="osm" && settings.osm) {
 				url=settings.osm
+			} else if (parsedValue.site=="osm_api" && settings.osm_api) {
+				url=settings.osm_api
 			}
 			if (url) {
 				url+=parsedValue.path

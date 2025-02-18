@@ -34,18 +34,32 @@ export default function(value) {
 		}
 	}
 
-	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:v(\d+))?/i)) {
-		let [,name,number,version]=match
+	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:v(\d+))?(?:(?:\.|\s*)(xml)\b)?/i)) {
+		let [,name,id,version,xml]=match
 		name=name.toLowerCase()
-		let subpath=number
-		if (version) subpath+="/history/"+version
+		let type
 		if (name[0]=='n') {
-			return {site:"osm", path:"node/"+subpath, icon:"node"}
+			type="node"
 		} else if (name[0]=='w') {
-			return {site:"osm", path:"way/"+subpath, icon:"way"}
+			type="way"
 		} else if (name[0]=='r') {
-			return {site:"osm", path:"relation/"+subpath, icon:"relation"}
+			type="relation"
+		} else {
+			return null
 		}
+		let site
+		let path
+		if (xml) {
+			site="osm_api"
+			path="api/0.6/"+type+"/"+id
+			if (version) path+="/"+version
+			path+=".xml"
+		} else {
+			site="osm"
+			path=type+"/"+id
+			if (version) path+="/history/"+version
+		}
+		return {site, path, icon:type}
 	}
 
 	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
