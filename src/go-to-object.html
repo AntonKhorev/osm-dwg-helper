@@ -41,23 +41,30 @@ kbd {
 	<dd>Go to redaction 123</dd>
 	<dt><kbd>changeset #12345</kbd> or <kbd>changeset 12345</kbd> or <kbd>cset 12345</kbd> or <kbd>c12345</kbd></dt>
 	<dd>Go to changeset 12345</dd>
-	<dt><kbd>changeset #12345 xml</kbd></dt>
-	<dd>Go to <em>xml</em> representation of changeset 12345</dd>
 	<dt><kbd>node #123456</kbd> or <kbd>node 123456</kbd> or <kbd>node/123456</kbd> or <kbd>n123456</kbd></dt>
 	<dd>Go to node 123456</dd>
 	<dt><kbd>node #123456 version 7</kbd> or <kbd>node #123456v7</kbd> or <kbd>node 123456v7</kbd> or <kbd>node/123456v7</kbd> or <kbd>node/123456/7</kbd> or <kbd>n123456v7</kbd></dt>
 	<dd>Go to node 123456 version 7</dd>
-	<dt><kbd>node #123456 xml</kbd> or <kbd>node #123456.xml</kbd></dt>
-	<dd>Go to <em>xml</em> representation of node 123456</dd>
-	<dt><kbd>node #123456 json</kbd></dt>
-	<dd>Go to <em>json</em> representation of node 123456</dd>
 	<dt><kbd>way #23456</kbd> ...</dt>
 	<dt><kbd>relation #3456</kbd> ...</dt>
 	<dd>Similarly go to other element types</dd>
 	<dt><kbd>user username</kbd></dt>
 	<dd>Go to username's profile</dd>
-	<dt><kbd>uid #312</kbd> or <kbd>uid #312 xml</kbd></dt>
+	<dt><kbd>uid #312</kbd></dt>
 	<dd>Go to <em>xml</em> representation of user with id = 312 <small>because there's no user page accessible by id in OSM web UI</small></dd>
+</dl>
+
+<p>Examples requesting results in different formats:</p>
+<dl>
+	<dt><kbd>node #123456 xml</kbd> or <kbd>node #123456.xml</kbd></dt>
+	<dd>Go to <em>xml</em> representation of node 123456</dd>
+	<dt><kbd>node #123456 json</kbd> or <kbd>node #123456.json</kbd></dt>
+	<dd>Go to <em>json</em> representation of node 123456</dd>
+	<dd>Formats are similarly available for changesets, blocks, user ids</dd>
+	<dt><kbd>changeset #12345 xml</kbd></dt>
+	<dd>Go to <em>xml</em> representation of changeset 12345</dd>
+	<dt><kbd>block #12 xml</kbd></dt>
+	<dd>Go to <em>xml</em> representation of block 12</dd>
 	<dt><kbd>uid #312 json</kbd></dt>
 	<dd>Go to <em>json</em> representation of user with id = 312</dd>
 </dl>
