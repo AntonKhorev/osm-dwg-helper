@@ -6,19 +6,19 @@ describe("goToObjectParser()",()=>{
 	it("rejects empty string",()=>{
 		assert.deepEqual(
 			goToObjectParser(""),
-			{}
+			null
 		)
 	})
 	it("rejects string without number",()=>{
 		assert.deepEqual(
 			goToObjectParser("foo"),
-			{}
+			null
 		)
 	})
 	it("rejects pure id",()=>{
 		assert.deepEqual(
 			goToObjectParser("123"),
-			{}
+			null
 		)
 	})
 

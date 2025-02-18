@@ -6,12 +6,12 @@ export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) 
 		$form.query.oninput=()=>{
 			const value=$form.query.value
 			const parsedValue=goToObjectParser(value)
-			if (value=="" || parsedValue.site && parsedValue.path) {
+			if (value=="" || parsedValue) {
 				$form.query.setCustomValidity("")
 			} else {
 				$form.query.setCustomValidity("ticket id or number required")
 			}
-			if (parsedValue.icon) {
+			if (parsedValue?.icon) {
 				const $icon=document.createElement('img')
 				$icon.width=$icon.height=16
 				$icon.src=getSymbolIconSrc(parsedValue.icon)
@@ -24,6 +24,7 @@ export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) 
 			ev.preventDefault()
 			const value=$form.query.value
 			const parsedValue=goToObjectParser(value)
+			if (!parsedValue) return
 			let url
 			if (parsedValue.site=="otrs" && settings.otrs) {
 				url=settings.otrs

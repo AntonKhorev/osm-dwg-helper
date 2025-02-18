@@ -1,14 +1,14 @@
 /**
  * Go-to-object parse result
  * @typedef {Object} GoToObjectParseResult
- * @property {?("otrs"|"osm")} site
- * @property {?string} path
+ * @property {"otrs"|"osm"} site
+ * @property {string} path
  * /
 
 /**
- * Find ticket id or number in input string
+ * Convert object query into path on otrs or osm website
  * @param {string} value
- * @returns {GoToObjectParseResult} result - detected value or empty object if nothing is detected
+ * @returns {?GoToObjectParseResult} result - detected value
  */
 export default function(value) {
 	const sampleTicketNumber="2025012910000012"
@@ -69,5 +69,5 @@ export default function(value) {
 		}
 	}
 
-	return {}
+	return null
 }
