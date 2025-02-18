@@ -30,7 +30,7 @@ export default function(value) {
 		} else if (name[0]=='i') {
 			return {site:"osm", path:"issues/"+number, icon:"issue"}
 		} else if (name[0]=='b') {
-			return {site:"osm", path:"user_blocks/"+number, icon:"block"}
+			return getInFormat(format,"block",number,null,"user_blocks")
 		} else if (name=='redaction') {
 			return {site:"osm", path:"redactions/"+number, icon:"redaction"}
 		} else if (name[0]=='c') {
@@ -91,22 +91,22 @@ export default function(value) {
 	return null
 }
 
-function getInFormat(format,type,id,version) {
+function getInFormat(format,type,id,version,pathPart=type) {
 	let site
 	let path
 	if (format=="xml") {
 		site="osm_api"
-		path="api/0.6/"+type+"/"+id
+		path="api/0.6/"+pathPart+"/"+id
 		if (version) path+="/"+version
 		path+=".xml"
 	} else if (format=="json") {
 		site="osm_api"
-		path="api/0.6/"+type+"/"+id
+		path="api/0.6/"+pathPart+"/"+id
 		if (version) path+="/"+version
 		path+=".json"
 	} else {
 		site="osm"
-		path=type+"/"+id
+		path=pathPart+"/"+id
 		if (version) path+="/history/"+version
 	}
 	return {site, path, icon:type}

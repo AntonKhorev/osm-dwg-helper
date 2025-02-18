@@ -296,6 +296,12 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"user_blocks/13", icon:"block"}
 		)
 	})
+	it("parses block id xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("block 12 xml"),
+			{site:"osm_api", path:"api/0.6/user_blocks/12.xml", icon:"block"}
+		)
+	})
 
 	it("parses redactions",()=>{
 		assert.deepEqual(
