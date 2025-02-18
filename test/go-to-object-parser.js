@@ -138,4 +138,17 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"relation/11223344"}
 		)
 	})
+
+	it("parses issues",()=>{
+		assert.deepEqual(
+			goToObjectParser("issues"),
+			{site:"osm", path:"issues?status=open"}
+		)
+	})
+	it("parses issue id",()=>{
+		assert.deepEqual(
+			goToObjectParser("issue 12"),
+			{site:"osm", path:"issues/12"}
+		)
+	})
 })
