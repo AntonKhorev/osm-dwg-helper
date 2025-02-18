@@ -2,7 +2,7 @@
 
 ## 0.7.5
 
-- Add element xml requests to *Go to object*
+- Add element xml and json requests to *Go to object*
 
 ## 0.7.4
 

@@ -34,8 +34,8 @@ export default function(value) {
 		}
 	}
 
-	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:v(\d+))?(?:(?:\.|\s*)(xml)\b)?/i)) {
-		let [,name,id,version,xml]=match
+	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:v(\d+))?(?:(?:\.|\s*)(xml|json)\b)?/i)) {
+		let [,name,id,version,format]=match
 		name=name.toLowerCase()
 		let type
 		if (name[0]=='n') {
@@ -49,11 +49,16 @@ export default function(value) {
 		}
 		let site
 		let path
-		if (xml) {
+		if (format=="xml") {
 			site="osm_api"
 			path="api/0.6/"+type+"/"+id
 			if (version) path+="/"+version
 			path+=".xml"
+		} else if (format=="json") {
+			site="osm_api"
+			path="api/0.6/"+type+"/"+id
+			if (version) path+="/"+version
+			path+=".json"
 		} else {
 			site="osm"
 			path=type+"/"+id

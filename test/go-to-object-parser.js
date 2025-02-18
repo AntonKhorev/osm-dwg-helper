@@ -156,6 +156,12 @@ describe("goToObjectParser()",()=>{
 			{site:"osm_api", path:"api/0.6/node/44332211/5.xml", icon:"node"}
 		)
 	})
+	it("parses node id json",()=>{
+		assert.deepEqual(
+			goToObjectParser("node 44332211 json"),
+			{site:"osm_api", path:"api/0.6/node/44332211.json", icon:"node"}
+		)
+	})
 	it("parses way id",()=>{
 		assert.deepEqual(
 			goToObjectParser("way 11223344"),
