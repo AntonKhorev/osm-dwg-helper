@@ -25,49 +25,49 @@ describe("goToObjectParser()",()=>{
 	it("parses tickets",()=>{
 		assert.deepEqual(
 			goToObjectParser("tickets"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView", icon:"ticket"}
 		)
 	})
 	it("parses ticket id",()=>{
 		assert.deepEqual(
 			goToObjectParser("ticket 123"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123", icon:"ticket"}
 		)
 	})
 	it("parses TICKET id",()=>{
 		assert.deepEqual(
 			goToObjectParser("TICKET 123"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123", icon:"ticket"}
 		)
 	})
 	it("parses ticket #id",()=>{
 		assert.deepEqual(
 			goToObjectParser("ticket #123"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID=123", icon:"ticket"}
 		)
 	})
 	it("parses pure ticket number",()=>{
 		assert.deepEqual(
 			goToObjectParser("2021031415926535"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535", icon:"ticket"}
 		)
 	})
 	it("parses #ticket number",()=>{
 		assert.deepEqual(
 			goToObjectParser("#2021031415926535"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535", icon:"ticket"}
 		)
 	})
 	it("parses Ticket#number",()=>{
 		assert.deepEqual(
 			goToObjectParser("Ticket#2021031415926535"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2021031415926535", icon:"ticket"}
 		)
 	})
 	it("parses ticket number in email subject",()=>{
 		assert.deepEqual(
 			goToObjectParser("[Ticket#2025012910000423] Locked Ticket Follow-Up: Whatever"),
-			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2025012910000423"}
+			{site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber=2025012910000423", icon:"ticket"}
 		)
 	})
 
@@ -208,45 +208,45 @@ describe("goToObjectParser()",()=>{
 	it("parses issues",()=>{
 		assert.deepEqual(
 			goToObjectParser("issues"),
-			{site:"osm", path:"issues?status=open"}
+			{site:"osm", path:"issues?status=open", icon:"issue"}
 		)
 	})
 	it("parses issue id",()=>{
 		assert.deepEqual(
 			goToObjectParser("issue 12"),
-			{site:"osm", path:"issues/12"}
+			{site:"osm", path:"issues/12", icon:"issue"}
 		)
 	})
 
 	it("parses blocks",()=>{
 		assert.deepEqual(
 			goToObjectParser("blocks"),
-			{site:"osm", path:"user_blocks"}
+			{site:"osm", path:"user_blocks", icon:"block"}
 		)
 	})
 	it("parses block id",()=>{
 		assert.deepEqual(
 			goToObjectParser("block 12"),
-			{site:"osm", path:"user_blocks/12"}
+			{site:"osm", path:"user_blocks/12", icon:"block"}
 		)
 	})
 	it("parses blocks/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("blocks/13"),
-			{site:"osm", path:"user_blocks/13"}
+			{site:"osm", path:"user_blocks/13", icon:"block"}
 		)
 	})
 
 	it("parses redactions",()=>{
 		assert.deepEqual(
 			goToObjectParser("redactions"),
-			{site:"osm", path:"redactions"}
+			{site:"osm", path:"redactions", icon:"redaction"}
 		)
 	})
 	it("parses redaction id",()=>{
 		assert.deepEqual(
 			goToObjectParser("redaction 12"),
-			{site:"osm", path:"redactions/12"}
+			{site:"osm", path:"redactions/12", icon:"redaction"}
 		)
 	})
 })

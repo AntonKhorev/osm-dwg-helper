@@ -19,16 +19,16 @@ export default function(value) {
 		name=name.toLowerCase()
 		if (name[0]=='t') {
 			if (number.length==sampleTicketNumber.length) {
-				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number}
+				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number, icon:"ticket"}
 			} else {
-				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID="+number}
+				return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketID="+number, icon:"ticket"}
 			}
 		} else if (name[0]=='i') {
-			return {site:"osm", path:"issues/"+number}
+			return {site:"osm", path:"issues/"+number, icon:"issue"}
 		} else if (name[0]=='b') {
-			return {site:"osm", path:"user_blocks/"+number}
+			return {site:"osm", path:"user_blocks/"+number, icon:"block"}
 		} else if (name=='redaction') {
-			return {site:"osm", path:"redactions/"+number}
+			return {site:"osm", path:"redactions/"+number, icon:"redaction"}
 		} else if (name[0]=='c') {
 			return {site:"osm", path:"changeset/"+number}
 		}
@@ -52,20 +52,20 @@ export default function(value) {
 		let [name]=match
 		name=name.toLowerCase()
 		if (name=="tickets") {
-			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView"}
+			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketStatusView", icon:"ticket"}
 		} else if (name=="issues") {
-			return {site:"osm", path:"issues?status=open"}
+			return {site:"osm", path:"issues?status=open", icon:"issue"}
 		} else if (name=="blocks") {
-			return {site:"osm", path:"user_blocks"}
+			return {site:"osm", path:"user_blocks", icon:"block"}
 		} else if (name=="redactions") {
-			return {site:"osm", path:"redactions"}
+			return {site:"osm", path:"redactions", icon:"redaction"}
 		}
 	}
 
 	if (match=value.match(/\d+/)) {
 		const [number]=match
 		if (number.length==sampleTicketNumber.length) {
-			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number}
+			return {site:"otrs", path:"otrs/index.pl?Action=AgentTicketZoom;TicketNumber="+number, icon:"ticket"}
 		}
 	}
 

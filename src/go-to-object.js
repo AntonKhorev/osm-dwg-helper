@@ -1,6 +1,6 @@
 import goToObjectParser from './go-to-object-parser.js'
 
-export default function ($form,settings,tabId,closeWindow,createTab) {
+export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) {
 	if (settings.otrs || settings.osm) {
 		$form.hidden=false
 		$form.query.oninput=()=>{
@@ -10,6 +10,14 @@ export default function ($form,settings,tabId,closeWindow,createTab) {
 				$form.query.setCustomValidity("")
 			} else {
 				$form.query.setCustomValidity("ticket id or number required")
+			}
+			if (parsedValue.icon) {
+				const $icon=document.createElement('img')
+				$icon.width=$icon.height=16
+				$icon.src=getSymbolIconSrc(parsedValue.icon)
+				$sliceIcon.replaceChildren($icon)
+			} else {
+				$sliceIcon.replaceChildren()
 			}
 		}
 		$form.onsubmit=(ev)=>{
@@ -35,4 +43,8 @@ export default function ($form,settings,tabId,closeWindow,createTab) {
 			ev.preventDefault()
 		}
 	}
+}
+
+function getSymbolIconSrc(symbol) {
+	return `icons/void/${symbol}.svg`
 }

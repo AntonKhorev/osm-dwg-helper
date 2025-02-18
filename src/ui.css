@@ -28,9 +28,6 @@ body.panel .lead-slice button {
 	padding: 0 .5rem;
 	text-align: center;
 }
-body.panel .lead-slice input {
-	width: 100%;
-}
 body.panel #granted-permissions-span,
 body.panel #permissions-button {
 	flex-grow: 1;
@@ -52,6 +49,23 @@ body.panel #granted-permissions-span a {
 }
 body.panel #go-to-object input:invalid {
 	box-shadow: 0 0 0 4px #F008;
+}
+body.panel .go-to-slice {
+	display: flex;
+	padding: .25rem .5rem;
+	gap: .25rem;
+	align-items: center;
+}
+body.panel .go-to-slice-icon {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
+body.panel .go-to-slice-entry {
+	flex-grow: 1;
+}
+body.panel .go-to-slice input {
+	width: 100%;
 }
 body.panel h2 {
 	margin: .5rem;

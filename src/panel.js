@@ -99,6 +99,7 @@ function updateActionsNew(settings,permissions,tabId,tabState,otherTabId,otherTa
 	}
 	updateGoToObjectForm(
 		document.getElementById('go-to-object'),
+		document.getElementById('go-to-object-icon'),
 		settings,tabId,
 		closeWindow,
 		(createProperties)=>browser.tabs.create(createProperties)
