@@ -151,4 +151,17 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"issues/12"}
 		)
 	})
+
+	it("parses blocks",()=>{
+		assert.deepEqual(
+			goToObjectParser("blocks"),
+			{site:"osm", path:"user_blocks"}
+		)
+	})
+	it("parses block id",()=>{
+		assert.deepEqual(
+			goToObjectParser("block 12"),
+			{site:"osm", path:"user_blocks/12"}
+		)
+	})
 })
