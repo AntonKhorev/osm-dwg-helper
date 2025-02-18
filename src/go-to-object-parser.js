@@ -40,7 +40,7 @@ export default function(value) {
 		let subpath=number
 		if (version) subpath+="/history/"+version
 		if (name[0]=='n') {
-			return {site:"osm", path:"node/"+subpath}
+			return {site:"osm", path:"node/"+subpath, icon:"node"}
 		} else if (name[0]=='w') {
 			return {site:"osm", path:"way/"+subpath}
 		} else if (name[0]=='r') {

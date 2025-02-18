@@ -111,31 +111,31 @@ describe("goToObjectParser()",()=>{
 	it("parses node id",()=>{
 		assert.deepEqual(
 			goToObjectParser("node 11223344"),
-			{site:"osm", path:"node/11223344"}
+			{site:"osm", path:"node/11223344", icon:"node"}
 		)
 	})
 	it("parses n+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("n11223344"),
-			{site:"osm", path:"node/11223344"}
+			{site:"osm", path:"node/11223344", icon:"node"}
 		)
 	})
 	it("parses nodes/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("nodes/11223344"),
-			{site:"osm", path:"node/11223344"}
+			{site:"osm", path:"node/11223344", icon:"node"}
 		)
 	})
 	it("parses node/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("node/11223344"),
-			{site:"osm", path:"node/11223344"}
+			{site:"osm", path:"node/11223344", icon:"node"}
 		)
 	})
 	it("parses node id with version",()=>{
 		assert.deepEqual(
 			goToObjectParser("node 11223344v7"),
-			{site:"osm", path:"node/11223344/history/7"}
+			{site:"osm", path:"node/11223344/history/7", icon:"node"}
 		)
 	})
 	it("parses way id",()=>{
