@@ -58,9 +58,13 @@ export default function(value) {
 		const [,username]=match
 		return {site:"osm", path:"user/"+encodeURIComponent(username), icon:"user"}
 	}
-	if (match=value.match(new RegExp(`\\buid${idPattern}`,'i'))) {
-		const [,id]=match
-		return {site:"osm_api", path:"api/0.6/user/"+id, icon:"user"}
+	if (match=value.match(new RegExp(`\\buid${idPattern}${formatPattern}`,'i'))) {
+		const [,id,format]=match
+		if (format) {
+			return getInFormat(format,"user",id)
+		} else {
+			return {site:"osm_api", path:"api/0.6/user/"+id, icon:"user"}
+		}
 	}
 
 	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {

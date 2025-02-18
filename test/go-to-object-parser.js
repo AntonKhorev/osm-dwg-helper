@@ -328,4 +328,16 @@ describe("goToObjectParser()",()=>{
 			{site:"osm_api", path:"api/0.6/user/975", icon:"user"}
 		)
 	})
+	it("parses user id xml",()=>{
+		assert.deepEqual(
+			goToObjectParser("uid 975 xml"),
+			{site:"osm_api", path:"api/0.6/user/975.xml", icon:"user"}
+		)
+	})
+	it("parses user id json",()=>{
+		assert.deepEqual(
+			goToObjectParser("uid 975 json"),
+			{site:"osm_api", path:"api/0.6/user/975.json", icon:"user"}
+		)
+	})
 })
