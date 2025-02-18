@@ -61,6 +61,23 @@ body.panel .go-to-slice-icon {
 	height: 16px;
 	flex-shrink: 0;
 }
+body.panel .go-to-slice-icon a {
+	display: block;
+	width: 16px;
+	height: 16px;
+	box-sizing: border-box;
+	border: solid 1px #88C;
+	border-radius: 100%;
+	background: #44C;
+	color: #FFF;
+	text-align: center;
+	font-size: 12px;
+}
+body.panel .go-to-slice-icon a:hover {
+	background: #66C;
+	border: solid 1px #AAF;
+	text-decoration: none;
+}
 body.panel .go-to-slice-entry {
 	flex-grow: 1;
 }

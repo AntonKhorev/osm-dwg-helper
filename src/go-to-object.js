@@ -17,7 +17,11 @@ export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) 
 				$icon.src=getSymbolIconSrc(parsedValue.icon)
 				$sliceIcon.replaceChildren($icon)
 			} else {
-				$sliceIcon.replaceChildren()
+				const $a=document.createElement('a')
+				$a.href="go-to-object.html"
+				$a.target="_blank"
+				$a.textContent="?"
+				$sliceIcon.replaceChildren($a)
 			}
 		}
 		$form.onsubmit=(ev)=>{
@@ -37,6 +41,7 @@ export default function ($form,$sliceIcon,settings,tabId,closeWindow,createTab) 
 				closeWindow()
 			}
 		}
+		$form.query.oninput();
 	} else {
 		$form.hidden=true
 		$form.query.oninput=undefined

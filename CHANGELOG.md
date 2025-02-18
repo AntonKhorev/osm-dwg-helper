@@ -3,6 +3,7 @@
 ## 0.7.4
 
 - Add *Go to redactions list* action
+- Replace *Go to ticket* input with *Go to object* input
 
 ## 0.7.3
 
