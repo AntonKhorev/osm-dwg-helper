@@ -316,4 +316,16 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"user/test%20user", icon:"user"}
 		)
 	})
+	it("parses user #id",()=>{
+		assert.deepEqual(
+			goToObjectParser("uid #975"),
+			{site:"osm_api", path:"api/0.6/user/975", icon:"user"}
+		)
+	})
+	it("parses user id",()=>{
+		assert.deepEqual(
+			goToObjectParser("uid 975"),
+			{site:"osm_api", path:"api/0.6/user/975", icon:"user"}
+		)
+	})
 })

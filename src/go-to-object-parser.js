@@ -3,7 +3,11 @@
  * @typedef {Object} GoToObjectParseResult
  * @property {"otrs"|"osm"} site
  * @property {string} path
- * /
+ */
+
+const idPattern="(?:s?/|\\s*)#?(\\d+)"
+const versionPattern="(?:\\s*(?:v|ver|version|/)\\s*(\\d+))?"
+const formatPattern="(?:(?:\\.|\\s*)(xml|json)\\b)?"
 
 /**
  * Convert object query into path on otrs or osm website
@@ -14,7 +18,7 @@ export default function(value) {
 	const sampleTicketNumber="2025012910000012"
 	let match
 
-	if (match=value.match(/\b(ticket|issue|block|redaction|changeset|cset|c)(?:s?\/|\s*)#?(\d+)(?:(?:\.|\s*)(xml|json)\b)?/i)) {
+	if (match=value.match(new RegExp(`\\b(ticket|issue|block|redaction|changeset|cset|c)${idPattern}${formatPattern}`,'i'))) {
 		let [,name,number,format]=match
 		name=name.toLowerCase()
 		if (name[0]=='t') {
@@ -34,7 +38,7 @@ export default function(value) {
 		}
 	}
 
-	if (match=value.match(/\b(node|n|way|w|relation|rel|r)(?:s?\/|\s*)#?(\d+)(?:\s*(?:v|ver|version|\/)\s*(\d+))?(?:(?:\.|\s*)(xml|json)\b)?/i)) {
+	if (match=value.match(new RegExp(`\\b(node|n|way|w|relation|rel|r)${idPattern}${versionPattern}${formatPattern}`,'i'))) {
 		let [,name,id,version,format]=match
 		name=name.toLowerCase()
 		let type
@@ -53,6 +57,10 @@ export default function(value) {
 	if (match=value.match(/\buser\s*(.*)/i)) {
 		const [,username]=match
 		return {site:"osm", path:"user/"+encodeURIComponent(username), icon:"user"}
+	}
+	if (match=value.match(new RegExp(`\\buid${idPattern}`,'i'))) {
+		const [,id]=match
+		return {site:"osm_api", path:"api/0.6/user/"+id, icon:"user"}
 	}
 
 	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
