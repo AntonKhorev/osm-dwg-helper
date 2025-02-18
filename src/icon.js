@@ -9,7 +9,7 @@ export default function(symbol,modifier='void') {
 
 export const modifiers=['void','branded']
 
-export const symbols=['void','message','message-add','issue','issue-add','note','node','user','block','block-add','redaction','ticket','ticket-add','search','translate']
+export const symbols=['void','message','message-add','issue','issue-add','note','node','way','user','block','block-add','redaction','ticket','ticket-add','search','translate']
 
 export const uiBrandings=['closed','open','ticket']
 
@@ -19,7 +19,9 @@ export function svg(symbol,modifier) {
 	if (symbol=='message' || symbol=='message-add') content+=envelope()
 	if (symbol=='issue' || symbol=='issue-add') content+=flag()
 	if (symbol=='note') content+=note()
+	if (symbol=='node' || symbol=='way') content+=element()
 	if (symbol=='node') content+=node()
+	if (symbol=='way') content+=way()
 	if (symbol=='user' || symbol=='block' || symbol=='block-add') content+=avatar()
 	if (symbol=='block' || symbol=='block-add') content+=cross()
 	if (symbol=='redaction') content+=redaction()
@@ -99,10 +101,24 @@ function ticket() {
 	}
 }
 
+function element() {
+	return (
+		`<rect width="30" height="30" stroke="#8888" fill="#fffc" ry="4" x="-15" y="-15"/>`
+	)
+}
+
 function node() {
 	return (
-		`<rect width="30" height="30" stroke="#8888" fill="#fffc" ry="4" x="-15" y="-15"/>` +
 		`<circle r="3" fill="#bee6be" stroke="black" stroke-width="1.5"/>`
+	)
+}
+
+function way() {
+	return (
+		`<path stroke="#888" fill="none" d="M 5.125 -8.75 L -8.875 2.125 L 8.375 8.875"/>`+
+		`<circle cx="5.125" cy="-8.75" r="3" fill="black"/>`+
+		`<circle cx="-8.875" cy="2.125" r="3" fill="black"/>`+
+		`<circle cx="8.375" cy="8.875" r="3" fill="black"/>`
 	)
 }
 

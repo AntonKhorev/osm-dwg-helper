@@ -141,31 +141,31 @@ describe("goToObjectParser()",()=>{
 	it("parses way id",()=>{
 		assert.deepEqual(
 			goToObjectParser("way 11223344"),
-			{site:"osm", path:"way/11223344"}
+			{site:"osm", path:"way/11223344", icon:"way"}
 		)
 	})
 	it("parses w+id",()=>{
 		assert.deepEqual(
 			goToObjectParser("w11223344"),
-			{site:"osm", path:"way/11223344"}
+			{site:"osm", path:"way/11223344", icon:"way"}
 		)
 	})
 	it("parses ways/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("ways/11223344"),
-			{site:"osm", path:"way/11223344"}
+			{site:"osm", path:"way/11223344", icon:"way"}
 		)
 	})
 	it("parses way/id",()=>{
 		assert.deepEqual(
 			goToObjectParser("way/11223344"),
-			{site:"osm", path:"way/11223344"}
+			{site:"osm", path:"way/11223344", icon:"way"}
 		)
 	})
 	it("parses way id with version",()=>{
 		assert.deepEqual(
 			goToObjectParser("way 11223344v7"),
-			{site:"osm", path:"way/11223344/history/7"}
+			{site:"osm", path:"way/11223344/history/7", icon:"way"}
 		)
 	})
 	it("parses relation id",()=>{

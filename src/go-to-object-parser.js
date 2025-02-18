@@ -42,7 +42,7 @@ export default function(value) {
 		if (name[0]=='n') {
 			return {site:"osm", path:"node/"+subpath, icon:"node"}
 		} else if (name[0]=='w') {
-			return {site:"osm", path:"way/"+subpath}
+			return {site:"osm", path:"way/"+subpath, icon:"way"}
 		} else if (name[0]=='r') {
 			return {site:"osm", path:"relation/"+subpath}
 		}
