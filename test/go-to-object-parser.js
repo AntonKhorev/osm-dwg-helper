@@ -309,4 +309,11 @@ describe("goToObjectParser()",()=>{
 			{site:"osm", path:"redactions/12", icon:"redaction"}
 		)
 	})
+
+	it("parses user name",()=>{
+		assert.deepEqual(
+			goToObjectParser("user test user"),
+			{site:"osm", path:"user/test%20user", icon:"user"}
+		)
+	})
 })

@@ -4,6 +4,7 @@
 
 - Extend element version syntax in *Go to object*
 - Add element/changeset xml/json requests to *Go to object*
+- Add user profiles to *Go to object*
 
 ## 0.7.4
 

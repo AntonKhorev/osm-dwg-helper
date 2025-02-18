@@ -50,6 +50,11 @@ export default function(value) {
 		return getInFormat(format,type,id,version)
 	}
 
+	if (match=value.match(/\buser\s*(.*)/i)) {
+		const [,username]=match
+		return {site:"osm", path:"user/"+encodeURIComponent(username), icon:"user"}
+	}
+
 	if (match=value.match(/^tickets|issues|blocks|redactions$/i)) {
 		let [name]=match
 		name=name.toLowerCase()
