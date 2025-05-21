@@ -8,7 +8,8 @@ import {
 	getOsmBlockIdFromUrl,
 	getOsmNewBlockUserNameFromUrl,
 	isOtrsTicketUrl, getOtrsTicketId,
-	isOtrsActionUrl
+	isOtrsActionUrl,
+	isOtrsUserProfileUrl
 } from './utils.js'
 
 // tab objects expected to have fields: id, url, active
@@ -248,6 +249,15 @@ async function getTabState(settings,permissions,tab,messageTab,injectCssIntoTab)
 	if (settings.otrs) {
 		if (isOtrsActionUrl(settings.otrs,'AgentTicketPhone',tab.url)) {
 			tabState.type='ticket-add'
+		}
+	}
+	if (settings.otrs) {
+		if (isOtrsUserProfileUrl(settings.otrs,tab.url)) {
+			const otrsUserId=await messageTab(tab.id,'otrs-profile',{action:'getOtrsUserId'})
+			tabState.type='otrs-profile'
+			tabState.otrsUserData={
+				id:otrsUserId
+			}
 		}
 	}
 	return tabState

@@ -2,6 +2,8 @@
 
 ## 0.7.6
 
+- Add *Go to OTRS dashboard / all tickets / my tickets* actions
+
 ## 0.7.5
 
 - Extend element version syntax in *Go to object*

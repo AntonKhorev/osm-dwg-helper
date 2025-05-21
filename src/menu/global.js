@@ -20,11 +20,18 @@ export default class GlobalMenu extends Menu {
 				"Go to OTRS"
 			])
 			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("Dashboard",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`)
+				linkWriter.makePageLink("dashboard",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`)
 			])
 			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("All tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;ColumnFilterOwner=DeleteFilter`)
+				linkWriter.makePageLink("all tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;ColumnFilterOwner=DeleteFilter`)
 			])
+			if (permissions.otrs) {
+				submenuWriter.addEntry(null,[
+					linkWriter.makeNewTabActionLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentPreferences;Subaction=Group;Group=UserProfile`,[
+						'GoToMyOtrsTickets',tabId
+					])
+				])
+			}
 		}
 	}
 }

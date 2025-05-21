@@ -23,6 +23,9 @@
 		"setMessageSubjectAndBody":["subject","body"],
 		"addMessageSubjectAndBody":["subject","body"]
 	},
+	"otrs-profile":{
+		"getOtrsUserId":[]
+	},
 	"ticket":{
 		"getTicketId":[],
 		"getIssueId":[]

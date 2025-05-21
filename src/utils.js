@@ -61,6 +61,11 @@ export function getOtrsCreatedTicketIdAndAction(otrsRoot,url) {
 	}
 }
 
+export function isOtrsUserProfileUrl(otrsRoot,url) {
+	const match=url.match(new RegExp('^'+escapeRegex(otrsRoot+'otrs/index.pl?Action=AgentPreferences;Subaction=Group')))
+	return !!match
+}
+
 function getIdFromUrl(path,url) {
 	const match=url.match(new RegExp('^'+escapeRegex(path)+'([0-9]+)'))
 	if (match) {

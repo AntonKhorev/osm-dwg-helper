@@ -457,3 +457,20 @@ class CommentIssueAboutUserMessage extends OffshootAction {
 		)
 	}
 }
+
+export class GoToMyOtrsTickets extends OffshootAction {
+	getOngoingActionMenuEntry() {
+		return [[`go to my OTRS tickets`]]
+	}
+	getActionUrl(settings) {
+		return `${settings.otrs}otrs/index.pl?Action=AgentPreferences;Subaction=Group;Group=UserProfile`
+	}
+	async act(settings,tab,tabState,messageTab) {
+		const otrsUserId=tabState.otrsUserData?.id
+		let url=`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView`
+		if (otrsUserId) {
+			url+=`;ColumnFilterOwner=${otrsUserId}`
+		}
+		return [tab.id,new GoToUrl(url)]
+	}
+}
