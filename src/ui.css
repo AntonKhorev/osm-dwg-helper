@@ -86,7 +86,6 @@ body.panel .go-to-slice input {
 }
 body.panel h2 {
 	margin: .5rem;
-	margin-inline-start: calc(.5rem + 16px + .25rem);
 	padding: 0;
 }
 body.panel ul.actions,
