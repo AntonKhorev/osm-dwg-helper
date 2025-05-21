@@ -16,8 +16,14 @@ export default class GlobalMenu extends Menu {
 			])
 		}
 		if (settings.otrs) {
-			writer.addEntry('ticket',[
-				linkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`) // need to link to AgentDashboard, otherwise might end up on Agent/Customer selection screen
+			const submenuWriter=writer.addSubmenu('ticket',[
+				"Go to OTRS"
+			])
+			submenuWriter.addEntry(null,[
+				linkWriter.makePageLink("Dashboard",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`)
+			])
+			submenuWriter.addEntry(null,[
+				linkWriter.makePageLink("All tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;ColumnFilterOwner=DeleteFilter`)
 			])
 		}
 	}
