@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.6
+
 ## 0.7.5
 
 - Extend element version syntax in *Go to object*
