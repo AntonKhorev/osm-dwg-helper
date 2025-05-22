@@ -6,7 +6,10 @@ export default class GlobalMenu extends Menu {
 		const linkWriter=this.makeLinkWriter(tabId)
 		if (settings.osm) {
 			writer.addEntry('issue',[
-				linkWriter.makePageLink("Go to open OSM issues",`${settings.osm}issues?status=open`)
+				linkWriter.makePageLink("Go to OSM issues",`${settings.osm}issues?status=open`),
+				" (",
+				linkWriter.makePageLink("all",`${settings.osm}issues`),
+				")"
 			])
 			writer.addEntry('block',[
 				linkWriter.makePageLink("Go to blocks list",`${settings.osm}user_blocks`)

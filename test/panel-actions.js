@@ -100,7 +100,7 @@ describe("panel-actions-new",()=>{
 		const permissions={}
 		const tabId=1
 		writeGlobalActionsMenu($globalMenu,settings,permissions,tabId)
-		const $a=getItemLink(assertItem($globalMenu,'open OSM issues'))
+		const $a=getItemLink(assertItem($globalMenu,'OSM issues'))
 		assert.equal($a.href,`https://myosm.example.com/issues?status=open`)
 		$a.click()
 		assert.deepEqual(callbackLog,[
