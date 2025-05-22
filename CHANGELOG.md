@@ -2,6 +2,9 @@
 
 ## 0.7.7
 
+- Use `AgentTicketOwnerView` for *my tickets*
+- Reset filters when selecting *all/my tickets*
+
 ## 0.7.6
 
 - Add *Go to OTRS dashboard / all tickets / my tickets* actions

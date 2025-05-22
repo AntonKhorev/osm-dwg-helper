@@ -23,10 +23,10 @@ export default class GlobalMenu extends Menu {
 				linkWriter.makePageLink("dashboard",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`)
 			])
 			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("all tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;ColumnFilterOwner=DeleteFilter`)
+				linkWriter.makePageLink("all tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;DeleteFilters=DeleteFilters`)
 			])
 			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketOwnerView;ColumnFilterOwner=DeleteFilter`)
+				linkWriter.makePageLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketOwnerView;DeleteFilters=DeleteFilters`)
 			])
 		}
 	}
