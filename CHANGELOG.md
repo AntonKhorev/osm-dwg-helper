@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.7.7
+
 ## 0.7.6
 
 - Add *Go to OTRS dashboard / all tickets / my tickets* actions
