@@ -25,13 +25,9 @@ export default class GlobalMenu extends Menu {
 			submenuWriter.addEntry(null,[
 				linkWriter.makePageLink("all tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;ColumnFilterOwner=DeleteFilter`)
 			])
-			if (permissions.otrs) {
-				submenuWriter.addEntry(null,[
-					linkWriter.makeNewTabActionLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentPreferences;Subaction=Group;Group=UserProfile`,[
-						'GoToMyOtrsTickets',tabId
-					])
-				])
-			}
+			submenuWriter.addEntry(null,[
+				linkWriter.makePageLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketOwnerView;ColumnFilterOwner=DeleteFilter`)
+			])
 		}
 	}
 }
