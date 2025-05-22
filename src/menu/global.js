@@ -9,6 +9,8 @@ export default class GlobalMenu extends Menu {
 				linkWriter.makePageLink("Go to OSM issues",`${settings.osm}issues?status=open`),
 				" (",
 				linkWriter.makePageLink("all",`${settings.osm}issues`),
+				" / ",
+				linkWriter.makePageLink("500",`${settings.osm}issues?limit=500`),
 				")"
 			])
 			writer.addEntry('block',[

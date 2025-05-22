@@ -5,6 +5,7 @@
 - Use `AgentTicketOwnerView` for *my tickets*
 - Reset filters when selecting *all/my tickets*
 - More compact ORTS menu
+- *All issues* / issues with larger limit menu items
 
 ## 0.7.6
 
