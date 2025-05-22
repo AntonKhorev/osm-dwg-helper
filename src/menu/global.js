@@ -16,17 +16,13 @@ export default class GlobalMenu extends Menu {
 			])
 		}
 		if (settings.otrs) {
-			const submenuWriter=writer.addSubmenu('ticket',[
-				"Go to OTRS"
-			])
-			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("dashboard",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`)
-			])
-			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("all tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;DeleteFilters=DeleteFilters`)
-			])
-			submenuWriter.addEntry(null,[
-				linkWriter.makePageLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketOwnerView;DeleteFilters=DeleteFilters`)
+			writer.addEntry('ticket',[
+				linkWriter.makePageLink("Go to OTRS",`${settings.otrs}otrs/index.pl?Action=AgentDashboard`),
+				" (",
+				linkWriter.makePageLink("all",`${settings.otrs}otrs/index.pl?Action=AgentTicketStatusView;DeleteFilters=DeleteFilters`),
+				" / ",
+				linkWriter.makePageLink("my tickets",`${settings.otrs}otrs/index.pl?Action=AgentTicketOwnerView;DeleteFilters=DeleteFilters`),
+				")"
 			])
 		}
 	}

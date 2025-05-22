@@ -129,11 +129,15 @@ body.panel ul.actions ul .slice {
 body.panel ul.actions .slice:has(a:hover) {
 	background: #8882;
 }
-body.panel ul.actions .slice a::after {
+body.panel ul.actions .slice a:first-of-type::after {
 	position: absolute;
 	inset: 0;
 	z-index: 1;
 	content: "";
+}
+body.panel ul.actions .slice a:not(:first-of-type) {
+	position: relative;
+	z-index: 1;
 }
 body.panel ul.actions:empty::before {
 	margin-inline-start: calc(.5rem + 16px + .25rem);
